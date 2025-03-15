@@ -17,7 +17,11 @@ export const checkCollision = (obj1, obj2) => {
 };
 
 export const checkPlatformCollisions = (player, platforms, isInverted) => {
-  const activePlatforms = platforms.filter(platform => platform.color !== isInverted);
+  // Filtrar para que solo colisionen las plataformas del mismo color que el fondo
+  const activePlatforms = platforms.filter(platform => 
+    platform.color === (isInverted ? 'white' : 'black')
+  );
+  
   let onGround = false;
   let collisions = { top: false, bottom: false, left: false, right: false };
 

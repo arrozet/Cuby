@@ -8,6 +8,7 @@ export const useKeyPress = () => {
     c: false,
     f: false,
     ' ': false,
+    r: false, 
   });
 
   useEffect(() => {

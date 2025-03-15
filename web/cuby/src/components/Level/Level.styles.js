@@ -15,12 +15,22 @@ export const Platform = styled.div`
   top: ${props => props.y}px;
   width: ${props => props.width}px;
   height: ${props => props.height}px;
+  /* Cambiado para que solo se rendericen elementos del mismo color que el fondo */
   background-color: ${props => 
-    props.color === 'black' ? 
-      (props.isInverted ? 'white' : 'black') : 
-      (props.isInverted ? 'black' : 'white')
+    props.color === (props.isInverted ? 'white' : 'black') ?
+      (props.isInverted ? 'white' : 'black') : 'transparent'
+  };
+  /* Si es transparente, no mostrar borde */
+  border: ${props => 
+    props.color === (props.isInverted ? 'white' : 'black') ?
+    '1px solid #333' : 'none'
   };
   transition: background-color 0.3s;
+  /* No rendericemos en absoluto los elementos inactivos */
+  display: ${props => 
+    props.color === (props.isInverted ? 'white' : 'black') ?
+    'block' : 'none'
+  };
 `;
 
 export const Obstacle = styled.div`
@@ -30,9 +40,13 @@ export const Obstacle = styled.div`
   width: ${props => props.width}px;
   height: ${props => props.height}px;
   background-color: ${props => 
-    props.color === 'black' ? 
-      (props.isInverted ? 'white' : 'black') : 
-      (props.isInverted ? 'black' : 'white')
+    props.color === (props.isInverted ? 'white' : 'black') ?
+      (props.isInverted ? 'white' : 'black') : 'transparent'
+  };
+  /* No rendericemos en absoluto los elementos inactivos */
+  display: ${props => 
+    props.color === (props.isInverted ? 'white' : 'black') ?
+    'block' : 'none'
   };
   
   &:before {
@@ -45,9 +59,8 @@ export const Obstacle = styled.div`
     border-left: ${props => props.width / 2}px solid transparent;
     border-right: ${props => props.width / 2}px solid transparent;
     border-bottom: 10px solid ${props => 
-      props.color === 'black' ? 
-        (props.isInverted ? 'white' : 'black') : 
-        (props.isInverted ? 'black' : 'white')
+      props.color === (props.isInverted ? 'white' : 'black') ?
+        (props.isInverted ? 'white' : 'black') : 'transparent'
     };
   }
 `;
@@ -59,16 +72,19 @@ export const Trampoline = styled.div`
   width: ${props => props.width}px;
   height: ${props => props.height}px;
   background-color: ${props => 
-    props.color === 'black' ? 
-      (props.isInverted ? 'white' : 'black') : 
-      (props.isInverted ? 'black' : 'white')
+    props.color === (props.isInverted ? 'white' : 'black') ?
+      (props.isInverted ? 'white' : 'black') : 'transparent'
   };
   border-bottom: 5px solid ${props => 
-    props.color === 'black' ? 
-      (props.isInverted ? 'white' : 'black') : 
-      (props.isInverted ? 'black' : 'white')
+    props.color === (props.isInverted ? 'white' : 'black') ?
+      (props.isInverted ? 'white' : 'black') : 'transparent'
   };
   border-radius: 50% 50% 0 0;
+  /* No rendericemos en absoluto los elementos inactivos */
+  display: ${props => 
+    props.color === (props.isInverted ? 'white' : 'black') ?
+    'block' : 'none'
+  };
 `;
 
 export const Goal = styled.div`

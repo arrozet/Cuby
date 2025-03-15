@@ -14,7 +14,7 @@ const Controls = () => {
       fontSize: '14px',
       zIndex: 100
     }}>
-      <p>A/D: Move | Space: Jump | C: Invert Colors</p>
+      <p>A/D: Move | Space: Jump | C: Invert Colors | R: Restart</p>
     </div>
   );
 };

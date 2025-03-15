@@ -31,6 +31,13 @@ const Game = () => {
     }
   }, [keysPressed.c]);
 
+  // pa reiniciar el juego
+  useEffect(() => {
+    if (keysPressed.r) {
+      restartGame();
+    }
+  }, [keysPressed.r]);
+
   const updateGameState = () => {
     if (hasWon) return;
 
@@ -156,4 +163,3 @@ const Game = () => {
 };
 
 export default Game;
- 
