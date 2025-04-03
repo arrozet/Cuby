@@ -37,42 +37,48 @@ const Game = () => {
     }
   }, [keysPressed.r]);
 
-  const updateGameState = () => {
-    if (hasWon) return;
+  const updateGameState = () => { // se ejecuta cada frame
+    if (hasWon) return; // si esque ha ganado no hay que hacer nada
 
+    // cambia el estado del jugador
     setPlayerState(prevState => {
-      // Movement and jump logic
-      let newState = { ...prevState };
+
+      let newState = { ...prevState }; // si no pusieras {...} crearia una referencia y no una copia
       
-      // Horizontal movement
+      // Movimiento horizontal
       newState.velocityX = 0;
       if (keysPressed.a) newState.velocityX -= MOVEMENT_SPEED;
       if (keysPressed.d) newState.velocityX += MOVEMENT_SPEED;
       
       // Jump
-      if (keysPressed[' '] && newState.onGround) {
+      if (keysPressed[' '] && newState.onGround) { // si presiona espacio y esta en el suelo
         newState.velocityY = JUMP_FORCE;
         newState.onGround = false;
       }
       
-      // Apply gravity
+      // Le aplica la gravedad (physics habria que darle una vueltecilla)
       newState.velocityY = applyGravity(newState.velocityY, newState.onGround);
       
-      // Update position
-      newState.x += newState.velocityX;
+      // Le cambia la posicion en funcion de la velocidad
+      newState.x += newState.velocityX; 
       newState.y += newState.velocityY;
       
-      // Check world boundaries
-      if (newState.x < 0) newState.x = 0;
-      if (newState.x + newState.width > GAME_WIDTH) newState.x = GAME_WIDTH - newState.width;
-      if (newState.y < 0) newState.y = 0;
+      // Mira los limites del mapa para que el jugador no se salga
+      if (newState.x < 0) newState.x = 0; // no se puede salir por la iquierda
+      if (newState.x + newState.width > GAME_WIDTH) newState.x = GAME_WIDTH - newState.width; // ni por la derecha
+      if (newState.y < 0) newState.y = 0; // limite superior
+
+      // Límite inferior (suelo): maneja la colisión con el suelo
       if (newState.y + newState.height > GAME_HEIGHT) {
+        // Coloca al jugador exactamente en el suelo
         newState.y = GAME_HEIGHT - newState.height;
+        // Detiene la caída poniendo la velocidad vertical a 0
         newState.velocityY = 0;
+        // Indica que el jugador está en el suelo para permitir el salto
         newState.onGround = true;
       }
       
-      // Check platform collisions
+      // Colisiones (otra vez el pyshics)
       const { onGround, collisions } = checkPlatformCollisions(newState, level1.platforms, isInverted);
       newState.onGround = onGround;
       
@@ -121,7 +127,7 @@ const Game = () => {
     });
   };
 
-  useGameLoop(updateGameState);
+  useGameLoop(updateGameState); // esto hace que updateGameState se ejecute cada frame
 
   const restartGame = () => {
     setPlayerState({
