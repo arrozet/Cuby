@@ -6,7 +6,6 @@ import Controls from '../UI/Control';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
 import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
-import { invertColors } from '../../utils/colorInversion';
 import { GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 
