@@ -25,11 +25,11 @@ const Game = () => {
   const keysPressed = useKeyPress();
 
   // Handle color inversion
-  useEffect(() => {
-    if (keysPressed.c) {
-      setIsInverted(prev => invertColors(prev));
+  useEffect(() => { // ejecuta cosas 
+    if (keysPressed.c) { // esto no es 0% necesario pero bueno
+      setIsInverted(prev => !prev); // prev es el valor anterior del estado isInverted
     }
-  }, [keysPressed.c]);
+  }, [keysPressed.c]); // esta es la condicion de ejecucción, si no se pone nada se ejecuta cada vez que se renderiza
 
   // pa reiniciar el juego
   useEffect(() => {
