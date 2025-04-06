@@ -26,6 +26,11 @@ export const level1 = {
       // Trampoline (white)
       { x: 300, y: 530, width: 50, height: 20, color: 'white', force: -20 },
     ],
-    portals: [],
+    portals: [
+      // Portal de entrada (negro)
+      { x: 200, y: 500, width: 40, height: 60, color: 'black', destination: { x: 600, y: 200 } },
+      // Portal de salida (blanco)
+      { x: 600, y: 200, width: 40, height: 60, color: 'white', destination: { x: 200, y: 500 } }
+    ],
     goal: { x: 720, y: 200, width: 50, height: 50 }
   };

@@ -126,6 +126,23 @@ const Game = () => {
         }
       });
       
+      // Check portal collisions
+      level1.portals.forEach(portal => {
+        if (
+          portal.color !== (isInverted ? 'black' : 'white') &&
+          newState.x < portal.x + portal.width &&
+          newState.x + newState.width > portal.x &&
+          newState.y < portal.y + portal.height &&
+          newState.y + newState.height > portal.y
+        ) {
+          // Teleport to destination
+          newState.x = portal.destination.x;
+          newState.y = portal.destination.y;
+          newState.velocityX = 0;
+          newState.velocityY = 0;
+        }
+      });
+      
       // Check goal collision
       if (
         newState.x < level1.goal.x + level1.goal.width &&

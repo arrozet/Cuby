@@ -1,5 +1,5 @@
 import React from 'react';
-import { LevelContainer, Platform, Obstacle, Trampoline, Goal } from './Level.styles';
+import { LevelContainer, Platform, Obstacle, Trampoline, Portal, Goal } from './Level.styles';
 import { level1 } from '../../levels/level1';
 
 const Level = ({ isInverted, width, height }) => {
@@ -37,6 +37,18 @@ const Level = ({ isInverted, width, height }) => {
           width={trampoline.width}
           height={trampoline.height}
           color={trampoline.color}
+          isInverted={isInverted}
+        />
+      ))}
+      
+      {level1.portals.map((portal, index) => (
+        <Portal
+          key={`portal-${index}`}
+          x={portal.x}
+          y={portal.y}
+          width={portal.width}
+          height={portal.height}
+          color={portal.color}
           isInverted={isInverted}
         />
       ))}
