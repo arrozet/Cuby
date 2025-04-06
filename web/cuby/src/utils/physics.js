@@ -1,10 +1,10 @@
 import { GRAVITY } from '../constants/gameConstants';
 
-export const applyGravity = (velocity, onGround) => {
+export const applyGravity = (velocity, onGround,deltaTime,weight) => {
   if (onGround) {
     return 0;
   }
-  return velocity + GRAVITY;
+  return velocity + (GRAVITY *weight)* deltaTime; // Aplica gravedad al jugador
 };
 
 export const checkCollision = (obj1, obj2) => {
@@ -17,7 +17,7 @@ export const checkCollision = (obj1, obj2) => {
 };
 
 export const checkPlatformCollisions = (player, platforms, isInverted) => {
-  // Filtrar para que solo colisionen las plataformas del mismo color que el fondo
+  // Filtrar plataformas activas
   const activePlatforms = platforms.filter(platform => 
     platform.color === (isInverted ? 'white' : 'black')
   );
@@ -27,26 +27,36 @@ export const checkPlatformCollisions = (player, platforms, isInverted) => {
 
   activePlatforms.forEach(platform => {
     if (checkCollision(player, platform)) {
-      // Bottom collision (player lands on platform)
-      if (player.velocityY > 0 && player.y + player.height - player.velocityY <= platform.y) {
+      // Calcular penetraciones en cada dirección
+      const overlapLeft = player.x + player.width - platform.x;
+      const overlapRight = platform.x + platform.width - player.x;
+      const overlapTop = player.y + player.height - platform.y;
+      const overlapBottom = platform.y + platform.height - player.y;
+      
+      // Encontrar la menor penetración
+      const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+      
+      // Resolver basado en la menor penetración
+      if (minOverlap === overlapTop && player.velocityY >= 0) {
+        // Colisión inferior (aterrizaje)
         player.y = platform.y - player.height;
         player.velocityY = 0;
         onGround = true;
         collisions.bottom = true;
-      }
-      // Top collision (player hits platform from below)
-      else if (player.velocityY < 0 && player.y - player.velocityY >= platform.y + platform.height) {
+      } 
+      else if (minOverlap === overlapBottom && player.velocityY <= 0) {
+        // Colisión superior (golpe desde abajo)
         player.y = platform.y + platform.height;
         player.velocityY = 0;
         collisions.top = true;
       }
-      // Left collision
-      else if (player.velocityX > 0 && player.x + player.width - player.velocityX <= platform.x) {
+      else if (minOverlap === overlapLeft && player.velocityX >= 0) {
+        // Colisión izquierda
         player.x = platform.x - player.width;
         collisions.right = true;
       }
-      // Right collision
-      else if (player.velocityX < 0 && player.x - player.velocityX >= platform.x + platform.width) {
+      else if (minOverlap === overlapRight && player.velocityX <= 0) {
+        // Colisión derecha
         player.x = platform.x + platform.width;
         collisions.left = true;
       }

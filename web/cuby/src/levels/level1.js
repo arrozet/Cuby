@@ -6,10 +6,10 @@ export const level1 = {
       { x: 0, y: 550, width: 800, height: 50, color: 'black' },
       
       // Left platform (black)
-      { x: 100, y: 400, width: 150, height: 20, color: 'black' },
+      { x: 70, y: 400, width: 100, height: 20, color: 'black' },
       
       // Middle floating platform (white)
-      { x: 350, y: 300, width: 100, height: 20, color: 'white' },
+      { x: 270, y: 300, width: 100, height: 20, color: 'white' },
       
       // Right platform (black)
       { x: 550, y: 250, width: 150, height: 20, color: 'black' },
@@ -24,7 +24,7 @@ export const level1 = {
     ],
     trampolines: [
       // Trampoline (white)
-      { x: 300, y: 530, width: 50, height: 20, color: 'white', force: -20 },
+      { x: 230, y: 530, width: 50, height: 20, color: 'white', force: -10000 }, // la fuerza de los tramplines debe ser cambiada desde aquí
     ],
     portals: [
       // Portal de entrada (negro)

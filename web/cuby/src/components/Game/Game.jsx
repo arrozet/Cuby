@@ -18,12 +18,17 @@ const Game = () => {
     height: PLAYER_SIZE,
     velocityX: 0,
     velocityY: 0,
-    onGround: false
+    onGround: false,
+    weight: 5.0, // peso del jugador
+    coyoteTime: 0, // tiempo restante de coyote time
+    hasCoyoteJumped: false // para evitar saltos múltiples
+    // el coyote time es un tiempo en el que puedes saltar aunque no estes en el suelo
+    // lo he metido para que el salto sea mas satisfactorio y permisivo
   });
   const [hasWon, setHasWon] = useState(false);
   const keysPressed = useKeyPress();
 
-  //pa que sea reactive
+  // la ventana
   useEffect(() => {
     const handleResize = () => {
       // Update game dimensions when window is resized
@@ -50,7 +55,7 @@ const Game = () => {
     }
   }, [keysPressed.r]);
 
-  const updateGameState = () => { // se ejecuta cada frame
+  const updateGameState = (deltaTime) => { // se ejecuta cada frame
     if (hasWon) return; // si esque ha ganado no hay que hacer nada
 
     // cambia el estado del jugador
@@ -58,23 +63,35 @@ const Game = () => {
 
       let newState = { ...prevState }; // si no pusieras {...} crearia una referencia y no una copia
       
+      const COYOTE_TIME_MAX = 0.06; // yo creo que es un buen tiempo para el coyote time
+      // Si está en el suelo, reiniciar el estado de coyote
+      if (newState.onGround) {
+        newState.coyoteTime = COYOTE_TIME_MAX;
+        newState.hasCoyoteJumped = false;
+      } else {
+        // Restar tiempo si no está en el suelo
+        newState.coyoteTime = Math.max(0, newState.coyoteTime - deltaTime);
+      }
+
       // Movimiento horizontal
       newState.velocityX = 0;
       if (keysPressed.a) newState.velocityX -= MOVEMENT_SPEED;
       if (keysPressed.d) newState.velocityX += MOVEMENT_SPEED;
       
       // Jump
-      if (keysPressed[' '] && newState.onGround) { // si presiona espacio y esta en el suelo
-        newState.velocityY = JUMP_FORCE;
+      if (keysPressed[' '] && (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) { // si presiona espacio y esta en el suelo
+        newState.velocityY = JUMP_FORCE / newState.weight; // le da una fuerza al salto en base al peso
         newState.onGround = false;
+        newState.hasCoyoteJumped = true; // Evitar saltos múltiples con coyote time
+        newState.coyoteTime = 0; // Consumir el coyote time
       }
       
-      // Le aplica la gravedad (physics habria que darle una vueltecilla)
-      newState.velocityY = applyGravity(newState.velocityY, newState.onGround);
+      // Le aplica la gravedad (physics habria que darle una vueltecilla) // TODO
+      newState.velocityY = applyGravity(newState.velocityY, newState.onGround,deltaTime,newState.weight); // le aplica la gravedad al jugador
       
       // Le cambia la posicion en funcion de la velocidad
-      newState.x += newState.velocityX; 
-      newState.y += newState.velocityY;
+      newState.x += newState.velocityX * deltaTime; 
+      newState.y += newState.velocityY * deltaTime;
       
       // Mira los limites del mapa para que el jugador no se salga
       if (newState.x < 0) newState.x = 0; // no se puede salir por la iquierda
@@ -104,7 +121,7 @@ const Game = () => {
           newState.y + newState.height >= trampoline.y &&
           newState.y + newState.height <= trampoline.y + 10
         ) {
-          newState.velocityY = trampoline.force;
+          newState.velocityY = trampoline.force / newState.weight; 
           newState.y = trampoline.y - newState.height;
         }
       });
@@ -167,7 +184,10 @@ const Game = () => {
       height: PLAYER_SIZE,
       velocityX: 0,
       velocityY: 0,
-      onGround: false
+      onGround: false,
+      weight: 5.0, // peso del jugador
+      coyoteTime: 0, // tiempo restante de coyote time
+      hasCoyoteJumped: false // para evitar saltos múltiples
     });
     setHasWon(false);
   };
