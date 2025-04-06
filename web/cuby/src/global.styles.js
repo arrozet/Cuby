@@ -7,14 +7,25 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
   
+  html, body, #root {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
   body {
     font-family: 'Arial', sans-serif;
     background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+  }
+  
+  canvas {
+    display: block;
+    width: 100vw !important;
+    height: 100vh !important;
   }
   
   button {

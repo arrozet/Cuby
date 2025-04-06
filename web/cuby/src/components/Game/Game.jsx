@@ -23,6 +23,19 @@ const Game = () => {
   const [hasWon, setHasWon] = useState(false);
   const keysPressed = useKeyPress();
 
+  //pa que sea reactive
+  useEffect(() => {
+    const handleResize = () => {
+      // Update game dimensions when window is resized
+      GAME_WIDTH = window.innerWidth;
+      GAME_HEIGHT = window.innerHeight;
+    };
+  
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
   // Handle color inversion
   useEffect(() => { // ejecuta cosas 
     if (keysPressed.c) { // esto no es 0% necesario pero bueno

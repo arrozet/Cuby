@@ -2,16 +2,15 @@ import styled from 'styled-components';
 
 export const GameContainer = styled.div`
   position: relative;
-  width: 100%;
-  max-width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  margin: 0 auto;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
   border: 2px solid #333;
   overflow: hidden;
   
   @media (max-width: 850px) {
-    max-width: 100%;
-    height: 70vh;
+    width: 100vw;
+    height: 100vh;
   }
 `;
 

@@ -13,12 +13,22 @@ export const useKeyPress = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      // Prevent default spacebar behavior
+      if (event.key === ' ') {
+        event.preventDefault();
+      }
+      
       if (keysPressed.hasOwnProperty(event.key)) {
         setKeysPressed(prev => ({ ...prev, [event.key]: true }));
       }
     };
 
     const handleKeyUp = (event) => {
+      // Prevent default spacebar behavior
+      if (event.key === ' ') {
+        event.preventDefault();
+      }
+      
       if (keysPressed.hasOwnProperty(event.key)) {
         setKeysPressed(prev => ({ ...prev, [event.key]: false }));
       }
