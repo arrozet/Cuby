@@ -2,10 +2,10 @@ import React from 'react';
 import { LevelContainer, Platform, Obstacle, Trampoline, Portal, Goal } from './Level.styles';
 import { level1 } from '../../levels/level1';
 
-const Level = ({ isInverted, width, height }) => {
+const Level = ({ isInverted, width, height, level = level1 }) => {
   return (
     <LevelContainer width={width} height={height} isInverted={isInverted}>
-      {level1.platforms.map((platform, index) => (
+      {level.platforms.map((platform, index) => (
         <Platform
           key={`platform-${index}`}
           x={platform.x}
@@ -17,7 +17,7 @@ const Level = ({ isInverted, width, height }) => {
         />
       ))}
       
-      {level1.obstacles.map((obstacle, index) => (
+      {level.obstacles.map((obstacle, index) => (
         <Obstacle
           key={`obstacle-${index}`}
           x={obstacle.x}
@@ -29,7 +29,7 @@ const Level = ({ isInverted, width, height }) => {
         />
       ))}
       
-      {level1.trampolines.map((trampoline, index) => (
+      {level.trampolines.map((trampoline, index) => (
         <Trampoline
           key={`trampoline-${index}`}
           x={trampoline.x}
@@ -41,7 +41,7 @@ const Level = ({ isInverted, width, height }) => {
         />
       ))}
       
-      {level1.portals.map((portal, index) => (
+      {level.portals.map((portal, index) => (
         <Portal
           key={`portal-${index}`}
           x={portal.x}
@@ -54,10 +54,10 @@ const Level = ({ isInverted, width, height }) => {
       ))}
       
       <Goal
-        x={level1.goal.x}
-        y={level1.goal.y}
-        width={level1.goal.width}
-        height={level1.goal.height}
+        x={level.goal.x}
+        y={level.goal.y}
+        width={level.goal.width}
+        height={level.goal.height}
         isInverted={isInverted}
       />
     </LevelContainer>

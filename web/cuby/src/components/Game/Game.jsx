@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { GameContainer, WinMessage } from './Game.styles';
 import Player from '../Player/Player';
 import Level from '../Level/Level';
@@ -10,6 +11,13 @@ import { GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from
 import { level1 } from '../../levels/level1';
 
 const Game = () => {
+  const { levelId } = useParams();
+  const navigate = useNavigate();
+  
+  // Por ahora solo usamos level1, pero aquí podrías cargar diferentes niveles
+  // basado en levelId cuando tengas más niveles
+  const currentLevel = level1; 
+  
   const [isInverted, setIsInverted] = useState(false);
   const [playerState, setPlayerState] = useState({
     x: 50,
@@ -109,11 +117,11 @@ const Game = () => {
       }
       
       // Colisiones (otra vez el pyshics)
-      const { onGround, collisions } = checkPlatformCollisions(newState, level1.platforms, isInverted);
+      const { onGround, collisions } = checkPlatformCollisions(newState, currentLevel.platforms, isInverted);
       newState.onGround = onGround;
       
       // Check trampoline collisions
-      level1.trampolines.forEach(trampoline => {
+      currentLevel.trampolines.forEach(trampoline => {
         if (
           trampoline.color !== (isInverted ? 'black' : 'white') &&
           newState.x < trampoline.x + trampoline.width &&
@@ -127,7 +135,7 @@ const Game = () => {
       });
       
       // Check obstacle collisions (spikes)
-      level1.obstacles.forEach(obstacle => {
+      currentLevel.obstacles.forEach(obstacle => {
         if (
           obstacle.color !== (isInverted ? 'black' : 'white') &&
           newState.x < obstacle.x + obstacle.width &&
@@ -144,7 +152,7 @@ const Game = () => {
       });
       
       // Check portal collisions
-      level1.portals.forEach(portal => {
+      currentLevel.portals.forEach(portal => {
         if (
           portal.color !== (isInverted ? 'black' : 'white') &&
           newState.x < portal.x + portal.width &&
@@ -162,10 +170,10 @@ const Game = () => {
       
       // Check goal collision
       if (
-        newState.x < level1.goal.x + level1.goal.width &&
-        newState.x + newState.width > level1.goal.x &&
-        newState.y < level1.goal.y + level1.goal.height &&
-        newState.y + newState.height > level1.goal.y
+        newState.x < currentLevel.goal.x + currentLevel.goal.width &&
+        newState.x + newState.width > currentLevel.goal.x &&
+        newState.y < currentLevel.goal.y + currentLevel.goal.height &&
+        newState.y + newState.height > currentLevel.goal.y
       ) {
         setHasWon(true);
       }
@@ -198,6 +206,7 @@ const Game = () => {
         isInverted={isInverted} 
         width={GAME_WIDTH} 
         height={GAME_HEIGHT}
+        level={currentLevel}
       />
       <Player 
         x={playerState.x}
@@ -210,6 +219,7 @@ const Game = () => {
       {hasWon && (
         <WinMessage>
           <h2>¡Nivel completado!</h2>
+          <button onClick={() => navigate('/levels')}>Seleccionar nivel</button>
           <button onClick={restartGame}>Jugar de nuevo</button>
         </WinMessage>
       )}
