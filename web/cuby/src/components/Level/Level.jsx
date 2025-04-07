@@ -2,9 +2,31 @@ import React from 'react';
 import { LevelContainer, Platform, Obstacle, Trampoline, Portal, Goal } from './Level.styles';
 import { level1 } from '../../levels/level1';
 
+/**
+ * Componente Level - Renderiza el nivel actual del juego
+ * 
+ * Este componente maneja:
+ * - La renderización de todas las plataformas del nivel
+ * - La renderización de obstáculos (picos)
+ * - La renderización de trampolines
+ * - La renderización de portales
+ * - La renderización del objetivo (meta)
+ * 
+ * El sistema de color invertido afecta a todos los elementos:
+ * - Solo se pueden usar las plataformas/objetos del color actual
+ * - Los elementos del color opuesto son atravesables
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {boolean} props.isInverted - Estado de inversión de color
+ * @param {number} props.width - Ancho del nivel
+ * @param {number} props.height - Alto del nivel
+ * @param {Object} props.level - Datos del nivel (plataformas, obstáculos, etc.)
+ */
 const Level = ({ isInverted, width, height, level = level1 }) => {
   return (
     <LevelContainer width={width} height={height} isInverted={isInverted}>
+      {/* Renderizado de plataformas */}
       {level.platforms.map((platform, index) => (
         <Platform
           key={`platform-${index}`}
@@ -17,6 +39,7 @@ const Level = ({ isInverted, width, height, level = level1 }) => {
         />
       ))}
       
+      {/* Renderizado de obstáculos (picos) */}
       {level.obstacles.map((obstacle, index) => (
         <Obstacle
           key={`obstacle-${index}`}
@@ -29,6 +52,7 @@ const Level = ({ isInverted, width, height, level = level1 }) => {
         />
       ))}
       
+      {/* Renderizado de trampolines */}
       {level.trampolines.map((trampoline, index) => (
         <Trampoline
           key={`trampoline-${index}`}
@@ -41,6 +65,7 @@ const Level = ({ isInverted, width, height, level = level1 }) => {
         />
       ))}
       
+      {/* Renderizado de portales */}
       {level.portals.map((portal, index) => (
         <Portal
           key={`portal-${index}`}
@@ -53,6 +78,7 @@ const Level = ({ isInverted, width, height, level = level1 }) => {
         />
       ))}
       
+      {/* Renderizado del objetivo (meta) */}
       <Goal
         x={level.goal.x}
         y={level.goal.y}

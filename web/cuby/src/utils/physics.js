@@ -1,12 +1,28 @@
 import { GRAVITY } from '../constants/gameConstants';
 
-export const applyGravity = (velocity, onGround,deltaTime,weight) => {
+/**
+ * Aplica la fuerza de gravedad a un objeto en el juego
+ * 
+ * @param {number} velocity - Velocidad vertical actual del objeto
+ * @param {boolean} onGround - Indica si el objeto está en el suelo
+ * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
+ * @param {number} weight - Peso del objeto que afecta cómo la gravedad lo afecta
+ * @returns {number} Nueva velocidad vertical después de aplicar la gravedad
+ */
+export const applyGravity = (velocity, onGround, deltaTime, weight) => {
   if (onGround) {
-    return 0;
+    return 0; // Si está en el suelo, no hay velocidad vertical
   }
-  return velocity + (GRAVITY *weight)* deltaTime; // Aplica gravedad al jugador
+  return velocity + (GRAVITY * weight) * deltaTime;
 };
 
+/**
+ * Verifica si hay colisión entre dos objetos rectangulares
+ * 
+ * @param {Object} obj1 - Primer objeto con propiedades x, y, width, height
+ * @param {Object} obj2 - Segundo objeto con propiedades x, y, width, height
+ * @returns {boolean} true si hay colisión, false si no
+ */
 export const checkCollision = (obj1, obj2) => {
   return (
     obj1.x < obj2.x + obj2.width &&
@@ -16,27 +32,47 @@ export const checkCollision = (obj1, obj2) => {
   );
 };
 
+/**
+ * Sistema complejo de detección y resolución de colisiones con plataformas
+ * 
+ * Este sistema:
+ * - Filtra las plataformas activas según el estado de inversión de color
+ * - Detecta colisiones en todas las direcciones (arriba, abajo, izquierda, derecha)
+ * - Resuelve las colisiones moviendo al jugador a la posición correcta
+ * - Maneja el estado de "en el suelo" para el jugador
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height, velocityX, velocityY
+ * @param {Array} platforms - Array de plataformas con propiedades x, y, width, height, color
+ * @param {boolean} isInverted - Estado actual de inversión de color
+ * @returns {Object} Objeto con el estado de colisión y si está en el suelo
+ */
 export const checkPlatformCollisions = (player, platforms, isInverted) => {
-  // Filtrar plataformas activas
+  // Filtrar solo las plataformas activas según el estado de inversión
   const activePlatforms = platforms.filter(platform => 
     platform.color === (isInverted ? 'white' : 'black')
   );
   
   let onGround = false;
-  let collisions = { top: false, bottom: false, left: false, right: false };
+  let collisions = { 
+    top: false,    // Colisión con la parte superior de una plataforma
+    bottom: false, // Colisión con la parte inferior (aterrizaje)
+    left: false,   // Colisión con el lado izquierdo
+    right: false   // Colisión con el lado derecho
+  };
 
+  // Verificar colisiones con cada plataforma activa
   activePlatforms.forEach(platform => {
     if (checkCollision(player, platform)) {
-      // Calcular penetraciones en cada dirección
+      // Calcular la profundidad de penetración en cada dirección
       const overlapLeft = player.x + player.width - platform.x;
       const overlapRight = platform.x + platform.width - player.x;
       const overlapTop = player.y + player.height - platform.y;
       const overlapBottom = platform.y + platform.height - player.y;
       
-      // Encontrar la menor penetración
+      // Encontrar la dirección de menor penetración
       const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
       
-      // Resolver basado en la menor penetración
+      // Resolver la colisión según la dirección de menor penetración
       if (minOverlap === overlapTop && player.velocityY >= 0) {
         // Colisión inferior (aterrizaje)
         player.y = platform.y - player.height;
@@ -51,12 +87,12 @@ export const checkPlatformCollisions = (player, platforms, isInverted) => {
         collisions.top = true;
       }
       else if (minOverlap === overlapLeft && player.velocityX >= 0) {
-        // Colisión izquierda
+        // Colisión con el lado izquierdo
         player.x = platform.x - player.width;
         collisions.right = true;
       }
       else if (minOverlap === overlapRight && player.velocityX <= 0) {
-        // Colisión derecha
+        // Colisión con el lado derecho
         player.x = platform.x + platform.width;
         collisions.left = true;
       }

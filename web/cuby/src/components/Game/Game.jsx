@@ -10,36 +10,72 @@ import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
 import { GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 
+/**
+ * Game Component - El componente principal del juego que maneja la lógica del gameplay
+ * 
+ * Este componente gestiona:
+ * - El estado del jugador (posición, velocidad, etc.)
+ * - La detección de colisiones con plataformas y objetos
+ * - El sistema de color invertido
+ * - La lógica de victoria
+ * - Los controles del jugador
+ * 
+ * @component
+ */
 const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
   
-  // Por ahora solo usamos level1, pero aquí podrías cargar diferentes niveles
-  // basado en levelId cuando tengas más niveles
-  const currentLevel = level1; 
+  // Configuración del nivel actual
+  const currentLevel = level1; // TODO: Implementar carga dinámica de niveles
   
+  // Estados del juego
   const [isInverted, setIsInverted] = useState(false);
-  const [playerState, setPlayerState] = useState({
-    x: 50,
-    y: 450,
-    width: PLAYER_SIZE,
-    height: PLAYER_SIZE,
-    velocityX: 0,
-    velocityY: 0,
-    onGround: false,
-    weight: 5.0, // peso del jugador
-    coyoteTime: 0, // tiempo restante de coyote time
-    hasCoyoteJumped: false // para evitar saltos múltiples
-    // el coyote time es un tiempo en el que puedes saltar aunque no estes en el suelo
-    // lo he metido para que el salto sea mas satisfactorio y permisivo
-  });
   const [hasWon, setHasWon] = useState(false);
+
+  /**
+   * Estado del jugador que contiene todas sus propiedades físicas y de gameplay
+   */
+  const [playerState, setPlayerState] = useState({
+    x: 50,                  // Posición X inicial
+    y: 450,                 // Posición Y inicial
+    width: PLAYER_SIZE,     // Ancho del jugador
+    height: PLAYER_SIZE,    // Alto del jugador
+    velocityX: 0,          // Velocidad horizontal
+    velocityY: 0,          // Velocidad vertical
+    onGround: false,       // Indica si el jugador está en el suelo
+    weight: 5.0,           // Peso del jugador (afecta a la física)
+    coyoteTime: 0,         // Tiempo restante de coyote time
+    hasCoyoteJumped: false // Evita múltiples saltos durante el coyote time
+  });
+
+  // Hook personalizado para detectar teclas presionadas
   const keysPressed = useKeyPress();
 
-  // la ventana
+  /**
+   * Efecto para manejar la inversión de colores con la tecla 'C'
+   */
+  useEffect(() => {
+    if (keysPressed.c) {
+      setIsInverted(prev => !prev);
+    }
+  }, [keysPressed.c]);
+
+  /**
+   * Efecto para manejar el reinicio del juego con la tecla 'R'
+   */
+  useEffect(() => {
+    if (keysPressed.r) {
+      restartGame();
+    }
+  }, [keysPressed.r]);
+
+  /**
+   * Efecto para manejar el redimensionamiento de la ventana
+   */
   useEffect(() => {
     const handleResize = () => {
-      // Update game dimensions when window is resized
+      // Actualiza las dimensiones del juego cuando la ventana cambia de tamaño
       GAME_WIDTH = window.innerWidth;
       GAME_HEIGHT = window.innerHeight;
     };
@@ -48,142 +84,164 @@ const Game = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  /**
+   * Actualiza el estado del juego en cada frame
+   * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
+   */
+  const updateGameState = (deltaTime) => {
+    if (hasWon) return;
 
-  // Handle color inversion
-  useEffect(() => { // ejecuta cosas 
-    if (keysPressed.c) { // esto no es 0% necesario pero bueno
-      setIsInverted(prev => !prev); // prev es el valor anterior del estado isInverted
-    }
-  }, [keysPressed.c]); // esta es la condicion de ejecucción, si no se pone nada se ejecuta cada vez que se renderiza
-
-  // pa reiniciar el juego
-  useEffect(() => {
-    if (keysPressed.r) {
-      restartGame();
-    }
-  }, [keysPressed.r]);
-
-  const updateGameState = (deltaTime) => { // se ejecuta cada frame
-    if (hasWon) return; // si esque ha ganado no hay que hacer nada
-
-    // cambia el estado del jugador
     setPlayerState(prevState => {
-
-      let newState = { ...prevState }; // si no pusieras {...} crearia una referencia y no una copia
+      const newState = { ...prevState };
       
-      const COYOTE_TIME_MAX = 0.06; // yo creo que es un buen tiempo para el coyote time
-      // Si está en el suelo, reiniciar el estado de coyote
+      // Gestión del Coyote Time (tiempo extra para saltar después de caer)
+      const COYOTE_TIME_MAX = 0.06;
       if (newState.onGround) {
         newState.coyoteTime = COYOTE_TIME_MAX;
         newState.hasCoyoteJumped = false;
       } else {
-        // Restar tiempo si no está en el suelo
         newState.coyoteTime = Math.max(0, newState.coyoteTime - deltaTime);
       }
 
-      // Movimiento horizontal
+      // Procesamiento del movimiento horizontal
       newState.velocityX = 0;
       if (keysPressed.a) newState.velocityX -= MOVEMENT_SPEED;
       if (keysPressed.d) newState.velocityX += MOVEMENT_SPEED;
       
-      // Jump
-      if (keysPressed[' '] && (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) { // si presiona espacio y esta en el suelo
-        newState.velocityY = JUMP_FORCE / newState.weight; // le da una fuerza al salto en base al peso
+      // Procesamiento del salto
+      if (keysPressed[' '] && (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) {
+        newState.velocityY = JUMP_FORCE / newState.weight;
         newState.onGround = false;
-        newState.hasCoyoteJumped = true; // Evitar saltos múltiples con coyote time
-        newState.coyoteTime = 0; // Consumir el coyote time
+        newState.hasCoyoteJumped = true;
+        newState.coyoteTime = 0;
       }
       
-      // Le aplica la gravedad (physics habria que darle una vueltecilla) // TODO
-      newState.velocityY = applyGravity(newState.velocityY, newState.onGround,deltaTime,newState.weight); // le aplica la gravedad al jugador
-      
-      // Le cambia la posicion en funcion de la velocidad
-      newState.x += newState.velocityX * deltaTime; 
+      // Aplicación de la física
+      newState.velocityY = applyGravity(newState.velocityY, newState.onGround, deltaTime, newState.weight);
+      newState.x += newState.velocityX * deltaTime;
       newState.y += newState.velocityY * deltaTime;
       
-      // Mira los limites del mapa para que el jugador no se salga
-      if (newState.x < 0) newState.x = 0; // no se puede salir por la iquierda
-      if (newState.x + newState.width > GAME_WIDTH) newState.x = GAME_WIDTH - newState.width; // ni por la derecha
-      if (newState.y < 0) newState.y = 0; // limite superior
+      // Restricciones de los límites del mundo
+      newState.x = Math.max(0, Math.min(newState.x, GAME_WIDTH - newState.width));
+      newState.y = Math.max(0, newState.y);
 
-      // Límite inferior (suelo): maneja la colisión con el suelo
+      // Colisión con el suelo
       if (newState.y + newState.height > GAME_HEIGHT) {
-        // Coloca al jugador exactamente en el suelo
         newState.y = GAME_HEIGHT - newState.height;
-        // Detiene la caída poniendo la velocidad vertical a 0
         newState.velocityY = 0;
-        // Indica que el jugador está en el suelo para permitir el salto
         newState.onGround = true;
       }
       
-      // Colisiones (otra vez el pyshics)
-      const { onGround, collisions } = checkPlatformCollisions(newState, currentLevel.platforms, isInverted);
+      // Procesamiento de colisiones con plataformas
+      const { onGround } = checkPlatformCollisions(newState, currentLevel.platforms, isInverted);
       newState.onGround = onGround;
       
-      // Check trampoline collisions
-      currentLevel.trampolines.forEach(trampoline => {
-        if (
-          trampoline.color !== (isInverted ? 'black' : 'white') &&
-          newState.x < trampoline.x + trampoline.width &&
-          newState.x + newState.width > trampoline.x &&
-          newState.y + newState.height >= trampoline.y &&
-          newState.y + newState.height <= trampoline.y + 10
-        ) {
-          newState.velocityY = trampoline.force / newState.weight; 
-          newState.y = trampoline.y - newState.height;
-        }
-      });
+      // Procesamiento de colisiones con trampolines
+      processTramplineCollisions(newState, currentLevel.trampolines);
       
-      // Check obstacle collisions (spikes)
-      currentLevel.obstacles.forEach(obstacle => {
-        if (
-          obstacle.color !== (isInverted ? 'black' : 'white') &&
-          newState.x < obstacle.x + obstacle.width &&
-          newState.x + newState.width > obstacle.x &&
-          newState.y + newState.height > obstacle.y &&
-          newState.y < obstacle.y + obstacle.height
-        ) {
-          // Reset player position
-          newState.x = 50;
-          newState.y = 450;
-          newState.velocityX = 0;
-          newState.velocityY = 0;
-        }
-      });
+      // Procesamiento de colisiones con obstáculos
+      processObstacleCollisions(newState, currentLevel.obstacles);
       
-      // Check portal collisions
-      currentLevel.portals.forEach(portal => {
-        if (
-          portal.color !== (isInverted ? 'black' : 'white') &&
-          newState.x < portal.x + portal.width &&
-          newState.x + newState.width > portal.x &&
-          newState.y < portal.y + portal.height &&
-          newState.y + newState.height > portal.y
-        ) {
-          // Teleport to destination
-          newState.x = portal.destination.x;
-          newState.y = portal.destination.y;
-          newState.velocityX = 0;
-          newState.velocityY = 0;
-        }
-      });
+      // Procesamiento de colisiones con portales
+      processPortalCollisions(newState, currentLevel.portals);
       
-      // Check goal collision
-      if (
-        newState.x < currentLevel.goal.x + currentLevel.goal.width &&
-        newState.x + newState.width > currentLevel.goal.x &&
-        newState.y < currentLevel.goal.y + currentLevel.goal.height &&
-        newState.y + newState.height > currentLevel.goal.y
-      ) {
-        setHasWon(true);
-      }
+      // Verificación de victoria
+      checkVictoryCondition(newState, currentLevel.goal);
       
       return newState;
     });
   };
 
-  useGameLoop(updateGameState); // esto hace que updateGameState se ejecute cada frame
+  /**
+   * Procesa las colisiones con trampolines
+   */
+  const processTramplineCollisions = (playerState, trampolines) => {
+    trampolines.forEach(trampoline => {
+      if (
+        trampoline.color !== (isInverted ? 'black' : 'white') &&
+        checkCollisionWithObject(playerState, trampoline)
+      ) {
+        playerState.velocityY = trampoline.force / playerState.weight;
+        playerState.y = trampoline.y - playerState.height;
+      }
+    });
+  };
 
+  /**
+   * Procesa las colisiones con obstáculos
+   */
+  const processObstacleCollisions = (playerState, obstacles) => {
+    obstacles.forEach(obstacle => {
+      if (
+        obstacle.color !== (isInverted ? 'black' : 'white') &&
+        checkCollisionWithObject(playerState, obstacle)
+      ) {
+        resetPlayerPosition(playerState);
+      }
+    });
+  };
+
+  /**
+   * Procesa las colisiones con portales
+   */
+  const processPortalCollisions = (playerState, portals) => {
+    portals.forEach(portal => {
+      if (
+        portal.color !== (isInverted ? 'black' : 'white') &&
+        checkCollisionWithObject(playerState, portal)
+      ) {
+        teleportPlayer(playerState, portal.destination);
+      }
+    });
+  };
+
+  /**
+   * Verifica si se ha alcanzado la condición de victoria
+   */
+  const checkVictoryCondition = (playerState, goal) => {
+    if (checkCollisionWithObject(playerState, goal)) {
+      setHasWon(true);
+    }
+  };
+
+  /**
+   * Verifica colisión entre el jugador y un objeto
+   */
+  const checkCollisionWithObject = (player, object) => {
+    return (
+      player.x < object.x + object.width &&
+      player.x + player.width > object.x &&
+      player.y < object.y + object.height &&
+      player.y + player.height > object.y
+    );
+  };
+
+  /**
+   * Reinicia la posición del jugador
+   */
+  const resetPlayerPosition = (playerState) => {
+    playerState.x = 50;
+    playerState.y = 450;
+    playerState.velocityX = 0;
+    playerState.velocityY = 0;
+  };
+
+  /**
+   * Teletransporta al jugador a una nueva posición
+   */
+  const teleportPlayer = (playerState, destination) => {
+    playerState.x = destination.x;
+    playerState.y = destination.y;
+    playerState.velocityX = 0;
+    playerState.velocityY = 0;
+  };
+
+  // Iniciar el bucle del juego
+  useGameLoop(updateGameState);
+
+  /**
+   * Reinicia el estado del juego a sus valores iniciales
+   */
   const restartGame = () => {
     setPlayerState({
       x: 50,
@@ -193,9 +251,9 @@ const Game = () => {
       velocityX: 0,
       velocityY: 0,
       onGround: false,
-      weight: 5.0, // peso del jugador
-      coyoteTime: 0, // tiempo restante de coyote time
-      hasCoyoteJumped: false // para evitar saltos múltiples
+      weight: 5.0,
+      coyoteTime: 0,
+      hasCoyoteJumped: false
     });
     setHasWon(false);
   };
