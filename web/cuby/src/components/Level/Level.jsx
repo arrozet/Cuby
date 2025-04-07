@@ -1,5 +1,6 @@
 import React from 'react';
-import { LevelContainer, Platform, Obstacle, Trampoline, Portal, Goal } from './Level.styles';
+import { LevelContainer } from './Level.styles';
+import { Platform, Obstacle, Trampoline, Portal, Goal } from '../GameElements/GameElements.styles';
 import { level1 } from '../../levels/level1';
 
 /**
