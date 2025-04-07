@@ -1,3 +1,5 @@
+import { Platform, Spike, Trampoline, Portal, Goal } from '../components/GameElements/GameElements';
+
 /**
  * Level 1: Introduction
  * 
@@ -20,26 +22,26 @@ export const level1 = {
    */
   platforms: [
     // Suelo principal (tiene versión en ambos colores)
-    { x: 0, y: 550, width: 800, height: 50, color: 'white' },
-    { x: 0, y: 550, width: 800, height: 50, color: 'black' },
+    new Platform({ x: 0, y: 550, width: 800, height: 50, color: 'white' }),
+    new Platform({ x: 0, y: 550, width: 800, height: 50, color: 'black' }),
     
     // Plataforma izquierda (negra)
-    { x: 100, y: 350, width: 150, height: 20, color: 'black' },
+    new Platform({ x: 100, y: 350, width: 150, height: 20, color: 'black' }),
     
     // Plataforma flotante central (blanca)
-    { x: 350, y: 300, width: 100, height: 20, color: 'white' },
+    new Platform({ x: 350, y: 300, width: 100, height: 20, color: 'white' }),
     
     // Plataforma vertical bloqueante (ambos colores)
-    { x: 550, y: 50, width: 20, height: 200, color: 'black' },
-    { x: 550, y: 50, width: 20, height: 200, color: 'white' },
+    new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'black' }),
+    new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'white' }),
     
     // Plataforma derecha (ambos colores)
-    { x: 550, y: 250, width: 150, height: 20, color: 'black' },
-    { x: 550, y: 250, width: 150, height: 20, color: 'white' },
+    new Platform({ x: 550, y: 250, width: 150, height: 20, color: 'black' }),
+    new Platform({ x: 550, y: 250, width: 150, height: 20, color: 'white' }),
     
     // Pared derecha (ambos colores)
-    { x: 700, y: 250, width: 20, height: 300, color: 'white' },
-    { x: 700, y: 250, width: 20, height: 300, color: 'black' },
+    new Platform({ x: 700, y: 250, width: 20, height: 300, color: 'white' }),
+    new Platform({ x: 700, y: 250, width: 20, height: 300, color: 'black' }),
   ],
 
   /**
@@ -47,8 +49,8 @@ export const level1 = {
    * Los picos reinician la posición del jugador al tocarlos
    */
   obstacles: [
-    // Pico (negro)
-    { x: 500, y: 530, width: 50, height: 20, type: 'spike', color: 'black' },
+    // Pico negro (usando tamaño predeterminado)
+    new Spike({ x: 500, y: 530, color: 'black' }),
   ],
 
   /**
@@ -56,8 +58,8 @@ export const level1 = {
    * La fuerza es negativa porque el eje Y crece hacia abajo
    */
   trampolines: [
-    // Trampolín (blanco)
-    { x: 300, y: 530, width: 50, height: 20, color: 'white', force: -10000 },
+    // Trampolín blanco (usando tamaño y fuerza predeterminados)
+    new Trampoline({ x: 300, y: 530, color: 'white' }),
   ],
 
   /**
@@ -65,15 +67,25 @@ export const level1 = {
    * Cada portal tiene un destino definido por coordenadas x,y
    */
   portals: [
-    // Portal de entrada (negro)
-    { x: 150, y: 275, width: 40, height: 60, color: 'black', destination: { x: 600, y: 200 } },
-    // Portal de salida (blanco)
-    { x: 600, y: 200, width: 40, height: 60, color: 'white', destination: { x: 150, y: 275 } }
+    // Portal de entrada negro (usando tamaño predeterminado)
+    new Portal({ 
+      x: 150, 
+      y: 275, 
+      color: 'black', 
+      destination: { x: 600, y: 200 } 
+    }),
+    // Portal de salida blanco (usando tamaño predeterminado)
+    new Portal({ 
+      x: 600, 
+      y: 200, 
+      color: 'white', 
+      destination: { x: 150, y: 275 } 
+    }),
   ],
 
   /**
    * Meta del nivel
    * Al alcanzarla, se completa el nivel
    */
-  goal: { x: 720, y: 200, width: 50, height: 50 }
+  goal: new Goal({ x: 720, y: 200 })
 };
