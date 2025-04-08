@@ -38,16 +38,16 @@ const Game = () => {
    * Estado del jugador que contiene todas sus propiedades físicas y de gameplay
    */
   const [playerState, setPlayerState] = useState({
-    x: 50,                  // Posición X inicial
-    y: 450,                 // Posición Y inicial
-    width: PLAYER_SIZE,     // Ancho del jugador
-    height: PLAYER_SIZE,    // Alto del jugador
-    velocityX: 0,          // Velocidad horizontal
-    velocityY: 0,          // Velocidad vertical
-    onGround: false,       // Indica si el jugador está en el suelo
-    weight: 5.0,           // Peso del jugador (afecta a la física)
-    coyoteTime: 0,         // Tiempo restante de coyote time
-    hasCoyoteJumped: false // Evita múltiples saltos durante el coyote time
+    x: currentLevel.playerStart.x,
+    y: currentLevel.playerStart.y,
+    width: PLAYER_SIZE,
+    height: PLAYER_SIZE,
+    velocityX: 0,
+    velocityY: 0,
+    onGround: false,
+    weight: 5.0,
+    coyoteTime: 0,
+    hasCoyoteJumped: false
   });
 
   // Hook personalizado para detectar teclas presionadas
@@ -226,8 +226,8 @@ const Game = () => {
    * Reinicia la posición del jugador
    */
   const resetPlayerPosition = (playerState) => {
-    playerState.x = 50;
-    playerState.y = 450;
+    playerState.x = currentLevel.playerStart.x;
+    playerState.y = currentLevel.playerStart.y;
     playerState.velocityX = 0;
     playerState.velocityY = 0;
   };
@@ -250,8 +250,8 @@ const Game = () => {
    */
   const restartGame = () => {
     setPlayerState({
-      x: 50,
-      y: 450,
+      x: currentLevel.playerStart.x,
+      y: currentLevel.playerStart.y,
       width: PLAYER_SIZE,
       height: PLAYER_SIZE,
       velocityX: 0,

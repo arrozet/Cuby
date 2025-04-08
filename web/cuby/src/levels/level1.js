@@ -13,6 +13,12 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../components/GameEle
 export const level1 = {
   name: "Level 1: Introduction",
   
+  // Posición inicial del jugador en este nivel
+  playerStart: {
+    x: 50,
+    y: 450
+  },
+  
   /**
    * Plataformas del nivel
    * Cada plataforma tiene:
