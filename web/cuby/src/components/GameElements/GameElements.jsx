@@ -15,8 +15,11 @@ class GameObject {
  * Plataforma: Elemento básico sobre el que el jugador puede estar
  */
 export class Platform extends GameObject {
-  constructor(config) {
-    super(config);
+  static defaultWidth = 200;
+  static defaultHeight = 20;
+
+  constructor({ x, y, color, width, height }) {
+    super({ x, y, width: width || Platform.defaultWidth, height: height || Platform.defaultHeight, color });
   }
 }
 
