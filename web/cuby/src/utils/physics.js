@@ -1,4 +1,5 @@
 import { GRAVITY } from '../constants/gameConstants';
+import { isElementActive } from './colors';
 
 /**
  * Aplica la fuerza de gravedad a un objeto en el juego
@@ -55,7 +56,7 @@ export const checkCollision = (obj1, obj2) => {
 export const checkPlatformCollisions = (player, platforms, isInverted) => {
   // Filtrar solo las plataformas activas según el estado de inversión
   const activePlatforms = platforms.filter(platform => 
-    platform.color === (isInverted ? 'black' : 'white')
+    isElementActive(platform.color, isInverted)
   );
   
   let onGround = false;

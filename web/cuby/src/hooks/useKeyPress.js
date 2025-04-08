@@ -23,14 +23,18 @@ import { useState, useEffect } from 'react';
 export const useKeyPress = () => {
   // Estado inicial de las teclas monitoreadas
   const [keysPressed, setKeysPressed] = useState({
-    a: false,     // Movimiento a la izquierda
-    d: false,     // Movimiento a la derecha
-    s: false,     // Agacharse (no implementado aún)
-    c: false,     // Invertir colores
-    f: false,     // Interactuar
-    w: false,     // Saltar
-    ' ': false,   // Saltar
-    r: false,     // Reiniciar nivel
+    a: false,           // Movimiento a la izquierda
+    d: false,           // Movimiento a la derecha
+    s: false,           // Agacharse (no implementado aún)
+    c: false,           // Invertir colores
+    f: false,           // Interactuar
+    w: false,           // Saltar
+    ' ': false,         // Saltar
+    r: false,           // Reiniciar nivel
+    arrowleft: false,   // Movimiento a la izquierda (alternativo)
+    arrowright: false,  // Movimiento a la derecha (alternativo)
+    arrowup: false,     // Saltar (alternativo)
+    arrowdown: false    // Agacharse (alternativo, no implementado)
   });
 
 
@@ -54,6 +58,7 @@ export const useKeyPress = () => {
      * @param {KeyboardEvent} event - Evento del teclado
      */
     const handleKeyDown = (event) => {
+      const key = event.key.toLowerCase(); // Convertir a minúsculas
       // Prevenir el scroll de la página con la barra espaciadora
       if (event.key === ' ') {
         event.preventDefault();
@@ -61,7 +66,7 @@ export const useKeyPress = () => {
       
       // Actualizar el estado usando el setter funcional para acceder al estado más reciente
       setKeysPressed(prev => 
-        prev.hasOwnProperty(event.key) ? { ...prev, [event.key]: true } : prev
+        prev.hasOwnProperty(key) ? { ...prev, [key]: true } : prev
       );
     };
 
@@ -70,6 +75,7 @@ export const useKeyPress = () => {
      * @param {KeyboardEvent} event - Evento del teclado
      */
     const handleKeyUp = (event) => {
+      const key = event.key.toLowerCase(); // Convertir a minúsculas
       // Prevenir el scroll de la página con la barra espaciadora
       if (event.key === ' ') {
         event.preventDefault();
@@ -77,7 +83,7 @@ export const useKeyPress = () => {
       
       // Actualizar el estado usando el setter funcional para acceder al estado más reciente
       setKeysPressed(prev => 
-        prev.hasOwnProperty(event.key) ? { ...prev, [event.key]: false } : prev
+        prev.hasOwnProperty(key) ? { ...prev, [key]: false } : prev
       );
     };
 

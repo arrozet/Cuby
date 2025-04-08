@@ -27,7 +27,6 @@ export const GameTitle = styled(LayeredText)`
 
 export const StartButtonContainer = styled.div`
   padding: 15px 30px;
-  cursor: pointer;
   animation: ${pulse} 1.5s infinite ease-in-out;
   transition: all 0.3s ease;
   margin-top: 50px;

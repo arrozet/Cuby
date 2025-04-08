@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 const baseStyles = css`
   position: absolute;
@@ -6,22 +7,15 @@ const baseStyles = css`
   top: ${props => props.y}px;
   width: ${props => props.width}px;
   height: ${props => props.height}px;
-  background-color: ${props => 
-    props.color === (props.isInverted ? 'black' : 'white') ?
-      (props.isInverted ? 'black' : 'white') : 'transparent'
-  };
-  display: ${props => 
-    props.color === (props.isInverted ? 'black' : 'white') ?
-    'block' : 'none'
-  };
+  background-color: ${props => props.color === getActiveColor(props.isInverted) ? 
+    getActiveColor(props.isInverted) : 'transparent'};
+  display: ${props => props.color === getActiveColor(props.isInverted) ? 'block' : 'none'};
 `;
 
 export const Platform = styled.div`
   ${baseStyles}
   border: ${props => 
-    props.color === (props.isInverted ? 'black' : 'white') ?
-    '1px solid #333' : 'none'
-  };
+    props.color === getActiveColor(props.isInverted) ? '1px solid #333' : 'none'};
   transition: background-color 0.3s;
 `;
 
@@ -38,18 +32,16 @@ export const Obstacle = styled.div`
     border-left: ${props => props.width / 2}px solid transparent;
     border-right: ${props => props.width / 2}px solid transparent;
     border-bottom: 10px solid ${props => 
-      props.color === (props.isInverted ? 'black' : 'white') ?
-        (props.isInverted ? 'black' : 'white') : 'transparent'
-    };
+      props.color === getActiveColor(props.isInverted) ? 
+        getActiveColor(props.isInverted) : 'transparent'};
   }
 `;
 
 export const Trampoline = styled.div`
   ${baseStyles}
   border-bottom: 5px solid ${props => 
-    props.color === (props.isInverted ? 'black' : 'white') ?
-      (props.isInverted ? 'black' : 'white') : 'transparent'
-  };
+    props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent'};
   border-radius: 50% 50% 0 0;
 `;
 
@@ -66,10 +58,8 @@ export const Portal = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: ${props => props.width * 0.5}px;
-    color: ${props => 
-      props.color !== (props.isInverted ? 'black' : 'white') ?
-        (props.isInverted ? 'black' : 'white') : 'transparent'
-    };
+    color: ${props => props.color !== getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent'};
     opacity: 0.6;
     animation: float 2s ease-in-out infinite;
   }
@@ -93,7 +83,7 @@ export const Goal = styled.div`
   top: ${props => props.y}px;
   width: ${props => props.width}px;
   height: ${props => props.height}px;
-  border: 3px dashed ${props => props.isInverted ? 'black' : 'white'};
+  border: 3px dashed ${props => getActiveColor(props.isInverted)};
   border-radius: 50%;
   animation: pulse 1.5s infinite;
   

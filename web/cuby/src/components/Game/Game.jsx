@@ -7,6 +7,7 @@ import Controls from '../UI/Control';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
 import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
+import { isElementActive } from '../../utils/colors';
 import { GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 
@@ -105,11 +106,16 @@ const Game = () => {
 
       // Procesamiento del movimiento horizontal
       newState.velocityX = 0;
-      if (keysPressed.a) newState.velocityX -= MOVEMENT_SPEED;
-      if (keysPressed.d) newState.velocityX += MOVEMENT_SPEED;
+      if (keysPressed.a || keysPressed.arrowleft) {
+        newState.velocityX = -MOVEMENT_SPEED;
+      }
+      if (keysPressed.d || keysPressed.arrowright) {
+        newState.velocityX = MOVEMENT_SPEED;
+      }
       
       // Procesamiento del salto
-      if (keysPressed[' '] && (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) {
+      if ((keysPressed[' '] || keysPressed.w || keysPressed.arrowup) && 
+          (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) {
         newState.velocityY = JUMP_FORCE / newState.weight;
         newState.onGround = false;
         newState.hasCoyoteJumped = true;
@@ -158,7 +164,7 @@ const Game = () => {
   const processTramplineCollisions = (playerState, trampolines) => {
     trampolines.forEach(trampoline => {
       if (
-        trampoline.color === (isInverted ? 'black' : 'white') &&
+        isElementActive(trampoline.color, isInverted) &&
         checkCollisionWithObject(playerState, trampoline)
       ) {
         playerState.velocityY = trampoline.force / playerState.weight;
@@ -173,7 +179,7 @@ const Game = () => {
   const processObstacleCollisions = (playerState, obstacles) => {
     obstacles.forEach(obstacle => {
       if (
-        obstacle.color === (isInverted ? 'black' : 'white') &&
+        isElementActive(obstacle.color, isInverted) &&
         checkCollisionWithObject(playerState, obstacle)
       ) {
         resetPlayerPosition(playerState);
@@ -187,7 +193,7 @@ const Game = () => {
   const processPortalCollisions = (playerState, portals) => {
     portals.forEach(portal => {
       if (
-        portal.color === (isInverted ? 'black' : 'white') &&
+        isElementActive(portal.color, isInverted) &&
         checkCollisionWithObject(playerState, portal)
       ) {
         teleportPlayer(playerState, portal.destination);
