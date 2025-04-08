@@ -8,7 +8,7 @@ import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
 import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
 import { isElementActive } from '../../utils/colors';
-import { GAME_WIDTH, GAME_HEIGHT, PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
+import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 
 /**
@@ -26,6 +26,12 @@ import { level1 } from '../../levels/level1';
 const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
+  
+  // Estado para las dimensiones del juego (responsive)
+  const [gameDimensions, setGameDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
   
   // Configuración del nivel actual
   const currentLevel = level1; // TODO: Implementar carga dinámica de niveles
@@ -77,8 +83,10 @@ const Game = () => {
   useEffect(() => {
     const handleResize = () => {
       // Actualiza las dimensiones del juego cuando la ventana cambia de tamaño
-      GAME_WIDTH = window.innerWidth;
-      GAME_HEIGHT = window.innerHeight;
+      setGameDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
     };
   
     window.addEventListener('resize', handleResize);
@@ -128,12 +136,12 @@ const Game = () => {
       newState.y += newState.velocityY * deltaTime;
       
       // Restricciones de los límites del mundo
-      newState.x = Math.max(0, Math.min(newState.x, GAME_WIDTH - newState.width));
+      newState.x = Math.max(0, Math.min(newState.x, gameDimensions.width - newState.width));
       newState.y = Math.max(0, newState.y);
 
       // Colisión con el suelo
-      if (newState.y + newState.height > GAME_HEIGHT) {
-        newState.y = GAME_HEIGHT - newState.height;
+      if (newState.y + newState.height > gameDimensions.height) {
+        newState.y = gameDimensions.height - newState.height;
         newState.velocityY = 0;
         newState.onGround = true;
       }
@@ -265,11 +273,11 @@ const Game = () => {
   };
 
   return (
-    <GameContainer width={GAME_WIDTH} height={GAME_HEIGHT}>
+    <GameContainer width={gameDimensions.width} height={gameDimensions.height}>
       <Level 
         isInverted={isInverted} 
-        width={GAME_WIDTH} 
-        height={GAME_HEIGHT}
+        width={gameDimensions.width} 
+        height={gameDimensions.height}
         level={currentLevel}
       />
       <Player 
