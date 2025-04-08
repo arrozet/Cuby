@@ -6,18 +6,24 @@ import { GRAVITY } from '../constants/gameConstants';
  * @param {number} velocity - Velocidad vertical actual del objeto
  * @param {boolean} onGround - Indica si el objeto está en el suelo
  * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
- * @param {number} weight - Peso del objeto que afecta cómo la gravedad lo afecta
+ * @param {number} gravityMultiplier - Peso del objeto que afecta cómo la gravedad lo afecta
  * @returns {number} Nueva velocidad vertical después de aplicar la gravedad
  */
-export const applyGravity = (velocity, onGround, deltaTime, weight) => {
+export const applyGravity = (velocity, onGround, deltaTime, gravityMultiplier) => {
   if (onGround) {
     return 0; // Si está en el suelo, no hay velocidad vertical
   }
-  return velocity + (GRAVITY * weight) * deltaTime;
+  return velocity + (GRAVITY * gravityMultiplier) * deltaTime; // v = v0 + a * t
+
+  /**
+   * En realidad este modelado de la velocidad no es realista, ya que el peso no afecta a la velocidad
+   * directamente, aunque tiene sentido usar este modelo aquí; pese a no ser preciso con la realidad
+   */
 };
 
 /**
- * Verifica si hay colisión entre dos objetos rectangulares
+ * Verifica si hay colisión entre dos objetos rectangulares con el 
+ * algoritmo de detección de colisiones AABB (Axis-Aligned Bounding Box)
  * 
  * @param {Object} obj1 - Primer objeto con propiedades x, y, width, height
  * @param {Object} obj2 - Segundo objeto con propiedades x, y, width, height

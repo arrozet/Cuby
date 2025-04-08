@@ -14,15 +14,19 @@ export const StartContainer = styled.div`
   justify-content: center;
   align-items: center;
   background-color: ${props => props.isInverted ? 'black' : 'white'};
-  font-family: 'Press Start 2P', cursive;
+  font-family: 'Excalifont';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
 `;
 
 export const GameLogo = styled.div`
   font-size: 120px;
   margin-bottom: 30px;
-  font-weight: bold;
-  letter-spacing: 10px;
+  font-weight: 400; // Cambiado de bold a 400
+  letter-spacing: 2px; // Reducido de 10px a 2px
+  line-height: 1.2;
+  text-transform: uppercase; // Añadido para mayúsculas
   color: ${props => props.isInverted ? 'white' : 'black'};
   text-align: center;
   transition: color 0.3s ease;

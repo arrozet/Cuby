@@ -27,11 +27,27 @@ export const useKeyPress = () => {
     d: false,     // Movimiento a la derecha
     s: false,     // Agacharse (no implementado aún)
     c: false,     // Invertir colores
-    f: false,     // Acción futura
+    f: false,     // Interactuar
+    w: false,     // Saltar
     ' ': false,   // Saltar
     r: false,     // Reiniciar nivel
   });
 
+
+  /**
+   * ¿Por qué el array de dependencias está vacío []?
+   * 
+   * 1. Si pusiéramos [keysPressed], cada vez que se pulse una tecla:
+   *    - Se recrearían las funciones handleKeyDown y handleKeyUp
+   *    - Se eliminarían y volverían a añadir los event listeners
+   *    - Todo esto en cada pulsación, lo cual es ineficiente
+   * 
+   * 2. No necesitamos [keysPressed] porque:
+   *    - Usamos setKeysPressed(prev => ...), donde 'prev' SIEMPRE tiene el valor más reciente
+   *    - Es como tener una "línea directa" al último estado sin necesidad de dependencias
+   * 
+   * Por tanto, los event listeners se crean una vez al inicio y se limpian al final.
+   */
   useEffect(() => {
     /**
      * Maneja el evento de tecla presionada
@@ -43,10 +59,10 @@ export const useKeyPress = () => {
         event.preventDefault();
       }
       
-      // Actualizar el estado solo si la tecla está siendo monitoreada
-      if (keysPressed.hasOwnProperty(event.key)) {
-        setKeysPressed(prev => ({ ...prev, [event.key]: true }));
-      }
+      // Actualizar el estado usando el setter funcional para acceder al estado más reciente
+      setKeysPressed(prev => 
+        prev.hasOwnProperty(event.key) ? { ...prev, [event.key]: true } : prev
+      );
     };
 
     /**
@@ -59,10 +75,10 @@ export const useKeyPress = () => {
         event.preventDefault();
       }
       
-      // Actualizar el estado solo si la tecla está siendo monitoreada
-      if (keysPressed.hasOwnProperty(event.key)) {
-        setKeysPressed(prev => ({ ...prev, [event.key]: false }));
-      }
+      // Actualizar el estado usando el setter funcional para acceder al estado más reciente
+      setKeysPressed(prev => 
+        prev.hasOwnProperty(event.key) ? { ...prev, [event.key]: false } : prev
+      );
     };
 
     // Agregar los event listeners
@@ -74,7 +90,7 @@ export const useKeyPress = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [keysPressed]); // Dependencia necesaria para acceder a keysPressed.hasOwnProperty
+  }, []); // Sin dependencia a keysPressed ya que usamos el setter funcional
 
   return keysPressed;
 };

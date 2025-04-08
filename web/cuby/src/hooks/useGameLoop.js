@@ -29,7 +29,8 @@ export const useGameLoop = (callback) => {
     if (previousTimeRef.current !== undefined) {
       // Convertir el deltaTime a segundos y limitar su valor máximo
       const deltaTime = (time - previousTimeRef.current) / 1000;
-      const cappedDeltaTime = Math.min(deltaTime, 0.1); // Evita problemas físicos con frames muy largos
+      const cappedDeltaTime = Math.min(deltaTime, 0.1); // Evita problemas físicos con frames muy largos. 
+      // FPS = 1 / deltaTime = 1 / 0.1 = 10FPS. Si tienes menos de 10 FPS, el juego peta pq está suponiendo que hay 10 FPS al menos
       
       // Ejecutar el callback con el deltaTime
       callback(cappedDeltaTime);

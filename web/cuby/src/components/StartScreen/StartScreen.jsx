@@ -8,7 +8,7 @@ const StartScreen = () => {
   
   // Manejar cualquier tecla para navegar
   const handleKeyPress = (e) => {
-    // Si se pulsa 'c', invertir colores
+    // Si se pulsa 'e', invertir colores
     if (e.key.toLowerCase() === 'e') {
       setIsInverted(prev => !prev);
     } else {
@@ -27,9 +27,9 @@ const StartScreen = () => {
   return (
     <StartContainer isInverted={isInverted}>
       <GameLogo isInverted={isInverted}>CUBY</GameLogo>
-      <Title isInverted={isInverted}>El juego de las plataformas en blanco y negro</Title>
+      <Title isInverted={isInverted}></Title>
       <StartButton isInverted={isInverted} onClick={() => navigate('/levels')}>
-        Presiona cualquier tecla para comenzar
+        Presiona cualquier botón para comenzar
       </StartButton>
     </StartContainer>
   );

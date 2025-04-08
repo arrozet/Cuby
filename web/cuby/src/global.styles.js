@@ -1,6 +1,14 @@
 import { createGlobalStyle } from 'styled-components';
+import Excalifont from './fonts/Excalifont-Regular.woff2';
 
 export const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: 'Excalifont';
+    src: url(${Excalifont}) format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+
   * {
     margin: 0;
     padding: 0;
@@ -18,7 +26,7 @@ export const GlobalStyle = createGlobalStyle`
   }
   
   body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Excalifont', 'Arial';
     background-color: #f0f0f0;
   }
   

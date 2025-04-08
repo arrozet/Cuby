@@ -11,4 +11,6 @@ export const ControlsContainer = styled.div`
   font-family: monospace;
   font-size: 14px;
   z-index: 100;
+  user-select: none;    // Evitar que el texto sea seleccionable
+  pointer-events: none; // Evitar que interfiera con los controles del juego
 `;
