@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StartContainer, GameTitle, StartButtonContainer, StartButtonText } from './StartScreen.styles';
 
@@ -7,20 +7,20 @@ const StartScreen = () => {
   const [isInverted, setIsInverted] = useState(false);
   
   // Manejo de la inveresión en esta ventana
-  const handleKeyPress = (e) => {
+  const handleKeyPress = useCallback((e) => {
     if (e.key.toLowerCase() === 'e') {
       setIsInverted(prev => !prev);
     } else {
       navigate('/levels');
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [navigate]);
+  }, [handleKeyPress]);
 
   return (
     <StartContainer isInverted={isInverted}>

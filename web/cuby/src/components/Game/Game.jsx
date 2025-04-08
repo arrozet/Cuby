@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GameContainer, WinMessage } from './Game.styles';
 import Player from '../Player/Player';
@@ -60,6 +60,25 @@ const Game = () => {
   const keysPressed = useKeyPress();
 
   /**
+   * Reinicia el estado del juego a sus valores iniciales
+   */
+  const restartGame = useCallback(() => {
+    setPlayerState({
+      x: currentLevel.playerStart.x,
+      y: currentLevel.playerStart.y,
+      width: PLAYER_SIZE,
+      height: PLAYER_SIZE,
+      velocityX: 0,
+      velocityY: 0,
+      onGround: false,
+      weight: 5.0,
+      coyoteTime: 0,
+      hasCoyoteJumped: false
+    });
+    setHasWon(false);
+  }, [currentLevel]);
+
+  /**
    * Efecto para manejar la inversión de colores con la tecla 'E'
    */
   useEffect(() => {
@@ -75,7 +94,7 @@ const Game = () => {
     if (keysPressed.r) {
       restartGame();
     }
-  }, [keysPressed.r]);
+  }, [keysPressed.r, restartGame]);
 
   /**
    * Efecto para manejar el redimensionamiento de la ventana
@@ -252,25 +271,6 @@ const Game = () => {
 
   // Iniciar el bucle del juego
   useGameLoop(updateGameState);
-
-  /**
-   * Reinicia el estado del juego a sus valores iniciales
-   */
-  const restartGame = () => {
-    setPlayerState({
-      x: currentLevel.playerStart.x,
-      y: currentLevel.playerStart.y,
-      width: PLAYER_SIZE,
-      height: PLAYER_SIZE,
-      velocityX: 0,
-      velocityY: 0,
-      onGround: false,
-      weight: 5.0,
-      coyoteTime: 0,
-      hasCoyoteJumped: false
-    });
-    setHasWon(false);
-  };
 
   return (
     <GameContainer width={gameDimensions.width} height={gameDimensions.height}>

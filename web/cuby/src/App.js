@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Game from './components/Game/Game';
 import StartScreen from './components/StartScreen/StartScreen';
 import LevelSelect from './components/LevelSelect/LevelSelect';
+import OrientationWarning from './components/common/OrientationWarning/OrientationWarning';
 import { GlobalStyle } from './global.styles';
 
 /**
@@ -23,6 +24,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
+      <OrientationWarning />
       <HashRouter>
         <Routes>
           <Route path="/" element={<StartScreen />} />
