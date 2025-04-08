@@ -60,13 +60,13 @@ const Game = () => {
   const keysPressed = useKeyPress();
 
   /**
-   * Efecto para manejar la inversión de colores con la tecla 'C'
+   * Efecto para manejar la inversión de colores con la tecla 'E'
    */
   useEffect(() => {
-    if (keysPressed.c) {
+    if (keysPressed.e) {
       setIsInverted(prev => !prev);
     }
-  }, [keysPressed.c]);
+  }, [keysPressed.e]);
 
   /**
    * Efecto para manejar el reinicio del juego con la tecla 'R'

@@ -8,7 +8,7 @@ import { ControlsContainer } from './Controls.styles';
  * que muestra los controles básicos del juego al usuario:
  * - A/D: Movimiento horizontal
  * - Espacio: Saltar
- * - C: Invertir colores
+ * - E: Invertir colores
  * - R: Reiniciar nivel
  * 
  * @component
@@ -16,7 +16,7 @@ import { ControlsContainer } from './Controls.styles';
 const Controls = () => {
   return (
     <ControlsContainer>
-      <p>A/D: Move | Space: Jump | C: Invert Colors | R: Restart</p>
+      <p>A/D: Move | Space: Jump | E: Invert Colors | R: Restart</p>
     </ControlsContainer>
   );
 };

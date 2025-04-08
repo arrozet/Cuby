@@ -26,7 +26,7 @@ export const useKeyPress = () => {
     a: false,           // Movimiento a la izquierda
     d: false,           // Movimiento a la derecha
     s: false,           // Agacharse (no implementado aún)
-    c: false,           // Invertir colores
+    e: false,           // Invertir colores
     f: false,           // Interactuar
     w: false,           // Saltar
     ' ': false,         // Saltar
