@@ -55,7 +55,7 @@ export const checkCollision = (obj1, obj2) => {
 export const checkPlatformCollisions = (player, platforms, isInverted) => {
   // Filtrar solo las plataformas activas según el estado de inversión
   const activePlatforms = platforms.filter(platform => 
-    platform.color === (isInverted ? 'white' : 'black')
+    platform.color === (isInverted ? 'black' : 'white')
   );
   
   let onGround = false;

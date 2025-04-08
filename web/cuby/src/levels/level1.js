@@ -22,26 +22,26 @@ export const level1 = {
    */
   platforms: [
     // Suelo principal (tiene versión en ambos colores)
-    new Platform({ x: 0, y: 550, width: 800, height: 50, color: 'white' }),
     new Platform({ x: 0, y: 550, width: 800, height: 50, color: 'black' }),
+    new Platform({ x: 0, y: 550, width: 800, height: 50, color: 'white' }),
     
-    // Plataforma izquierda (negra)
-    new Platform({ x: 100, y: 350, width: 150, height: 20, color: 'black' }),
+    // Plataforma izquierda (blanca)
+    new Platform({ x: 100, y: 350, width: 150, height: 20, color: 'white' }),
     
-    // Plataforma flotante central (blanca)
-    new Platform({ x: 350, y: 300, width: 100, height: 20, color: 'white' }),
+    // Plataforma flotante central (negra)
+    new Platform({ x: 350, y: 300, width: 100, height: 20, color: 'black' }),
     
     // Plataforma vertical bloqueante (ambos colores)
-    new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'black' }),
     new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'white' }),
+    new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'black' }),
     
     // Plataforma derecha (ambos colores)
-    new Platform({ x: 550, y: 250, width: 150, height: 20, color: 'black' }),
     new Platform({ x: 550, y: 250, width: 150, height: 20, color: 'white' }),
+    new Platform({ x: 550, y: 250, width: 150, height: 20, color: 'black' }),
     
     // Pared derecha (ambos colores)
-    new Platform({ x: 700, y: 250, width: 20, height: 300, color: 'white' }),
     new Platform({ x: 700, y: 250, width: 20, height: 300, color: 'black' }),
+    new Platform({ x: 700, y: 250, width: 20, height: 300, color: 'white' }),
   ],
 
   /**
@@ -49,8 +49,8 @@ export const level1 = {
    * Los picos reinician la posición del jugador al tocarlos
    */
   obstacles: [
-    // Pico negro (usando tamaño predeterminado)
-    new Spike({ x: 500, y: 530, color: 'black' }),
+    // Pico blanco (usando tamaño predeterminado)
+    new Spike({ x: 500, y: 530, color: 'white' }),
   ],
 
   /**
@@ -58,8 +58,8 @@ export const level1 = {
    * La fuerza es negativa porque el eje Y crece hacia abajo
    */
   trampolines: [
-    // Trampolín blanco (usando tamaño y fuerza predeterminados)
-    new Trampoline({ x: 300, y: 530, color: 'white' }),
+    // Trampolín negro (usando tamaño y fuerza predeterminados)
+    new Trampoline({ x: 300, y: 530, color: 'black' }),
   ],
 
   /**
@@ -67,18 +67,18 @@ export const level1 = {
    * Cada portal tiene un destino definido por coordenadas x,y
    */
   portals: [
-    // Portal de entrada negro (usando tamaño predeterminado)
+    // Portal de entrada blanco (usando tamaño predeterminado)
     new Portal({ 
       x: 150, 
       y: 275, 
-      color: 'black', 
+      color: 'white', 
       destination: { x: 600, y: 200 } 
     }),
-    // Portal de salida blanco (usando tamaño predeterminado)
+    // Portal de salida negro (usando tamaño predeterminado)
     new Portal({ 
       x: 600, 
       y: 200, 
-      color: 'white', 
+      color: 'black', 
       destination: { x: 150, y: 275 } 
     }),
   ],

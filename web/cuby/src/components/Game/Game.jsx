@@ -158,7 +158,7 @@ const Game = () => {
   const processTramplineCollisions = (playerState, trampolines) => {
     trampolines.forEach(trampoline => {
       if (
-        trampoline.color !== (isInverted ? 'black' : 'white') &&
+        trampoline.color === (isInverted ? 'black' : 'white') &&
         checkCollisionWithObject(playerState, trampoline)
       ) {
         playerState.velocityY = trampoline.force / playerState.weight;
@@ -173,7 +173,7 @@ const Game = () => {
   const processObstacleCollisions = (playerState, obstacles) => {
     obstacles.forEach(obstacle => {
       if (
-        obstacle.color !== (isInverted ? 'black' : 'white') &&
+        obstacle.color === (isInverted ? 'black' : 'white') &&
         checkCollisionWithObject(playerState, obstacle)
       ) {
         resetPlayerPosition(playerState);
@@ -187,7 +187,7 @@ const Game = () => {
   const processPortalCollisions = (playerState, portals) => {
     portals.forEach(portal => {
       if (
-        portal.color !== (isInverted ? 'black' : 'white') &&
+        portal.color === (isInverted ? 'black' : 'white') &&
         checkCollisionWithObject(playerState, portal)
       ) {
         teleportPlayer(playerState, portal.destination);

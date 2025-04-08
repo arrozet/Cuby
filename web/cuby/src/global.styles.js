@@ -27,7 +27,7 @@ export const GlobalStyle = createGlobalStyle`
   
   body {
     font-family: 'Excalifont', 'Arial';
-    background-color: #f0f0f0;
+    background-color: black;
   }
   
   canvas {
@@ -39,15 +39,16 @@ export const GlobalStyle = createGlobalStyle`
   button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #333;
+    background-color: black;
     color: white;
-    border: none;
+    border: 2px solid white;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     
     &:hover {
-      background-color: #555;
+      background-color: white;
+      color: black;
     }
   }
 `;

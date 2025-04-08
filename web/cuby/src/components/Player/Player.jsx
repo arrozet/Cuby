@@ -1,4 +1,5 @@
 import React from 'react';
+import { PlayerContainer } from './Player.styles';
 
 /**
  * Componente Player - Representa al personaje principal del juego
@@ -16,15 +17,12 @@ import React from 'react';
  */
 const Player = ({ x, y, size, isInverted }) => {
   return (
-    <div style={{
-      position: 'absolute',
-      width: `${size}px`,
-      height: `${size}px`,
-      left: `${x}px`,
-      top: `${y}px`,
-      backgroundColor: isInverted ? 'white' : 'black',
-      transition: 'background-color 0.3s'
-    }} />
+    <PlayerContainer
+      x={x}
+      y={y}
+      size={size}
+      isInverted={isInverted}
+    />
   );
 };
 

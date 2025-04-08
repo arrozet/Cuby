@@ -6,6 +6,7 @@ export const PlayerContainer = styled.div`
   height: ${props => props.size}px;
   left: ${props => props.x}px;
   top: ${props => props.y}px;
-  background-color: ${props => props.isInverted ? 'white' : 'black'};
+  background-color: ${props => props.isInverted ? 'black' : 'white'};
   transition: background-color 0.3s;
+  z-index: 10;
 `;

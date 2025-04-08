@@ -14,7 +14,7 @@ export const StartContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${props => props.isInverted ? 'black' : 'white'};
+  background-color: ${props => props.isInverted ? 'white' : 'black'};
   font-family: 'Excalifont';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

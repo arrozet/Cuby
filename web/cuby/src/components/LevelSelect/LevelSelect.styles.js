@@ -7,14 +7,14 @@ export const LevelSelectContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: white;
+  background-color: black;
   font-family: 'Press Start 2P', cursive;
 `;
 
 export const Title = styled.h1`
   font-size: 36px;
   margin-bottom: 60px;
-  color: black;
+  color: white;
   text-align: center;
 `;
 
@@ -29,8 +29,8 @@ export const LevelsGrid = styled.div`
 export const LevelCard = styled.div`
   width: 150px;
   height: 150px;
-  background-color: ${props => props.locked ? '#ddd' : 'white'};
-  border: 3px solid black;
+  background-color: ${props => props.locked ? '#333' : 'black'};
+  border: 3px solid white;
   border-radius: 10px;
   display: flex;
   justify-content: center;
@@ -38,6 +38,7 @@ export const LevelCard = styled.div`
   cursor: ${props => props.locked ? 'not-allowed' : 'pointer'};
   position: relative;
   transition: transform 0.2s;
+  color: white;
   
   &:hover {
     transform: ${props => !props.locked && 'scale(1.05)'};
@@ -59,15 +60,16 @@ export const LevelCard = styled.div`
 export const BackButton = styled.button`
   margin-top: 40px;
   padding: 15px 30px;
-  background-color: white;
-  border: 3px solid black;
+  background-color: black;
+  border: 3px solid white;
   border-radius: 10px;
   cursor: pointer;
   font-size: 20px;
   font-family: 'Press Start 2P', cursive;
+  color: white;
   
   &:hover {
-    background-color: black;
-    color: white;
+    background-color: white;
+    color: black;
   }
 `;
