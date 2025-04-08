@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StartContainer, Title, StartButton, GameLogo } from './StartScreen.styles';
+import { StartContainer, GameTitle, StartButtonContainer, StartButtonText } from './StartScreen.styles';
 
 const StartScreen = () => {
   const navigate = useNavigate();
   const [isInverted, setIsInverted] = useState(false);
   
-  // Manejar cualquier tecla para navegar
+  // Manejo de la inveresión en esta ventana
   const handleKeyPress = (e) => {
-    // Si se pulsa 'e', invertir colores
     if (e.key.toLowerCase() === 'e') {
       setIsInverted(prev => !prev);
     } else {
-      // Cualquier otra tecla te lleva a la selección de niveles
       navigate('/levels');
     }
   };
@@ -26,11 +24,20 @@ const StartScreen = () => {
 
   return (
     <StartContainer isInverted={isInverted}>
-      <GameLogo isInverted={isInverted}>CUBY</GameLogo>
-      <Title isInverted={isInverted}></Title>
-      <StartButton isInverted={isInverted} onClick={() => navigate('/levels')}>
-        Presiona cualquier botón para comenzar
-      </StartButton>
+      <GameTitle 
+        text="CUBY"
+        fontSize="120px"
+        isInverted={isInverted}
+        offset={4}
+      />
+      <StartButtonContainer isInverted={isInverted}>
+        <StartButtonText 
+          text="Presiona cualquier botón para comenzar"
+          fontSize="20px"
+          offset={1}
+          isInverted={isInverted}
+        />
+      </StartButtonContainer>
     </StartContainer>
   );
 };

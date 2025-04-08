@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import LayeredText from '../common/LayeredText/LayeredText';
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -20,38 +21,18 @@ export const StartContainer = styled.div`
   transition: background-color 0.3s ease;
 `;
 
-export const GameLogo = styled.div`
-  font-size: 120px;
-  margin-bottom: 30px;
-  font-weight: 400; // Cambiado de bold a 400
-  letter-spacing: 2px; // Reducido de 10px a 2px
-  line-height: 1.2;
-  text-transform: uppercase; // Añadido para mayúsculas
-  color: ${props => props.isInverted ? 'white' : 'black'};
-  text-align: center;
-  transition: color 0.3s ease;
-`;
-
-export const Title = styled.h2`
-  font-size: 24px;
+export const GameTitle = styled(LayeredText)`
   margin-bottom: 50px;
-  color: ${props => props.isInverted ? 'white' : '#333'};
-  text-align: center;
-  transition: color 0.3s ease;
 `;
 
-export const StartButton = styled.div`
-  font-size: 20px;
+export const StartButtonContainer = styled.div`
   padding: 15px 30px;
-  border: 2px solid ${props => props.isInverted ? 'white' : 'black'};
-  border-radius: 10px;
-  color: ${props => props.isInverted ? 'white' : 'black'};
   cursor: pointer;
   animation: ${pulse} 1.5s infinite ease-in-out;
   transition: all 0.3s ease;
-  
-  &:hover {
-    background-color: ${props => props.isInverted ? 'white' : 'black'};
-    color: ${props => props.isInverted ? 'black' : 'white'};
-  }
+  margin-top: 50px;
+`;
+
+export const StartButtonText = styled(LayeredText)`
+  transition: all 0.3s ease;
 `;
