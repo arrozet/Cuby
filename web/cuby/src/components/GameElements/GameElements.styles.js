@@ -9,7 +9,7 @@ const baseStyles = css`
   height: ${props => props.height}px;
   background-color: ${props => props.color === getActiveColor(props.isInverted) ? 
     getActiveColor(props.isInverted) : 'transparent'};
-  display: ${props => props.color === getActiveColor(props.isInverted) ? 'block' : 'none'};
+  display: 'block';
 `;
 
 export const Platform = styled.div`
@@ -58,7 +58,7 @@ export const Portal = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: ${props => props.width * 0.5}px;
-    color: ${props => props.color !== getActiveColor(props.isInverted) ? 
+    color: ${props => getActiveColor(props.isInverted) ? 
       getActiveColor(props.isInverted) : 'transparent'};
     opacity: 0.6;
     animation: float 2s ease-in-out infinite;
