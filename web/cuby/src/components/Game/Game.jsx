@@ -62,6 +62,9 @@ const Game = () => {
   // Hook personalizado para detectar teclas presionadas
   const keysPressed = useKeyPress();
 
+  // Estado para controlar si la tecla E ya fue procesada
+  const [eKeyPressed, setEKeyPressed] = useState(false);
+
   /**
    * Reinicia el estado del juego a sus valores iniciales
    */
@@ -85,11 +88,15 @@ const Game = () => {
    * Efecto para manejar la inversión de colores con la tecla 'E'
    */
   useEffect(() => {
-    if (keysPressed.e) {
-      // Usar toggleInversion del contexto global
+    if (keysPressed.e && !eKeyPressed) {
+      // Solo invertir si la tecla E acaba de ser presionada
+      setEKeyPressed(true);
       toggleInversion();
+    } else if (!keysPressed.e && eKeyPressed) {
+      // Resetear el estado cuando se suelta la tecla
+      setEKeyPressed(false);
     }
-  }, [keysPressed.e, toggleInversion]);
+  }, [keysPressed.e, toggleInversion, eKeyPressed]);
 
   /**
    * Efecto para manejar el reinicio del juego con la tecla 'R'

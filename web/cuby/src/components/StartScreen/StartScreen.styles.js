@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import LayeredText from '../common/LayeredText/LayeredText';
-import { getInactiveColor, getActiveColor } from '../../utils/colors';
+import { getInactiveColor } from '../../utils/colors';
 
 const pulse = keyframes`
   0% { transform: scale(1); }
