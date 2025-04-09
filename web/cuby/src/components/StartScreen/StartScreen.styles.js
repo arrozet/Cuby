@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components';
 import LayeredText from '../common/LayeredText/LayeredText';
+import { getInactiveColor, getActiveColor } from '../../utils/colors';
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -14,7 +15,7 @@ export const StartContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${props => props.isInverted ? 'white' : 'black'};
+  background-color: ${props => getInactiveColor(props.isInverted)};
   font-family: 'Excalifont';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -28,7 +28,7 @@ const StartScreen = () => {
       <GameTitle 
         text="CUBY"
         fontSize="120px"
-        isInverted={isInverted}
+        isInverted={!isInverted}
         offset={4}
       />
       <StartButtonContainer isInverted={isInverted}>
@@ -36,7 +36,7 @@ const StartScreen = () => {
           text="Presiona cualquier botón para comenzar"
           fontSize="20px"
           offset={1}
-          isInverted={isInverted}
+          isInverted={!isInverted}
         />
       </StartButtonContainer>
     </StartContainer>
