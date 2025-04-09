@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { getActiveColor, getInactiveColor } from '../../../utils/colors';
 
 export const BackArrowContainer = styled.div`
   position: absolute;

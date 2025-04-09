@@ -7,6 +7,7 @@ import {
 } from './LevelSelect.styles';
 import { useInversion } from '../../context/InversionContext';
 import BackArrow from '../common/BackArrow/BackArrow';
+import SettingsButton from '../common/SettingsButton/SettingsButton';
 
 // Importa todos los niveles disponibles
 import { level1 } from '../../levels/level1';
@@ -66,6 +67,7 @@ const LevelSelect = () => {
   return (
     <LevelSelectContainer isInverted={isInverted}>
       <BackArrow onClick={handleBackClick} />
+      <SettingsButton />
       <LevelsGrid>
         {levels.map(level => (
           <LevelCard 

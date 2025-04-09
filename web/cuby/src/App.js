@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Game from './components/Game/Game';
 import StartScreen from './components/StartScreen/StartScreen';
 import LevelSelect from './components/LevelSelect/LevelSelect';
+import Settings from './components/Settings/Settings';
 import OrientationWarning from './components/common/OrientationWarning/OrientationWarning';
 import { GlobalStyle } from './global.styles';
 import { InversionProvider } from './context/InversionContext';
@@ -32,6 +33,7 @@ function App() {
             <Route path="/" element={<StartScreen />} />
             <Route path="/levels" element={<LevelSelect />} />
             <Route path="/game/:levelId" element={<Game />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </HashRouter>
