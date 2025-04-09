@@ -4,6 +4,7 @@ import { GameContainer, WinMessage } from './Game.styles';
 import Player from '../Player/Player';
 import Level from '../Level/Level';
 import Controls from '../UI/Control';
+import BackArrow from '../common/BackArrow/BackArrow';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
 import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
@@ -280,11 +281,19 @@ const Game = () => {
     playerState.velocityY = 0;
   };
 
+  /**
+   * Maneja el regreso a la pantalla de selección de niveles
+   */
+  const handleBackToLevels = () => {
+    navigate('/levels');
+  };
+
   // Iniciar el bucle del juego
   useGameLoop(updateGameState);
 
   return (
     <GameContainer width={gameDimensions.width} height={gameDimensions.height}>
+      <BackArrow onClick={handleBackToLevels} />
       <Level 
         width={gameDimensions.width} 
         height={gameDimensions.height}
