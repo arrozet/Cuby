@@ -2,6 +2,7 @@ import React from 'react';
 import { LevelContainer } from './Level.styles';
 import { Platform, Obstacle, Trampoline, Portal, Goal } from '../GameElements/GameElements.styles';
 import { level1 } from '../../levels/level1';
+import { useInversion } from '../../context/InversionContext';
 
 /**
  * Componente Level - Renderiza el nivel actual del juego
@@ -19,12 +20,14 @@ import { level1 } from '../../levels/level1';
  * 
  * @component
  * @param {Object} props - Propiedades del componente
- * @param {boolean} props.isInverted - Estado de inversión de color
  * @param {number} props.width - Ancho del nivel
  * @param {number} props.height - Alto del nivel
  * @param {Object} props.level - Datos del nivel (plataformas, obstáculos, etc.)
  */
-const Level = ({ isInverted, width, height, level = level1 }) => {
+const Level = ({ width, height, level = level1 }) => {
+  // Usar el contexto global en lugar del prop
+  const { isInverted } = useInversion();
+
   return (
     <LevelContainer width={width} height={height} isInverted={isInverted}>
       {/* Renderizado de plataformas */}

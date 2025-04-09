@@ -10,6 +10,7 @@ import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
 import { isElementActive } from '../../utils/colors';
 import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
+import { useInversion } from '../../context/InversionContext';
 
 /**
  * Game Component - El componente principal del juego que maneja la lógica del gameplay
@@ -27,6 +28,9 @@ const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
   
+  // Usar el contexto global de inversión
+  const { isInverted, toggleInversion } = useInversion();
+  
   // Estado para las dimensiones del juego (responsive)
   const [gameDimensions, setGameDimensions] = useState({
     width: window.innerWidth,
@@ -37,7 +41,6 @@ const Game = () => {
   const currentLevel = level1; // TODO: Implementar carga dinámica de niveles
   
   // Estados del juego
-  const [isInverted, setIsInverted] = useState(false);
   const [hasWon, setHasWon] = useState(false);
 
   /**
@@ -83,9 +86,10 @@ const Game = () => {
    */
   useEffect(() => {
     if (keysPressed.e) {
-      setIsInverted(prev => !prev);
+      // Usar toggleInversion del contexto global
+      toggleInversion();
     }
-  }, [keysPressed.e]);
+  }, [keysPressed.e, toggleInversion]);
 
   /**
    * Efecto para manejar el reinicio del juego con la tecla 'R'
@@ -275,7 +279,6 @@ const Game = () => {
   return (
     <GameContainer width={gameDimensions.width} height={gameDimensions.height}>
       <Level 
-        isInverted={isInverted} 
         width={gameDimensions.width} 
         height={gameDimensions.height}
         level={currentLevel}
@@ -284,7 +287,6 @@ const Game = () => {
         x={playerState.x}
         y={playerState.y}
         size={PLAYER_SIZE}
-        isInverted={isInverted}
       />
       <Controls />
       

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PlayerContainer } from './Player.styles';
+import { useInversion } from '../../context/InversionContext';
 
 /**
  * Componente Player - Representa al personaje principal del juego
@@ -13,9 +14,11 @@ import { PlayerContainer } from './Player.styles';
  * @param {number} props.x - Posición horizontal del jugador
  * @param {number} props.y - Posición vertical del jugador
  * @param {number} props.size - Tamaño del cubo del jugador (ancho y alto)
- * @param {boolean} props.isInverted - Estado de inversión de color
  */
-const Player = ({ x, y, size, isInverted }) => {
+const Player = ({ x, y, size }) => {
+  // Usar el contexto global de inversión
+  const { isInverted } = useInversion();
+  
   return (
     <PlayerContainer
       x={x}

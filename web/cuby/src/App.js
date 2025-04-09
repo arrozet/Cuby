@@ -5,6 +5,7 @@ import StartScreen from './components/StartScreen/StartScreen';
 import LevelSelect from './components/LevelSelect/LevelSelect';
 import OrientationWarning from './components/common/OrientationWarning/OrientationWarning';
 import { GlobalStyle } from './global.styles';
+import { InversionProvider } from './context/InversionContext';
 
 /**
  * HashRouter se utiliza en lugar de BrowserRouter para GitHub Pages.
@@ -25,14 +26,16 @@ function App() {
     <>
       <GlobalStyle />
       <OrientationWarning />
-      <HashRouter>
-        <Routes>
-          <Route path="/" element={<StartScreen />} />
-          <Route path="/levels" element={<LevelSelect />} />
-          <Route path="/game/:levelId" element={<Game />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </HashRouter>
+      <InversionProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<StartScreen />} />
+            <Route path="/levels" element={<LevelSelect />} />
+            <Route path="/game/:levelId" element={<Game />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </HashRouter>
+      </InversionProvider>
     </>
   );
 }
