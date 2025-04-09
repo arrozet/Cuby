@@ -8,9 +8,12 @@ const LayeredText = ({
   letterSpacing = '2px',
   offset = 4,
   isInverted = false,
-  backColor = '#343A40',
-  middleColor = 'white',
-  frontColor = '#343A40',
+  backDefaultColor = '#343A40',
+  middleDefaultColor = 'white',
+  frontDefaultColor = '#343A40',
+  backInversedColor = '#e7ebda',
+  middleInversedColor = 'black',
+  frontInversedColor = '#e7ebda',
   marginBottom = '30px'
 }) => {
   return (
@@ -22,9 +25,8 @@ const LayeredText = ({
         letterSpacing={letterSpacing}
         isInverted={isInverted}
         offset={offset}
-        backColor={backColor}
-        middleColor={middleColor}
-        frontColor={frontColor}
+        backDefaultColor={backDefaultColor}
+        backInversedColor={backInversedColor}
       >
         {text}
       </TextLayer>
@@ -35,9 +37,8 @@ const LayeredText = ({
         letterSpacing={letterSpacing}
         isInverted={isInverted}
         offset={offset}
-        backColor={backColor}
-        middleColor={middleColor}
-        frontColor={frontColor}
+        middleDefaultColor={middleDefaultColor}
+        middleInversedColor={middleInversedColor}
         style={{ userSelect: 'text' }}
       >
         {text}
@@ -48,9 +49,8 @@ const LayeredText = ({
         fontWeight={fontWeight}
         letterSpacing={letterSpacing}
         isInverted={isInverted}
-        backColor={backColor}
-        middleColor={middleColor}
-        frontColor={frontColor}
+        frontDefaultColor={frontDefaultColor}
+        frontInversedColor={frontInversedColor}
       >
         {text}
       </TextLayer>

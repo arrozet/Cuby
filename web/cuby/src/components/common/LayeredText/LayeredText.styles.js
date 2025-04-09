@@ -19,16 +19,16 @@ export const TextLayer = styled.div`
   user-select: none;
 
   &.back {
-    color: ${props => props.isInverted ? props.middleColor : props.backColor};
+    color: ${props => props.isInverted ? props.backInversedColor : props.backDefaultColor};
     transform: translate(calc(-50% - ${props => props.offset * 2}px), calc(-50% + ${props => props.offset}px));
   }
 
   &.middle {
-    color: ${props => props.isInverted ? props.frontColor : props.middleColor};
+    color: ${props => props.isInverted ? props.middleInversedColor : props.middleDefaultColor};
     transform: translate(calc(-50% - ${props => props.offset * 1.25}px), calc(-50% + ${props => props.offset/2}px));
   }
 
   &.front {
-    color: ${props => props.isInverted ? props.middleColor : props.frontColor};
+    color: ${props => props.isInverted ? props.frontInversedColor : props.frontDefaultColor};
   }
 `;
