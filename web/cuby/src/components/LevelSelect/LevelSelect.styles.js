@@ -37,22 +37,26 @@ export const LevelsGrid = styled.div`
   max-width: 600px;
 `;
 
-export const LevelCard = styled.div`
+export const LevelCard = styled.div.attrs(props => ({
+  style: {
+    backgroundColor: props.locked ? '#333' : getActiveColor(props.isInverted),
+    borderColor: getActiveColor(props.isInverted),
+    color: getInactiveColor(props.isInverted),
+    cursor: props.locked ? 'not-allowed' : 'pointer',
+    transform: (!props.locked && props.hover) ? 'scale(1.05)' : 'scale(1)'
+  }
+}))`
   width: 150px;
   height: 150px;
-  background-color: ${props => props.locked ? '#333' : getActiveColor(props.isInverted)};
-  border: 3px solid ${props => getActiveColor(props.isInverted)};
+  border: 3px solid;
   border-radius: 20px; /* Esquinas redondeadas en lugar de círculo */
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: ${props => props.locked ? 'not-allowed' : 'pointer'};
   position: relative;
   transition: transform 0.2s, background-color 0.3s;
-  color: ${props => getInactiveColor(props.isInverted)};
   
   &:hover {
-    transform: ${props => !props.locked && 'scale(1.05)'};
     animation: ${props => !props.locked && css`${pulse} 1.5s infinite ease-in-out`};
   }
   

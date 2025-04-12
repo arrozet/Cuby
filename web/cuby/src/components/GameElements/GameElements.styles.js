@@ -1,26 +1,34 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
-const baseStyles = css`
+export const Platform = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent',
+    border: props.color === getActiveColor(props.isInverted) ? '1px solid #333' : 'none'
+  }
+}))`
   position: absolute;
-  left: ${props => props.x}px;
-  top: ${props => props.y}px;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  background-color: ${props => props.color === getActiveColor(props.isInverted) ? 
-    getActiveColor(props.isInverted) : 'transparent'};
-  display: 'block';
-`;
-
-export const Platform = styled.div`
-  ${baseStyles}
-  border: ${props => 
-    props.color === getActiveColor(props.isInverted) ? '1px solid #333' : 'none'};
+  display: block;
   transition: background-color 0.3s;
 `;
 
-export const Obstacle = styled.div`
-  ${baseStyles}
+export const Obstacle = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent'
+  }
+}))`
+  position: absolute;
+  display: block;
   
   &:before {
     content: '';
@@ -37,16 +45,35 @@ export const Obstacle = styled.div`
   }
 `;
 
-export const Trampoline = styled.div`
-  ${baseStyles}
-  border-bottom: 5px solid ${props => 
-    props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent'};
+export const Trampoline = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent',
+    borderBottom: `5px solid ${props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent'}`
+  }
+}))`
+  position: absolute;
+  display: block;
   border-radius: 50% 50% 0 0;
 `;
 
-export const Portal = styled.div`
-  ${baseStyles}
+export const Portal = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
+      getActiveColor(props.isInverted) : 'transparent'
+  }
+}))`
+  position: absolute;
+  display: block;
   border-radius: 8px;
   opacity: 0.8;
   animation: pulse 1.5s infinite;
@@ -77,13 +104,17 @@ export const Portal = styled.div`
   }
 `;
 
-export const Goal = styled.div`
+export const Goal = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+    border: `3px dashed ${getActiveColor(props.isInverted)}`
+  }
+}))`
   position: absolute;
-  left: ${props => props.x}px;
-  top: ${props => props.y}px;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
-  border: 3px dashed ${props => getActiveColor(props.isInverted)};
+  display: block;
   border-radius: 50%;
   animation: pulse 1.5s infinite;
   
