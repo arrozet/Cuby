@@ -18,6 +18,7 @@ import BackArrow from '../common/BackArrow/BackArrow';
 import { useInversion } from '../../context/InversionContext';
 import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameElements';
 import { getUserLevelById, saveUserLevel, createEmptyLevel } from '../../utils/levelManager';
+import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 const LevelEditor = () => {
   const { levelId } = useParams();
@@ -45,11 +46,6 @@ const LevelEditor = () => {
     width: 100,
     height: 20
   });
-  
-  // Helper function to get active text color based on inversion state
-  const getActiveColor = (isInverted) => {
-    return isInverted ? 'white' : 'black';
-  };
   
   // Manejar la inversión con la tecla E
   useEffect(() => {
@@ -110,14 +106,17 @@ const LevelEditor = () => {
     // Para modo colocar, necesitamos un elemento seleccionado
     if (!selectedElement || !level) return;
     
+    // Obtener el color contrario al fondo actual
+    const elementColor = getInactiveColor(isInverted);
+    
     // Crear el nuevo elemento según el tipo seleccionado
     let newElement;
     
     switch (selectedElement) {
-      case 'platform-black':
+      case 'platform':
         newElement = new Platform({ 
           x, y, 
-          color: 'black', 
+          color: elementColor, 
           width: platformSize.width, 
           height: platformSize.height 
         });
@@ -126,41 +125,15 @@ const LevelEditor = () => {
           platforms: [...level.platforms, newElement]
         });
         break;
-      case 'platform-white':
-        newElement = new Platform({ 
-          x, y, 
-          color: 'white', 
-          width: platformSize.width, 
-          height: platformSize.height 
-        });
-        setLevel({
-          ...level,
-          platforms: [...level.platforms, newElement]
-        });
-        break;
-      case 'spike-black':
-        newElement = new Spike({ x, y, color: 'black' });
+      case 'spike':
+        newElement = new Spike({ x, y, color: elementColor });
         setLevel({
           ...level,
           obstacles: [...level.obstacles, newElement]
         });
         break;
-      case 'spike-white':
-        newElement = new Spike({ x, y, color: 'white' });
-        setLevel({
-          ...level,
-          obstacles: [...level.obstacles, newElement]
-        });
-        break;
-      case 'trampoline-black':
-        newElement = new Trampoline({ x, y, color: 'black' });
-        setLevel({
-          ...level,
-          trampolines: [...level.trampolines, newElement]
-        });
-        break;
-      case 'trampoline-white':
-        newElement = new Trampoline({ x, y, color: 'white' });
+      case 'trampoline':
+        newElement = new Trampoline({ x, y, color: elementColor });
         setLevel({
           ...level,
           trampolines: [...level.trampolines, newElement]
@@ -169,7 +142,7 @@ const LevelEditor = () => {
       case 'portal':
         newElement = new Portal({ 
           x, y, 
-          color: 'black',  // El color del portal es siempre visible
+          color: elementColor,
           width: 40,
           height: 60,
           destination: { x: x + 100, y } 
@@ -320,6 +293,10 @@ const LevelEditor = () => {
   if (!level) {
     return <div>Cargando editor...</div>;
   }
+  
+  // Color opuesto al fondo para los elementos
+  const oppositeColor = getInactiveColor(isInverted);
+  const currentColor = getActiveColor(isInverted);
   
   return (
     <EditorContainer isInverted={isInverted}>
@@ -507,44 +484,25 @@ const LevelEditor = () => {
           <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
           <ElementsContainer>
             <ElementButton 
-              onClick={() => setSelectedElement('platform-black')}
-              isSelected={selectedElement === 'platform-black'}
+              onClick={() => setSelectedElement('platform')}
+              isSelected={selectedElement === 'platform'}
               isInverted={isInverted}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ 
                   width: '30px', 
                   height: '10px', 
-                  backgroundColor: 'black', 
+                  backgroundColor: oppositeColor, 
                   marginRight: '10px',
-                  // Siempre mostrar contorno blanco para la plataforma negra
-                  border: '1px solid white'
+                  border: `1px solid ${currentColor}`
                 }}></div>
-                Plataforma (Negra)
+                Plataforma
               </div>
             </ElementButton>
             
             <ElementButton 
-              onClick={() => setSelectedElement('platform-white')}
-              isSelected={selectedElement === 'platform-white'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '10px', 
-                  backgroundColor: 'white', 
-                  marginRight: '10px',
-                  // Siempre mostrar contorno negro para la plataforma blanca
-                  border: '1px solid black'
-                }}></div>
-                Plataforma (Blanca)
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('spike-black')}
-              isSelected={selectedElement === 'spike-black'}
+              onClick={() => setSelectedElement('spike')}
+              isSelected={selectedElement === 'spike'}
               isInverted={isInverted}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -563,76 +521,29 @@ const LevelEditor = () => {
                     bottom: 0,
                     borderLeft: '15px solid transparent',
                     borderRight: '15px solid transparent',
-                    borderBottom: '20px solid black',
-                    filter: 'drop-shadow(0px 0px 1px white)'
+                    borderBottom: `20px solid ${oppositeColor}`,
+                    filter: `drop-shadow(0px 0px 1px ${currentColor})`
                   }}></div>
                 </div>
-                Pico (Negro)
+                Pico
               </div>
             </ElementButton>
             
             <ElementButton 
-              onClick={() => setSelectedElement('spike-white')}
-              isSelected={selectedElement === 'spike-white'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '20px', 
-                  marginRight: '10px',
-                  position: 'relative'
-                }}>
-                  {/* Forma de triángulo para el pico */}
-                  <div style={{ 
-                    position: 'absolute',
-                    width: 0,
-                    height: 0,
-                    left: 0,
-                    bottom: 0,
-                    borderLeft: '15px solid transparent',
-                    borderRight: '15px solid transparent',
-                    borderBottom: '20px solid white',
-                    filter: 'drop-shadow(0px 0px 1px black)'
-                  }}></div>
-                </div>
-                Pico (Blanco)
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('trampoline-black')}
-              isSelected={selectedElement === 'trampoline-black'}
+              onClick={() => setSelectedElement('trampoline')}
+              isSelected={selectedElement === 'trampoline'}
               isInverted={isInverted}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ 
                   width: '30px', 
                   height: '15px', 
-                  backgroundColor: 'black', 
+                  backgroundColor: oppositeColor, 
                   marginRight: '10px',
                   borderRadius: '15px 15px 0 0',
-                  border: '1px solid white'
+                  border: `1px solid ${currentColor}`
                 }}></div>
-                Trampolín (Negro)
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('trampoline-white')}
-              isSelected={selectedElement === 'trampoline-white'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '15px', 
-                  backgroundColor: 'white', 
-                  marginRight: '10px',
-                  borderRadius: '15px 15px 0 0',
-                  border: '1px solid black'
-                }}></div>
-                Trampolín (Blanco)
+                Trampolín
               </div>
             </ElementButton>
             
@@ -670,7 +581,7 @@ const LevelEditor = () => {
                   width: '20px', 
                   height: '20px', 
                   marginRight: '10px',
-                  border: `2px dashed ${getActiveColor(isInverted)}`,
+                  border: `2px dashed ${currentColor}`,
                   borderRadius: '50%'
                 }}></div>
                 Meta
@@ -686,7 +597,7 @@ const LevelEditor = () => {
                 <div style={{ 
                   width: '20px', 
                   height: '20px', 
-                  backgroundColor: getActiveColor(isInverted), 
+                  backgroundColor: currentColor, 
                   marginRight: '10px',
                   opacity: 0.7
                 }}></div>
@@ -695,11 +606,11 @@ const LevelEditor = () => {
             </ElementButton>
           </ElementsContainer>
           
-          {selectedElement && (selectedElement === 'platform-black' || selectedElement === 'platform-white') && (
+          {selectedElement && selectedElement === 'platform' && (
             <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-              <h3 style={{ color: getActiveColor(isInverted), marginBottom: '10px' }}>Tamaño de Plataforma</h3>
+              <h3 style={{ color: currentColor, marginBottom: '10px' }}>Tamaño de Plataforma</h3>
               <div style={{ marginBottom: '10px' }}>
-                <label style={{ color: getActiveColor(isInverted), display: 'block', marginBottom: '5px' }}>
+                <label style={{ color: currentColor, display: 'block', marginBottom: '5px' }}>
                   Ancho: {platformSize.width}px
                 </label>
                 <input 
@@ -712,7 +623,7 @@ const LevelEditor = () => {
                 />
               </div>
               <div>
-                <label style={{ color: getActiveColor(isInverted), display: 'block', marginBottom: '5px' }}>
+                <label style={{ color: currentColor, display: 'block', marginBottom: '5px' }}>
                   Alto: {platformSize.height}px
                 </label>
                 <input 
