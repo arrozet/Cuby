@@ -40,6 +40,76 @@ export const checkCollision = (obj1, obj2) => {
 };
 
 /**
+ * Procesa las colisiones con trampolines y aplica el impulso
+ */
+export const processTramplineCollisions = (player, trampolines, isInverted) => {
+  trampolines.forEach(trampoline => {
+    if (
+      isElementActive(trampoline.color, isInverted) &&
+      checkCollision(player, trampoline)
+    ) {
+      player.velocityY = trampoline.force / player.weight;
+      player.y = trampoline.y - player.height;
+    }
+  });
+};
+
+/**
+ * Procesa las colisiones con obstáculos y reinicia la posición del jugador
+ */
+export const processObstacleCollisions = (player, obstacles, isInverted, startPosition) => {
+  obstacles.forEach(obstacle => {
+    if (
+      isElementActive(obstacle.color, isInverted) &&
+      checkCollision(player, obstacle)
+    ) {
+      resetPlayerPosition(player, startPosition);
+    }
+  });
+};
+
+/**
+ * Procesa las colisiones con portales y teletransporta al jugador
+ */
+export const processPortalCollisions = (player, portals, isInverted) => {
+  portals.forEach(portal => {
+    if (
+      isElementActive(portal.color, isInverted) &&
+      checkCollision(player, portal)
+    ) {
+      teleportPlayer(player, portal.destination);
+    }
+  });
+};
+
+/**
+ * Verifica si se ha alcanzado la meta
+ */
+export const checkVictoryCondition = (player, goal) => {
+  return checkCollision(player, goal);
+};
+
+/**
+ * Reinicia la posición del jugador a su punto inicial
+ */
+const resetPlayerPosition = (player, startPosition) => {
+  player.x = startPosition.x;
+  player.y = startPosition.y;
+  player.velocityX = 0;
+  player.velocityY = 0;
+};
+
+/**
+ * Teletransporta al jugador a una nueva posición
+ */
+const teleportPlayer = (player, destination) => {
+  player.x = destination.x;
+  player.y = destination.y;
+  player.velocityX = 0;
+  player.velocityY = 0;
+};
+
+/**
  * Sistema complejo de detección y resolución de colisiones con plataformas
  * 
  * Este sistema:

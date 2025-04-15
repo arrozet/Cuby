@@ -7,8 +7,14 @@ import Controls from '../UI/Control';
 import BackArrow from '../common/BackArrow/BackArrow';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
-import { applyGravity, checkPlatformCollisions } from '../../utils/physics';
-import { isElementActive } from '../../utils/colors';
+import { 
+  applyGravity, 
+  checkPlatformCollisions,
+  processTramplineCollisions,
+  processObstacleCollisions,
+  processPortalCollisions,
+  checkVictoryCondition
+} from '../../utils/physics';
 import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 import { useInversion } from '../../context/InversionContext';
@@ -181,104 +187,18 @@ const Game = () => {
       const { onGround } = checkPlatformCollisions(newState, currentLevel.platforms, isInverted);
       newState.onGround = onGround;
       
-      // Procesamiento de colisiones con trampolines
-      processTramplineCollisions(newState, currentLevel.trampolines);
-      
-      // Procesamiento de colisiones con obstáculos
-      processObstacleCollisions(newState, currentLevel.obstacles);
-      
-      // Procesamiento de colisiones con portales
-      processPortalCollisions(newState, currentLevel.portals);
+      // Procesamiento de colisiones con objetos del juego
+      processTramplineCollisions(newState, currentLevel.trampolines, isInverted);
+      processObstacleCollisions(newState, currentLevel.obstacles, isInverted, currentLevel.playerStart);
+      processPortalCollisions(newState, currentLevel.portals, isInverted);
       
       // Verificación de victoria
-      checkVictoryCondition(newState, currentLevel.goal);
+      if (checkVictoryCondition(newState, currentLevel.goal)) {
+        setHasWon(true);
+      }
       
       return newState;
     });
-  };
-
-  /**
-   * Procesa las colisiones con trampolines
-   */
-  const processTramplineCollisions = (playerState, trampolines) => {
-    trampolines.forEach(trampoline => {
-      if (
-        isElementActive(trampoline.color, isInverted) &&
-        checkCollisionWithObject(playerState, trampoline)
-      ) {
-        playerState.velocityY = trampoline.force / playerState.weight;
-        playerState.y = trampoline.y - playerState.height;
-      }
-    });
-  };
-
-  /**
-   * Procesa las colisiones con obstáculos
-   */
-  const processObstacleCollisions = (playerState, obstacles) => {
-    obstacles.forEach(obstacle => {
-      if (
-        isElementActive(obstacle.color, isInverted) &&
-        checkCollisionWithObject(playerState, obstacle)
-      ) {
-        resetPlayerPosition(playerState);
-      }
-    });
-  };
-
-  /**
-   * Procesa las colisiones con portales
-   */
-  const processPortalCollisions = (playerState, portals) => {
-    portals.forEach(portal => {
-      if (
-        isElementActive(portal.color, isInverted) &&
-        checkCollisionWithObject(playerState, portal)
-      ) {
-        teleportPlayer(playerState, portal.destination);
-      }
-    });
-  };
-
-  /**
-   * Verifica si se ha alcanzado la condición de victoria
-   */
-  const checkVictoryCondition = (playerState, goal) => {
-    if (checkCollisionWithObject(playerState, goal)) {
-      setHasWon(true);
-    }
-  };
-
-  /**
-   * Verifica colisión entre el jugador y un objeto
-   */
-  const checkCollisionWithObject = (player, object) => {
-    return (
-      player.x < object.x + object.width &&
-      player.x + player.width > object.x &&
-      player.y < object.y + object.height &&
-      player.y + player.height > object.y
-    );
-  };
-
-  /**
-   * Reinicia la posición del jugador
-   */
-  const resetPlayerPosition = (playerState) => {
-    playerState.x = currentLevel.playerStart.x;
-    playerState.y = currentLevel.playerStart.y;
-    playerState.velocityX = 0;
-    playerState.velocityY = 0;
-  };
-
-  /**
-   * Teletransporta al jugador a una nueva posición
-   */
-  const teleportPlayer = (playerState, destination) => {
-    playerState.x = destination.x;
-    playerState.y = destination.y;
-    playerState.velocityX = 0;
-    playerState.velocityY = 0;
   };
 
   /**
