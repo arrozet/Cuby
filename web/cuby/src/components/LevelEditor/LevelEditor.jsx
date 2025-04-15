@@ -126,7 +126,13 @@ const LevelEditor = () => {
         });
         break;
       case 'spike':
-        newElement = new Spike({ x, y, color: elementColor });
+        // Corregido: Posicionamos el spike exactamente donde está el cursor
+        // El spike necesita que su base esté donde está el cursor, no su punto superior
+        newElement = new Spike({ 
+          x, 
+          y: y - Spike.defaultHeight, // Restamos la altura para que la base esté donde se hizo clic
+          color: elementColor 
+        });
         setLevel({
           ...level,
           obstacles: [...level.obstacles, newElement]
