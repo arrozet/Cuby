@@ -11,6 +11,7 @@ import SettingsButton from '../common/SettingsButton/SettingsButton';
 
 // Importa todos los niveles disponibles
 import { level1 } from '../../levels/level1';
+import { level2 } from '../../levels/level2';
 
 const LevelSelect = () => {
   const navigate = useNavigate();
@@ -22,9 +23,9 @@ const LevelSelect = () => {
   useEffect(() => {
     // Por ahora solo tenemos level1, pero esto permitirá escalar fácilmente
     const availableLevels = [
-      { id: 1, level: level1, name: level1.name, locked: false }
+      { id: 1, level: level1, name: level1.name, locked: false },
       // AQUI SE PUEDEN AÑADIR MAS NIVELES
-      // { id: 2, level: level2, name: level2.name, locked: true },
+      { id: 2, level: level2, name: level2.name, locked: true }
     ];
 
     setLevels(availableLevels);
