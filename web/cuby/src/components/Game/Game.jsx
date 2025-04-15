@@ -17,6 +17,8 @@ import {
 } from '../../utils/physics';
 import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
+import { level2 } from '../../levels/level2';
+import { getUserLevelById } from '../../utils/levelManager';
 import { useInversion } from '../../context/InversionContext';
 
 /**
@@ -45,8 +47,7 @@ const Game = () => {
   });
   
   // Configuración del nivel actual
-  const currentLevel = level1; // TODO: Implementar carga dinámica de niveles
-  
+  const [currentLevel, setCurrentLevel] = useState(null);
   // Estados del juego
   const [hasWon, setHasWon] = useState(false);
 
@@ -54,8 +55,8 @@ const Game = () => {
    * Estado del jugador que contiene todas sus propiedades físicas y de gameplay
    */
   const [playerState, setPlayerState] = useState({
-    x: currentLevel.playerStart.x,
-    y: currentLevel.playerStart.y,
+    x: 50, // Default value until currentLevel is loaded
+    y: 450, // Default value until currentLevel is loaded
     width: PLAYER_SIZE,
     height: PLAYER_SIZE,
     velocityX: 0,
@@ -71,24 +72,69 @@ const Game = () => {
 
   // Estado para controlar si la tecla E ya fue procesada
   const [eKeyPressed, setEKeyPressed] = useState(false);
+  
+  // Cargar el nivel correcto basado en la ruta
+  useEffect(() => {
+    // Verificar si es un nivel de usuario (corregido para funcionar con HashRouter)
+    if (window.location.hash.includes('/game/user/')) {
+      const userLevel = getUserLevelById(levelId);
+      if (userLevel) {
+        setCurrentLevel(userLevel);
+        setPlayerState(prevState => ({
+          ...prevState,
+          x: userLevel.playerStart.x,
+          y: userLevel.playerStart.y
+        }));
+      } else {
+        // Si no se encuentra, cargar nivel predeterminado
+        setCurrentLevel(level1);
+        setPlayerState(prevState => ({
+          ...prevState,
+          x: level1.playerStart.x,
+          y: level1.playerStart.y
+        }));
+      }
+    } else {
+      // Cargar nivel predeterminado según el ID
+      const numericId = Number(levelId);
+      let levelToLoad;
+      switch(numericId) {
+        case 1:
+          levelToLoad = level1;
+          break;
+        case 2:
+          levelToLoad = level2;
+          break;
+        default:
+          levelToLoad = level1;
+          break;
+      }
+      setCurrentLevel(levelToLoad);
+      setPlayerState(prevState => ({
+        ...prevState,
+        x: levelToLoad.playerStart.x,
+        y: levelToLoad.playerStart.y
+      }));
+    }
+  }, [levelId]);
 
   /**
    * Reinicia el estado del juego a sus valores iniciales
    */
   const restartGame = useCallback(() => {
-    setPlayerState({
-      x: currentLevel.playerStart.x,
-      y: currentLevel.playerStart.y,
-      width: PLAYER_SIZE,
-      height: PLAYER_SIZE,
-      velocityX: 0,
-      velocityY: 0,
-      onGround: false,
-      weight: 5.0,
-      coyoteTime: 0,
-      hasCoyoteJumped: false
-    });
-    setHasWon(false);
+    if (currentLevel) {
+      setPlayerState(prevState => ({
+        ...prevState,
+        x: currentLevel.playerStart.x,
+        y: currentLevel.playerStart.y,
+        velocityX: 0,
+        velocityY: 0,
+        onGround: false,
+        coyoteTime: 0,
+        hasCoyoteJumped: false
+      }));
+      setHasWon(false);
+    }
   }, [currentLevel]);
 
   /**
@@ -134,8 +180,8 @@ const Game = () => {
    * Actualiza el estado del juego en cada frame
    * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
    */
-  const updateGameState = (deltaTime) => {
-    if (hasWon) return;
+  const updateGameState = useCallback((deltaTime) => {
+    if (hasWon || !currentLevel) return;
 
     setPlayerState(prevState => {
       const newState = { ...prevState };
@@ -199,7 +245,7 @@ const Game = () => {
       
       return newState;
     });
-  };
+  }, [hasWon, currentLevel, keysPressed, isInverted, gameDimensions.width, gameDimensions.height]);
 
   /**
    * Maneja el regreso a la pantalla de selección de niveles
@@ -210,6 +256,11 @@ const Game = () => {
 
   // Iniciar el bucle del juego
   useGameLoop(updateGameState);
+
+  // Renderizado condicional después de todas las llamadas de hooks
+  if (!currentLevel) {
+    return <div>Cargando nivel...</div>;
+  }
 
   return (
     <GameContainer width={gameDimensions.width} height={gameDimensions.height}>

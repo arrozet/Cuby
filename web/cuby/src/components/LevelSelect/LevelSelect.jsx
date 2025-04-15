@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LevelSelectContainer, 
   LevelsGrid, 
-  LevelCard
+  LevelCard,
+  UserLevelsButton
 } from './LevelSelect.styles';
 import { useInversion } from '../../context/InversionContext';
 import BackArrow from '../common/BackArrow/BackArrow';
@@ -25,7 +26,7 @@ const LevelSelect = () => {
     const availableLevels = [
       { id: 1, level: level1, name: level1.name, locked: false },
       // AQUI SE PUEDEN AÑADIR MAS NIVELES
-      { id: 2, level: level2, name: level2.name, locked: true }
+      { id: 2, level: level2, name: level2.name, locked: false } // TODO: SISTEMA DE DESBLOQUEO DE NIVELES
     ];
 
     setLevels(availableLevels);
@@ -65,10 +66,24 @@ const LevelSelect = () => {
     navigate('/');
   };
   
+  // Nuevo handler para navegar a "Mis Niveles"
+  const handleUserLevelsClick = () => {
+    navigate('/user-levels');
+  };
+  
   return (
     <LevelSelectContainer $isInverted={isInverted}>
       <BackArrow onClick={handleBackClick} />
       <SettingsButton />
+      
+      {/* Botón para Mis Niveles */}
+      <UserLevelsButton 
+        onClick={handleUserLevelsClick}
+        $isInverted={isInverted}
+      >
+        MIS NIVELES
+      </UserLevelsButton>
+      
       <LevelsGrid>
         {levels.map(level => (
           <LevelCard 

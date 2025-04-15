@@ -72,3 +72,25 @@ export const LevelCard = styled.div.attrs(props => ({
     font-size: 24px;
   }
 `;
+
+export const UserLevelsButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: ${props => getActiveColor(props.$isInverted)};
+  color: ${props => getInactiveColor(props.$isInverted)};
+  border: none;
+  border-radius: 10px;
+  padding: 12px 25px;
+  font-size: 18px;
+  font-family: 'Excalifont';
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  
+  &:hover {
+    transform: translateX(-50%) scale(1.05);
+    opacity: 0.9;
+  }
+`;

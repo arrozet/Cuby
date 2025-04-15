@@ -40,8 +40,6 @@ export const level2 = {
     // Plataforma vertical bloqueante (ambos colores)
     new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'white' }),
     new Platform({ x: 550, y: 50, width: 20, height: 200, color: 'black' }),
-    
-    
   ],
 
   /**
@@ -62,10 +60,8 @@ export const level2 = {
     new Trampoline({ x: 300, y: 530, color: 'black' }),
   ],
 
-  /**
-   * Portales que teletransportan al jugador
-   * Cada portal tiene un destino definido por coordenadas x,y
-   */
+  // Initialize as empty array to avoid undefined errors
+  portals: [],
 
   /**
    * Meta del nivel

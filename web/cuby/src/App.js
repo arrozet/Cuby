@@ -7,6 +7,8 @@ import Settings from './components/Settings/Settings';
 import OrientationWarning from './components/common/OrientationWarning/OrientationWarning';
 import { GlobalStyle } from './global.styles';
 import { InversionProvider } from './context/InversionContext';
+import UserLevels from './components/UserLevels/UserLevels';
+import LevelEditor from './components/LevelEditor/LevelEditor';
 
 /**
  * HashRouter se utiliza en lugar de BrowserRouter para GitHub Pages.
@@ -33,7 +35,13 @@ function App() {
             <Route path="/" element={<StartScreen />} />
             <Route path="/levels" element={<LevelSelect />} />
             <Route path="/game/:levelId" element={<Game />} />
+            <Route path="/game/user/:levelId" element={<Game />} />
             <Route path="/settings" element={<Settings />} />
+            
+            {/* Nuevas rutas para el editor de niveles */}
+            <Route path="/user-levels" element={<UserLevels />} />
+            <Route path="/level-editor/:levelId" element={<LevelEditor />} />
+            
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </HashRouter>
