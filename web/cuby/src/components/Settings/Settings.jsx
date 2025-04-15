@@ -20,11 +20,11 @@ const Settings = () => {
   };
   
   return (
-    <SettingsContainer isInverted={isInverted}>
+    <SettingsContainer $isInverted={isInverted}>
       <BackArrow onClick={handleBack} />
       <SettingsContent>
-        <Title isInverted={isInverted}>Configuración</Title>
-        <Message isInverted={isInverted}>POR IMPLEMENTAR</Message>
+        <Title $isInverted={isInverted}>Configuración</Title>
+        <Message $isInverted={isInverted}>POR IMPLEMENTAR</Message>
       </SettingsContent>
     </SettingsContainer>
   );

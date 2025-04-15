@@ -24,7 +24,7 @@ const Player = ({ x, y, size }) => {
       x={x}
       y={y}
       size={size}
-      isInverted={isInverted}
+      $isInverted={isInverted}
     />
   );
 };

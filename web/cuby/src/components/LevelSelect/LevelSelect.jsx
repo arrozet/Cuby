@@ -65,7 +65,7 @@ const LevelSelect = () => {
   };
   
   return (
-    <LevelSelectContainer isInverted={isInverted}>
+    <LevelSelectContainer $isInverted={isInverted}>
       <BackArrow onClick={handleBackClick} />
       <SettingsButton />
       <LevelsGrid>
@@ -74,7 +74,7 @@ const LevelSelect = () => {
             key={level.id} 
             onClick={() => !level.locked && startLevel(level.id)}
             locked={level.locked}
-            isInverted={isInverted}
+            $isInverted={isInverted}
           >
             <div className="level-number">{level.id}</div>
             {level.locked && <div className="lock-icon">🔒</div>}

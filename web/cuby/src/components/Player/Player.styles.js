@@ -7,7 +7,7 @@ export const PlayerContainer = styled.div.attrs(props => ({
     height: `${props.size}px`,
     left: `${props.x}px`,
     top: `${props.y}px`,
-    backgroundColor: getActiveColor(props.isInverted)
+    backgroundColor: getActiveColor(props.$isInverted)
   }
 }))`
   position: absolute;

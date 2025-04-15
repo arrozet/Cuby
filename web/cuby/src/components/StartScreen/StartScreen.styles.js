@@ -15,7 +15,7 @@ export const StartContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${props => getInactiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
   font-family: 'Excalifont';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

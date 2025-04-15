@@ -18,7 +18,7 @@ const BackArrow = ({ onClick }) => {
   const arrowColor = getActiveColor(isInverted);
   
   return (
-    <BackArrowContainer onClick={onClick} isInverted={isInverted}>
+    <BackArrowContainer onClick={onClick} $isInverted={isInverted}>
       <svg width="24" height="8" viewBox="0 0 16 8" fill="none" xmlns="http://www.w3.org/2000/svg" className="arrow-icon">
         <path d="M1 4H12V1" stroke={arrowColor}/>
         <path d="M1.5 4H12.5H16" stroke={arrowColor}/>

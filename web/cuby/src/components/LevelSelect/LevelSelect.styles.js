@@ -14,7 +14,7 @@ export const LevelSelectContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${props => getInactiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
   font-family: 'Excalifont';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -39,9 +39,9 @@ export const LevelsGrid = styled.div`
 
 export const LevelCard = styled.div.attrs(props => ({
   style: {
-    backgroundColor: props.locked ? '#333' : getActiveColor(props.isInverted),
-    borderColor: getActiveColor(props.isInverted),
-    color: getInactiveColor(props.isInverted),
+    backgroundColor: props.locked ? '#333' : getActiveColor(props.$isInverted),
+    borderColor: getActiveColor(props.$isInverted),
+    color: getInactiveColor(props.$isInverted),
     cursor: props.locked ? 'not-allowed' : 'pointer',
     transform: (!props.locked && props.hover) ? 'scale(1.05)' : 'scale(1)'
   }

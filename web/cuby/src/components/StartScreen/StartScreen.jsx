@@ -34,14 +34,14 @@ const StartScreen = () => {
   }, [handleKeyDown, handleKeyUp]);
 
   return (
-    <StartContainer isInverted={isInverted}>
+    <StartContainer $isInverted={isInverted}>
       <GameTitle 
         text="CUBY"
         fontSize="120px"
         isInverted={!isInverted}
         offset={4}
       />
-      <StartButtonContainer isInverted={isInverted}>
+      <StartButtonContainer $isInverted={isInverted}>
         <StartButtonText 
           text="Presiona cualquier botón para comenzar"
           fontSize="20px"

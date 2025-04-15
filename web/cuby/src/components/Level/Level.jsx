@@ -29,7 +29,7 @@ const Level = ({ width, height, level = level1 }) => {
   const { isInverted } = useInversion();
 
   return (
-    <LevelContainer width={width} height={height} isInverted={isInverted}>
+    <LevelContainer width={width} height={height} $isInverted={isInverted}>
       {/* Renderizado de plataformas */}
       {level.platforms.map((platform, index) => (
         <Platform
@@ -39,7 +39,7 @@ const Level = ({ width, height, level = level1 }) => {
           width={platform.width}
           height={platform.height}
           color={platform.color}
-          isInverted={isInverted}
+          $isInverted={isInverted}
         />
       ))}
       
@@ -52,7 +52,7 @@ const Level = ({ width, height, level = level1 }) => {
           width={obstacle.width}
           height={obstacle.height}
           color={obstacle.color}
-          isInverted={isInverted}
+          $isInverted={isInverted}
         />
       ))}
       
@@ -65,7 +65,7 @@ const Level = ({ width, height, level = level1 }) => {
           width={trampoline.width}
           height={trampoline.height}
           color={trampoline.color}
-          isInverted={isInverted}
+          $isInverted={isInverted}
         />
       ))}
       
@@ -78,7 +78,7 @@ const Level = ({ width, height, level = level1 }) => {
           width={portal.width}
           height={portal.height}
           color={portal.color}
-          isInverted={isInverted}
+          $isInverted={isInverted}
         />
       ))}
       
@@ -88,7 +88,7 @@ const Level = ({ width, height, level = level1 }) => {
         y={level.goal.y}
         width={level.goal.width}
         height={level.goal.height}
-        isInverted={isInverted}
+        $isInverted={isInverted}
       />
     </LevelContainer>
   );

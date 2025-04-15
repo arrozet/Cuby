@@ -7,9 +7,9 @@ export const Platform = styled.div.attrs(props => ({
     top: `${props.y}px`,
     width: `${props.width}px`,
     height: `${props.height}px`,
-    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent',
-    border: props.color === getActiveColor(props.isInverted) ? '1px solid #333' : 'none'
+    backgroundColor: props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent',
+    border: props.color === getActiveColor(props.$isInverted) ? '1px solid #333' : 'none'
   }
 }))`
   position: absolute;
@@ -23,8 +23,8 @@ export const Obstacle = styled.div.attrs(props => ({
     top: `${props.y}px`,
     width: `${props.width}px`,
     height: `${props.height}px`,
-    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent'
+    backgroundColor: props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent'
   }
 }))`
   position: absolute;
@@ -40,8 +40,8 @@ export const Obstacle = styled.div.attrs(props => ({
     border-left: ${props => props.width / 2}px solid transparent;
     border-right: ${props => props.width / 2}px solid transparent;
     border-bottom: 10px solid ${props => 
-      props.color === getActiveColor(props.isInverted) ? 
-        getActiveColor(props.isInverted) : 'transparent'};
+      props.color === getActiveColor(props.$isInverted) ? 
+        getActiveColor(props.$isInverted) : 'transparent'};
   }
 `;
 
@@ -51,10 +51,10 @@ export const Trampoline = styled.div.attrs(props => ({
     top: `${props.y}px`,
     width: `${props.width}px`,
     height: `${props.height}px`,
-    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent',
-    borderBottom: `5px solid ${props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent'}`
+    backgroundColor: props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent',
+    borderBottom: `5px solid ${props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent'}`
   }
 }))`
   position: absolute;
@@ -68,8 +68,8 @@ export const Portal = styled.div.attrs(props => ({
     top: `${props.y}px`,
     width: `${props.width}px`,
     height: `${props.height}px`,
-    backgroundColor: props.color === getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent'
+    backgroundColor: props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent'
   }
 }))`
   position: absolute;
@@ -85,8 +85,8 @@ export const Portal = styled.div.attrs(props => ({
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: ${props => props.width * 0.5}px;
-    color: ${props => getActiveColor(props.isInverted) ? 
-      getActiveColor(props.isInverted) : 'transparent'};
+    color: ${props => getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent'};
     opacity: 0.6;
     animation: float 2s ease-in-out infinite;
   }
@@ -110,7 +110,7 @@ export const Goal = styled.div.attrs(props => ({
     top: `${props.y}px`,
     width: `${props.width}px`,
     height: `${props.height}px`,
-    border: `3px dashed ${getActiveColor(props.isInverted)}`
+    border: `3px dashed ${getActiveColor(props.$isInverted)}`
   }
 }))`
   position: absolute;

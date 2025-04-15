@@ -8,7 +8,7 @@ export const SettingsContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${props => getInactiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
   font-family: 'Excalifont';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -30,12 +30,12 @@ export const SettingsContent = styled.div`
 export const Title = styled.h1`
   font-size: 48px;
   margin-bottom: 40px;
-  color: ${props => getActiveColor(props.isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
 `;
 
 export const Message = styled.div`
   font-size: 32px;
-  color: ${props => getActiveColor(props.isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
   padding: 20px;
 `;
@@ -47,7 +47,7 @@ export const BackButton = styled.button`
   background: none;
   border: none;
   font-size: 24px;
-  color: ${props => getActiveColor(props.isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
   cursor: pointer;
   
   &:hover {
