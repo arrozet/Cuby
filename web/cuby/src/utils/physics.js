@@ -2,7 +2,8 @@ import { GRAVITY } from '../constants/gameConstants';
 import { isElementActive } from './colors';
 
 /**
- * Aplica la fuerza de gravedad a un objeto en el juego
+ * Aplica la gravedad a un objeto en el juego teniendo en cuenta su peso,
+ * si está en el suelo y el tiempo transcurrido
  * 
  * @param {number} velocity - Velocidad vertical actual del objeto
  * @param {boolean} onGround - Indica si el objeto está en el suelo
@@ -40,7 +41,12 @@ export const checkCollision = (obj1, obj2) => {
 };
 
 /**
- * Procesa las colisiones con trampolines y aplica el impulso
+ * Detecta y procesa las colisiones entre el jugador y los trampolines activos.
+ * Cuando hay colisión, aplica un impulso vertical al jugador basado en la fuerza del trampolín
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height, velocityY, weight
+ * @param {Array} trampolines - Array de trampolines con propiedades x, y, width, height, color, force
+ * @param {boolean} isInverted - Estado actual de inversión de color
  */
 export const processTramplineCollisions = (player, trampolines, isInverted) => {
   trampolines.forEach(trampoline => {
@@ -55,7 +61,13 @@ export const processTramplineCollisions = (player, trampolines, isInverted) => {
 };
 
 /**
- * Procesa las colisiones con obstáculos y reinicia la posición del jugador
+ * Detecta las colisiones con obstáculos activos y reinicia la posición
+ * del jugador cuando colisiona con alguno
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height
+ * @param {Array} obstacles - Array de obstáculos con propiedades x, y, width, height, color
+ * @param {boolean} isInverted - Estado actual de inversión de color
+ * @param {Object} startPosition - Posición inicial del jugador con propiedades x, y
  */
 export const processObstacleCollisions = (player, obstacles, isInverted, startPosition) => {
   obstacles.forEach(obstacle => {
@@ -69,7 +81,12 @@ export const processObstacleCollisions = (player, obstacles, isInverted, startPo
 };
 
 /**
- * Procesa las colisiones con portales y teletransporta al jugador
+ * Maneja las colisiones con portales activos, teletransportando al jugador
+ * a la posición de destino del portal cuando hay contacto
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height
+ * @param {Array} portals - Array de portales con propiedades x, y, width, height, color, destination
+ * @param {boolean} isInverted - Estado actual de inversión de color
  */
 export const processPortalCollisions = (player, portals, isInverted) => {
   portals.forEach(portal => {
@@ -83,14 +100,21 @@ export const processPortalCollisions = (player, portals, isInverted) => {
 };
 
 /**
- * Verifica si se ha alcanzado la meta
+ * Verifica si el jugador ha alcanzado la meta del nivel
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height
+ * @param {Object} goal - Objeto meta con propiedades x, y, width, height
+ * @returns {boolean} true si el jugador ha alcanzado la meta, false si no
  */
 export const checkVictoryCondition = (player, goal) => {
   return checkCollision(player, goal);
 };
 
 /**
- * Reinicia la posición del jugador a su punto inicial
+ * Reinicia la posición y velocidad del jugador a su estado inicial
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, velocityX, velocityY
+ * @param {Object} startPosition - Posición inicial del jugador con propiedades x, y
  */
 const resetPlayerPosition = (player, startPosition) => {
   player.x = startPosition.x;
@@ -100,7 +124,10 @@ const resetPlayerPosition = (player, startPosition) => {
 };
 
 /**
- * Teletransporta al jugador a una nueva posición
+ * Mueve instantáneamente al jugador a una nueva posición y detiene su velocidad
+ * 
+ * @param {Object} player - Objeto jugador con propiedades x, y, velocityX, velocityY
+ * @param {Object} destination - Posición de destino con propiedades x, y
  */
 const teleportPlayer = (player, destination) => {
   player.x = destination.x;
@@ -110,13 +137,11 @@ const teleportPlayer = (player, destination) => {
 };
 
 /**
- * Sistema complejo de detección y resolución de colisiones con plataformas
- * 
- * Este sistema:
- * - Filtra las plataformas activas según el estado de inversión de color
- * - Detecta colisiones en todas las direcciones (arriba, abajo, izquierda, derecha)
+ * Sistema de detección y resolución de colisiones con plataformas que:
+ * - Maneja colisiones en todas las direcciones
+ * - Considera solo plataformas activas según el estado de inversión
  * - Resuelve las colisiones moviendo al jugador a la posición correcta
- * - Maneja el estado de "en el suelo" para el jugador
+ * - Actualiza el estado de "en el suelo" del jugador
  * 
  * @param {Object} player - Objeto jugador con propiedades x, y, width, height, velocityX, velocityY
  * @param {Array} platforms - Array de plataformas con propiedades x, y, width, height, color
