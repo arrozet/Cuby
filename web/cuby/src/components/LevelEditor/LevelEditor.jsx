@@ -40,6 +40,9 @@ const LevelEditor = () => {
   
   // Estado para controlar la tecla E
   const [eKeyPressed, setEKeyPressed] = useState(false);
+
+  // Estado para saber si hay cambios no guardados
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   // Add new state for platform dimensions
   const [platformSize, setPlatformSize] = useState({
@@ -83,18 +86,34 @@ const LevelEditor = () => {
     if (levelId === 'new') {
       // Crear un nivel vacío
       setLevel(createEmptyLevel());
+      setHasUnsavedChanges(false); // No hay cambios al crear un nivel vacío
     } else {
       // Cargar nivel existente
       const existingLevel = getUserLevelById(levelId);
       if (existingLevel) {
         setLevel(existingLevel);
+        setHasUnsavedChanges(false);
         setLevelName(existingLevel.name);
       } else {
         // Si no existe, crear uno vacío
         setLevel(createEmptyLevel());
+        setHasUnsavedChanges(false);
       }
     }
   }, [levelId]);
+
+  useEffect(() => {
+    if (hasUnsavedChanges) {
+      const handleBeforeUnload = (e) => {
+        e.preventDefault();
+        e.returnValue = '¿Estás seguro de que quieres salir? Se perderán los cambios no guardados.';
+        return e.returnValue;
+      };
+      
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+  }, [hasUnsavedChanges]);
   
   // Manejar el arrastre y colocación de elementos
   const handleCanvasClick = (e) => {
@@ -114,7 +133,7 @@ const LevelEditor = () => {
     if (!selectedElement || !level) return;
     
     // Obtener el color contrario al fondo actual
-    const elementColor = getInactiveColor(isInverted);
+    const elementColor = getActiveColor(isInverted);
     
     // Crear el nuevo elemento según el tipo seleccionado
     let newElement;
@@ -127,75 +146,86 @@ const LevelEditor = () => {
           width: platformSize.width, 
           height: platformSize.height 
         });
-        setLevel({
-          ...level,
-          platforms: [...level.platforms, newElement]
-        });
+        if (!level.platforms.some(p => JSON.stringify(p) === JSON.stringify(newElement))) {
+          setLevel({
+            ...level,
+            platforms: [...level.platforms, newElement]
+          });
+          setHasUnsavedChanges(true);
+        }
         break;
       case 'spike':
-        // Corregido: Posicionamos el spike exactamente donde está el cursor
-        // El spike necesita que su base esté donde está el cursor, no su punto superior
         newElement = new Spike({ 
           x, 
-          y: y - Spike.defaultHeight, // Restamos la altura para que la base esté donde se hizo clic
+          y: y - Spike.defaultHeight, 
           color: elementColor 
         });
-        setLevel({
-          ...level,
-          obstacles: [...level.obstacles, newElement]
-        });
+        if (!level.obstacles.some(o => JSON.stringify(o) === JSON.stringify(newElement))) {
+          setLevel({
+            ...level,
+            obstacles: [...level.obstacles, newElement]
+          });
+          setHasUnsavedChanges(true);
+        }
         break;
       case 'trampoline':
         newElement = new Trampoline({ x, y, color: elementColor });
-        setLevel({
-          ...level,
-          trampolines: [...level.trampolines, newElement]
-        });
+        if (!level.trampolines.some(t => JSON.stringify(t) === JSON.stringify(newElement))) {
+          setLevel({
+            ...level,
+            trampolines: [...level.trampolines, newElement]
+          });
+          setHasUnsavedChanges(true);
+        }
         break;
       case 'portal':
         if (isSelectingPortalDestination && pendingPortal) {
-          // Complete the portal by setting its destination
           const finalPortal = new Portal({ 
             ...pendingPortal,
             destination: { x, y },
-            portalId: portalCounter // Añadir ID al portal
+            portalId: portalCounter 
           });
-          setLevel({
-            ...level,
-            portals: [...level.portals, finalPortal]
-          });
-          // Reset portal placement states and increment counter
+          if (!level.portals.some(p => JSON.stringify(p) === JSON.stringify(finalPortal))) {
+            setLevel({
+              ...level,
+              portals: [...level.portals, finalPortal]
+            });
+            setHasUnsavedChanges(true);
+          }
           setIsSelectingPortalDestination(false);
           setPendingPortal(null);
           setPortalCounter(prev => prev + 1);
         } else {
-          // Start portal placement
           const newPortal = {
             x, 
             y, 
             color: elementColor,
             width: 40,
             height: 60,
-            portalId: portalCounter // Añadir ID al portal pendiente
+            portalId: portalCounter 
           };
           setPendingPortal(newPortal);
           setIsSelectingPortalDestination(true);
         }
         break;
       case 'goal':
-        // Reemplazar la meta actual
         newElement = new Goal({ x, y });
-        setLevel({
-          ...level,
-          goal: newElement
-        });
+        if (JSON.stringify(level.goal) !== JSON.stringify(newElement)) {
+          setLevel({
+            ...level,
+            goal: newElement
+          });
+          setHasUnsavedChanges(true);
+        }
         break;
       case 'player-start':
-        // Actualizar punto de inicio del jugador
-        setLevel({
-          ...level,
-          playerStart: { x, y }
-        });
+        if (JSON.stringify(level.playerStart) !== JSON.stringify({ x, y })) {
+          setLevel({
+            ...level,
+            playerStart: { x, y }
+          });
+          setHasUnsavedChanges(true);
+        }
         break;
       default:
         break;
@@ -208,6 +238,16 @@ const LevelEditor = () => {
     if (isSelectingPortalDestination) {
       setIsSelectingPortalDestination(false);
       setPendingPortal(null);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (hasUnsavedChanges) {
+      if (window.confirm('¿Estás seguro de que quieres salir? Se perderán los cambios no guardados.')) {
+        navigate('/user-levels');
+      }
+    } else {
+      navigate('/user-levels');
     }
   };
 
@@ -285,6 +325,7 @@ const LevelEditor = () => {
     
     // Actualizar el nivel con todos los cambios
     setLevel(updatedLevel);
+    setHasUnsavedChanges(true);
     
     // Registrar resultados para depuración
     console.log('Elementos después del borrado:', {
@@ -324,6 +365,7 @@ const LevelEditor = () => {
     const savedLevelId = saveUserLevel(levelToSave, levelId === 'new' ? null : levelId);
     if (savedLevelId) {
       setSaveDialogOpen(false);
+      setHasUnsavedChanges(false);
       navigate('/user-levels');
     }
   };
@@ -371,6 +413,7 @@ const handleImport = () => {
         };
         
         setLevel(reconstructedLevel);
+        setHasUnsavedChanges(false);
         setLevelName(reconstructedLevel.name || '');
         
         // Actualizar el contador de portales
@@ -405,7 +448,7 @@ const handleImport = () => {
       <EditorToolbar>
         {/* BackArrow a la izquierda, ajustada más hacia arriba */}
         <div style={{ position: 'absolute', left: '5px', top: '-10px', transform: 'translateY(0)' }}>
-          <BackArrow onClick={() => navigate('/user-levels')} />
+          <BackArrow onClick={handleGoBack} />
         </div>
         
         {/* Botones centrales */}
@@ -505,7 +548,6 @@ const handleImport = () => {
                 top: obstacle.y,
                 width: obstacle.width,
                 height: obstacle.height,
-                position: 'relative'
               }}
             >
               {/* Triángulo para el pico (spike) */}
