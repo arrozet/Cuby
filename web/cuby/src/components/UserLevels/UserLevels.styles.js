@@ -87,6 +87,9 @@ export const ActionButton = styled.button`
   &:hover {
     transform: scale(1.05);
     opacity: 0.9;
+    /* Mantenemos los mismos colores, solo cambiamos escala y opacidad */
+    background-color: ${props => getActiveColor(props.$isInverted)};
+    color: ${props => getInactiveColor(props.$isInverted)};
   }
 `;
 
