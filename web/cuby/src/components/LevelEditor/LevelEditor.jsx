@@ -57,6 +57,9 @@ const LevelEditor = () => {
   // Añade este estado cerca del inicio del componente, junto a los otros estados
   const [portalCounter, setPortalCounter] = useState(1);
   
+  // Añadir un nuevo estado para rastrear la posición del cursor y el elemento en vista previa
+  const [previewElement, setPreviewElement] = useState(null);
+  
   // Manejar la inversión con la tecla E
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -239,6 +242,93 @@ const LevelEditor = () => {
       setIsSelectingPortalDestination(false);
       setPendingPortal(null);
     }
+  };
+
+  // Modificar el manejo del movimiento del ratón para desactivar la vista previa en modo borrar
+  const handleCanvasMouseMove = (e) => {
+    if (editorMode === 'erase' || !selectedElement) {
+      setPreviewElement(null);
+      return;
+    }
+
+    const canvas = e.currentTarget;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const elementColor = getActiveColor(isInverted);
+
+    let newPreviewElement;
+    switch (selectedElement) {
+      case 'platform':
+        newPreviewElement = {
+          type: 'platform',
+          x,
+          y,
+          width: platformSize.width,
+          height: platformSize.height,
+          color: elementColor,
+        };
+        break;
+      case 'spike':
+        newPreviewElement = {
+          type: 'spike',
+          x,
+          y: y - Spike.defaultHeight,
+          width: Spike.defaultWidth,
+          height: Spike.defaultHeight,
+          color: elementColor,
+        };
+        break;
+      case 'trampoline':
+        newPreviewElement = {
+          type: 'trampoline',
+          x,
+          y,
+          width: Trampoline.defaultWidth,
+          height: Trampoline.defaultHeight,
+          color: elementColor,
+        };
+        break;
+      case 'portal':
+        newPreviewElement = {
+          type: 'portal',
+          x,
+          y,
+          width: 40,
+          height: 60,
+          color: 'purple',
+        };
+        break;
+      case 'goal':
+        newPreviewElement = {
+          type: 'goal',
+          x,
+          y,
+          width: Goal.defaultWidth,
+          height: Goal.defaultHeight,
+        };
+        break;
+      case 'player-start':
+        newPreviewElement = {
+          type: 'player-start',
+          x,
+          y,
+          width: 40,
+          height: 40,
+          color: elementColor,
+        };
+        break;
+      default:
+        newPreviewElement = null;
+    }
+
+    setPreviewElement(newPreviewElement);
+  };
+
+  // Limpiar la vista previa cuando el ratón sale del canvas
+  const handleCanvasMouseLeave = () => {
+    setPreviewElement(null);
   };
 
   const handleGoBack = () => {
@@ -514,8 +604,62 @@ const handleImport = () => {
       </EditorToolbar>
       
       <div style={{ display: 'flex', flex: 1, width: '100%' }}>
-        <EditorCanvas onClick={handleCanvasClick} onContextMenu={handleCanvasContextMenu} isInverted={isInverted}>
-          {/* Renderizar aquí el contenido del nivel */}
+        <EditorCanvas 
+          onClick={handleCanvasClick} 
+          onContextMenu={handleCanvasContextMenu} 
+          onMouseMove={handleCanvasMouseMove} 
+          onMouseLeave={handleCanvasMouseLeave} 
+          isInverted={isInverted}
+        >
+          {/* Renderizar el elemento en vista previa */}
+          {previewElement && previewElement.type === 'trampoline' ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: previewElement.x,
+                top: previewElement.y,
+                width: previewElement.width,
+                height: previewElement.height,
+                backgroundColor: previewElement.color || 'transparent',
+                borderRadius: '50% 50% 0 0',
+                opacity: 0.5,
+                border: `1px solid ${previewElement.color === 'black' ? 'white' : 'black'}`,
+                pointerEvents: 'none',
+              }}
+            />
+          ) : previewElement && previewElement.type === 'spike' ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: previewElement.x,
+                top: previewElement.y,
+                width: 0,
+                height: 0,
+                borderLeft: `${previewElement.width / 2}px solid transparent`,
+                borderRight: `${previewElement.width / 2}px solid transparent`,
+                borderBottom: `${previewElement.height}px solid ${previewElement.color}`,
+                opacity: 0.5,
+                pointerEvents: 'none',
+              }}
+            />
+          ) : previewElement && (
+            <div
+              style={{
+                position: 'absolute',
+                left: previewElement.x,
+                top: previewElement.y,
+                width: previewElement.width,
+                height: previewElement.height,
+                backgroundColor: previewElement.color || 'transparent',
+                opacity: 0.5,
+                border: previewElement.type === 'goal' ? '2px dashed white' : '1px solid white',
+                borderRadius: previewElement.type === 'goal' ? '50%' : '0',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+
+          {/* Renderizar el contenido del nivel */}
           {/* Usar el componente Level pero con interactividad adicional */}
           {/* Esta parte es similar a lo que ya tienes en Level.jsx */}
           {/* Renderizado de plataformas */}
