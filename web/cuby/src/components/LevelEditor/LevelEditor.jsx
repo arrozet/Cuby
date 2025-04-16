@@ -46,6 +46,13 @@ const LevelEditor = () => {
     width: 100,
     height: 20
   });
+
+  // In LevelEditor.jsx, add these new states
+  const [isSelectingPortalDestination, setIsSelectingPortalDestination] = useState(false);
+  const [pendingPortal, setPendingPortal] = useState(null);
+  
+  // Añade este estado cerca del inicio del componente, junto a los otros estados
+  const [portalCounter, setPortalCounter] = useState(1);
   
   // Manejar la inversión con la tecla E
   useEffect(() => {
@@ -146,17 +153,34 @@ const LevelEditor = () => {
         });
         break;
       case 'portal':
-        newElement = new Portal({ 
-          x, y, 
-          color: elementColor,
-          width: 40,
-          height: 60,
-          destination: { x: x + 100, y } 
-        });
-        setLevel({
-          ...level,
-          portals: [...level.portals, newElement]
-        });
+        if (isSelectingPortalDestination && pendingPortal) {
+          // Complete the portal by setting its destination
+          const finalPortal = new Portal({ 
+            ...pendingPortal,
+            destination: { x, y },
+            portalId: portalCounter // Añadir ID al portal
+          });
+          setLevel({
+            ...level,
+            portals: [...level.portals, finalPortal]
+          });
+          // Reset portal placement states and increment counter
+          setIsSelectingPortalDestination(false);
+          setPendingPortal(null);
+          setPortalCounter(prev => prev + 1);
+        } else {
+          // Start portal placement
+          const newPortal = {
+            x, 
+            y, 
+            color: elementColor,
+            width: 40,
+            height: 60,
+            portalId: portalCounter // Añadir ID al portal pendiente
+          };
+          setPendingPortal(newPortal);
+          setIsSelectingPortalDestination(true);
+        }
         break;
       case 'goal':
         // Reemplazar la meta actual
@@ -178,6 +202,15 @@ const LevelEditor = () => {
     }
   };
   
+  // Add this new function
+  const handleCanvasContextMenu = (e) => {
+    e.preventDefault();
+    if (isSelectingPortalDestination) {
+      setIsSelectingPortalDestination(false);
+      setPendingPortal(null);
+    }
+  };
+
   // Función para borrar elementos en una posición
   const eraseElementAt = (x, y) => {
     if (!level) return;
@@ -294,6 +327,69 @@ const LevelEditor = () => {
       navigate('/user-levels');
     }
   };
+
+  // Añade estas funciones después de handleSaveConfirm:
+
+const handleExport = () => {
+  if (!level) return;
+  
+  const levelData = JSON.stringify(level, null, 2);
+  const blob = new Blob([levelData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${level.name || 'untitled-level'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const handleImport = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedLevel = JSON.parse(e.target.result);
+        
+        // Recrear las instancias de las clases correctas
+        const reconstructedLevel = {
+          ...importedLevel,
+          platforms: importedLevel.platforms.map(p => new Platform(p)),
+          obstacles: importedLevel.obstacles.map(o => new Spike(o)),
+          trampolines: importedLevel.trampolines.map(t => new Trampoline(t)),
+          portals: importedLevel.portals.map(p => new Portal(p)),
+          goal: new Goal(importedLevel.goal)
+        };
+        
+        setLevel(reconstructedLevel);
+        setLevelName(reconstructedLevel.name || '');
+        
+        // Actualizar el contador de portales
+        const maxPortalId = Math.max(
+          ...reconstructedLevel.portals.map(p => p.portalId || 0),
+          0
+        );
+        setPortalCounter(maxPortalId + 1);
+        
+      } catch (error) {
+        console.error('Error al importar el nivel:', error);
+        alert('Error al importar el nivel. Asegúrate de que el archivo es válido.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  input.click();
+};
   
   // Si el nivel aún no está cargado, mostrar carga
   if (!level) {
@@ -347,7 +443,23 @@ const LevelEditor = () => {
         </div>
         
         {/* Botón de guardar a la derecha */}
-        <div style={{ position: 'absolute', right: '15px' }}>
+        <div style={{ position: 'absolute', right: '15px', display: 'flex', gap: '10px' }}>
+          <ToolbarItem 
+            onClick={handleExport}
+            isInverted={isInverted}
+            style={{ backgroundColor: 'transparent' }}
+          >
+            Exportar
+          </ToolbarItem>
+          
+          <ToolbarItem 
+            onClick={handleImport}
+            isInverted={isInverted}
+            style={{ backgroundColor: 'transparent' }}
+          >
+            Importar
+          </ToolbarItem>
+          
           <ToolbarItem 
             onClick={handleSave}
             isInverted={isInverted}
@@ -359,7 +471,7 @@ const LevelEditor = () => {
       </EditorToolbar>
       
       <div style={{ display: 'flex', flex: 1, width: '100%' }}>
-        <EditorCanvas onClick={handleCanvasClick} isInverted={isInverted}>
+        <EditorCanvas onClick={handleCanvasClick} onContextMenu={handleCanvasContextMenu} isInverted={isInverted}>
           {/* Renderizar aquí el contenido del nivel */}
           {/* Usar el componente Level pero con interactividad adicional */}
           {/* Esta parte es similar a lo que ya tienes en Level.jsx */}
@@ -434,29 +546,56 @@ const LevelEditor = () => {
           
           {/* Renderizado de portales - siempre visibles */}
           {level.portals.map((portal, index) => (
-            <div
-              key={`portal-${index}`}
-              style={{
-                position: 'absolute',
-                left: portal.x,
-                top: portal.y,
-                width: portal.width,
-                height: portal.height,
-                backgroundColor: 'purple',
-                border: '1px solid #ffffff',
-                opacity: 0.8,
-                borderRadius: '8px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <div style={{
-                fontSize: `${portal.width * 0.5}px`,
-                color: 'white',
-                opacity: 0.9
-              }}>◊</div>
-            </div>
+            <React.Fragment key={`portal-${index}`}>
+              {/* Portal principal */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: portal.x,
+                  top: portal.y,
+                  width: portal.width,
+                  height: portal.height,
+                  backgroundColor: 'purple',
+                  border: '1px solid #ffffff',
+                  opacity: 0.8,
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <div style={{
+                  fontSize: `${portal.width * 0.5}px`,
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}>{portal.portalId}</div>
+              </div>
+              
+              {/* Indicador de destino */}
+              {portal.destination && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: portal.destination.x,
+                    top: portal.destination.y,
+                    width: 20,
+                    height: 20,
+                    border: '2px dashed purple',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    opacity: 0.6
+                  }}
+                >
+                  <div style={{
+                    fontSize: '12px',
+                    color: 'purple',
+                    fontWeight: 'bold'
+                  }}>{portal.portalId}</div>
+                </div>
+              )}
+            </React.Fragment>
           ))}
           
           {/* Renderizado de la meta */}
@@ -484,6 +623,46 @@ const LevelEditor = () => {
               opacity: 0.7
             }}
           />
+          {isSelectingPortalDestination && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: getActiveColor(isInverted),
+              color: getInactiveColor(isInverted),
+              padding: '10px',
+              textAlign: 'center',
+              zIndex: 100,
+              opacity: 0.9
+            }}>
+              Haz clic en cualquier lugar para establecer el destino del portal, o clic derecho para cancelar.
+            </div>
+          )}
+          {pendingPortal && (
+            <div
+              style={{
+                position: 'absolute',
+                left: pendingPortal.x,
+                top: pendingPortal.y,
+                width: pendingPortal.width,
+                height: pendingPortal.height,
+                backgroundColor: 'purple',
+                border: '1px solid #ffffff',
+                opacity: 0.8,
+                borderRadius: '8px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <div style={{
+                fontSize: `${pendingPortal.width * 0.5}px`,
+                color: 'white',
+                fontWeight: 'bold'
+              }}>{pendingPortal.portalId}</div>
+            </div>
+          )}
         </EditorCanvas>
         
         <EditorSidebar isInverted={isInverted}>
