@@ -1,8 +1,12 @@
 // --- START OF FILE LevelEditor.jsx ---
 
-// ... imports remain the same ...
+// Asegúrate de que estas importaciones estén presentes
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ConfirmationModal from '../common/ConfirmationModal/ConfirmationModal'; // <-- IMPORTA EL MODAL
+import BackArrow from '../common/BackArrow/BackArrow';
+import { useInversion } from '../../context/InversionContext';
+// ... el resto de tus importaciones ...
 import {
   EditorContainer,
   EditorSidebar,
@@ -17,15 +21,12 @@ import {
   Input,
   SaveDialogButtons
 } from './LevelEditor.styles';
-import BackArrow from '../common/BackArrow/BackArrow';
-import { useInversion } from '../../context/InversionContext';
 import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameElements';
 import { getUserLevelById, saveUserLevel, createEmptyLevel } from '../../utils/levelManager';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 
 const LevelEditor = () => {
-  // ... (hooks and state variables remain the same) ...
   const { levelId } = useParams();
   const navigate = useNavigate();
   const { isInverted, toggleInversion } = useInversion();
@@ -41,12 +42,31 @@ const LevelEditor = () => {
   const [pendingPortal, setPendingPortal] = useState(null);
   const [portalCounter, setPortalCounter] = useState(1);
   const [previewElement, setPreviewElement] = useState(null);
+  const [isExitConfirmModalOpen, setIsExitConfirmModalOpen] = useState(false); // <-- NUEVO ESTADO PARA EL MODAL DE SALIDA
 
-  // ... (useEffect hooks and functions like handleCanvasClick, handleSave, etc. remain the same) ...
-
+  // --- useEffect para teclas ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key.toLowerCase() === 'e' && !eKeyPressed && !saveDialogOpen /* Prevent toggle when dialog is open */) {
+      // Prioritize closing modals with Escape
+      if (e.key === 'Escape') {
+        if (saveDialogOpen) {
+          setSaveDialogOpen(false);
+          return; // Stop further processing if a modal was closed
+        }
+        if (isExitConfirmModalOpen) {
+          setIsExitConfirmModalOpen(false); // Cierra el modal de salida
+          return;
+        }
+        if (isSelectingPortalDestination) {
+           setIsSelectingPortalDestination(false);
+           setPendingPortal(null);
+           return;
+        }
+        // If no modal/action handled, allow default back navigation or other Escape behavior
+      }
+
+      // Handle 'E' for inversion only if no dialogs are open
+      if (e.key.toLowerCase() === 'e' && !eKeyPressed && !saveDialogOpen) {
         setEKeyPressed(true);
         toggleInversion();
       }
@@ -62,8 +82,11 @@ const LevelEditor = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [toggleInversion, eKeyPressed, saveDialogOpen]); // Added saveDialogOpen dependency
+    // Añade isExitConfirmModalOpen a las dependencias
+  }, [toggleInversion, eKeyPressed, saveDialogOpen, isExitConfirmModalOpen, isSelectingPortalDestination, navigate]);
 
+
+  // --- useEffect para cargar nivel --- (sin cambios)
   useEffect(() => {
     if (levelId === 'new') {
       setLevel(createEmptyLevel());
@@ -71,8 +94,8 @@ const LevelEditor = () => {
     } else {
       const existingLevel = getUserLevelById(levelId);
       if (existingLevel) {
-        // Ensure elements are instances of classes if loaded from simple JSON
          const reconstructedLevel = {
+          // ... (resto de la lógica de reconstrucción)
           ...existingLevel,
           platforms: (existingLevel.platforms || []).map(p => p instanceof Platform ? p : new Platform(p)),
           obstacles: (existingLevel.obstacles || []).map(o => o instanceof Spike ? o : new Spike(o)),
@@ -83,7 +106,6 @@ const LevelEditor = () => {
         setLevel(reconstructedLevel);
         setHasUnsavedChanges(false);
         setLevelName(reconstructedLevel.name || '');
-         // Update portal counter based on loaded level
         const maxPortalId = Math.max(...(reconstructedLevel.portals || []).map(p => p.portalId || 0), 0);
         setPortalCounter(maxPortalId + 1);
       } else {
@@ -93,7 +115,7 @@ const LevelEditor = () => {
     }
   }, [levelId]);
 
-
+  // --- useEffect para beforeunload --- (sin cambios, este es para cierre de navegador/pestaña)
   useEffect(() => {
     if (hasUnsavedChanges) {
       const handleBeforeUnload = (e) => {
@@ -106,7 +128,9 @@ const LevelEditor = () => {
     }
   }, [hasUnsavedChanges]);
 
-  const handleCanvasClick = (e) => {
+  // --- Resto de funciones (handleCanvasClick, eraseElementAt, handleSave, handleSaveConfirm, handleExport, handleImport, etc.) ---
+  // --- SIN CAMBIOS ---
+   const handleCanvasClick = (e) => {
     const canvas = e.currentTarget;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -253,16 +277,6 @@ const LevelEditor = () => {
 
   const handleCanvasMouseLeave = () => {
     setPreviewElement(null);
-  };
-
-  const handleGoBack = () => {
-    if (hasUnsavedChanges) {
-      if (window.confirm('¿Estás seguro de que quieres salir? Se perderán los cambios no guardados.')) {
-        navigate('/user-levels');
-      }
-    } else {
-      navigate('/user-levels');
-    }
   };
 
    const eraseElementAt = (x, y) => {
@@ -416,10 +430,36 @@ const LevelEditor = () => {
           alert(`Error al importar el nivel: ${error.message}. Asegúrate de que el archivo JSON es válido.`);
         }
       };
-      reader.readAsText(file);
+      reader.readText(file);
     };
     input.click();
   };
+
+
+  // --- MODIFICACIÓN AQUÍ ---
+  const handleGoBack = () => {
+    if (hasUnsavedChanges) {
+      // Abre el modal de confirmación en lugar de window.confirm
+      setIsExitConfirmModalOpen(true);
+    } else {
+      // Si no hay cambios, navega directamente
+      navigate('/user-levels');
+    }
+  };
+
+  // --- NUEVAS FUNCIONES PARA EL MODAL DE SALIDA ---
+  const handleConfirmExit = () => {
+    // El usuario confirma que quiere salir perdiendo cambios
+    setHasUnsavedChanges(false); // Opcional: Resetea el estado si la navegación tiene éxito
+    setIsExitConfirmModalOpen(false);
+    navigate('/user-levels');
+  };
+
+  const handleCancelExit = () => {
+    // El usuario cancela la salida, simplemente cierra el modal
+    setIsExitConfirmModalOpen(false);
+  };
+  // --- FIN NUEVAS FUNCIONES ---
 
   if (!level) {
     return <div>Cargando editor...</div>;
@@ -430,12 +470,15 @@ const LevelEditor = () => {
 
   return (
     <EditorContainer isInverted={isInverted}>
-      <EditorToolbar>
-        <div style={{ position: 'absolute', left: '5px', top: '-10px' /* Adjusted top */ }}>
+       {/* Toolbar, Canvas, Sidebar... sin cambios */}
+       <EditorToolbar>
+        {/* BackArrow usa handleGoBack modificado */}
+        <div style={{ position: 'absolute', left: '5px', top: '-10px' }}>
           <BackArrow onClick={handleGoBack} />
         </div>
 
         <div style={{ display: 'flex', margin: '0 auto', alignItems: 'center' }}>
+          {/* ... Items Colocar, Borrar, Invertir ... */}
           <ToolbarItem
             isActive={editorMode === 'place'}
             onClick={() => setEditorMode('place')}
@@ -443,7 +486,6 @@ const LevelEditor = () => {
           >
             Colocar
           </ToolbarItem>
-
           <ToolbarItem
             isActive={editorMode === 'erase'}
             onClick={() => setEditorMode('erase')}
@@ -451,45 +493,30 @@ const LevelEditor = () => {
           >
             Borrar
           </ToolbarItem>
-
           <ToolbarItem
             onClick={toggleInversion}
             isInverted={isInverted}
-            style={{ marginLeft: '20px' }} // Keep margin if needed
-            // Removed inline background color
+            style={{ marginLeft: '20px' }}
           >
             Invertir Colores (E)
           </ToolbarItem>
         </div>
 
         <div style={{ position: 'absolute', right: '15px', display: 'flex', gap: '10px' }}>
-          <ToolbarItem
-            onClick={handleExport}
-            isInverted={isInverted}
-             // Removed inline background color
-          >
+           {/* ... Items Exportar, Importar, Guardar ... */}
+           <ToolbarItem onClick={handleExport} isInverted={isInverted}>
             Exportar
           </ToolbarItem>
-
-          <ToolbarItem
-            onClick={handleImport}
-            isInverted={isInverted}
-             // Removed inline background color
-          >
+          <ToolbarItem onClick={handleImport} isInverted={isInverted}>
             Importar
           </ToolbarItem>
-
-          <ToolbarItem
-            onClick={handleSave}
-            isInverted={isInverted}
-             // Removed inline background color
-          >
-            Guardar Nivel {hasUnsavedChanges ? '*' : ''} {/* Indicate unsaved changes */}
+          <ToolbarItem onClick={handleSave} isInverted={isInverted}>
+            Guardar Nivel {hasUnsavedChanges ? '*' : ''}
           </ToolbarItem>
         </div>
       </EditorToolbar>
 
-      <div style={{ display: 'flex', flex: 1, width: '100%', overflow: 'hidden' /* Prevent layout shifts */ }}>
+      <div style={{ display: 'flex', flex: 1, width: '100%', overflow: 'hidden' }}>
         <EditorCanvas
           onClick={handleCanvasClick}
           onContextMenu={handleCanvasContextMenu}
@@ -497,7 +524,8 @@ const LevelEditor = () => {
           onMouseLeave={handleCanvasMouseLeave}
           isInverted={isInverted}
         >
-           {/* Render preview element */}
+           {/* ... Renderizado de preview y elementos ... */}
+            {/* Render preview element */}
           {previewElement && previewElement.type === 'trampoline' && (
              <div style={{ position: 'absolute', left: previewElement.x, top: previewElement.y, width: previewElement.width, height: previewElement.height, backgroundColor: previewElement.color || 'transparent', borderRadius: '50% 50% 0 0', opacity: 0.5, border: `1px dashed ${previewElement.color === 'black' ? 'white' : 'black'}`, pointerEvents: 'none' }} />
           )}
@@ -546,7 +574,8 @@ const LevelEditor = () => {
         </EditorCanvas>
 
         <EditorSidebar isInverted={isInverted}>
-           <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
+            {/* ... Contenido de la Sidebar ... */}
+            <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
            <ElementsContainer>
              {/* Element Buttons using ElementButton styled component */}
             <ElementButton onClick={() => { setSelectedElement('platform'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'platform'} isInverted={isInverted}>
@@ -599,42 +628,58 @@ const LevelEditor = () => {
         </EditorSidebar>
       </div>
 
+      {/* --- Save Dialog --- */}
       {saveDialogOpen && (
         <SaveDialog>
-          <SaveDialogContent isInverted={isInverted}>
-            <h2>Guardar Nivel</h2>
-            <p>Introduce un nombre para tu nivel:</p>
-            <Input
-              type="text"
-              value={levelName}
-              onChange={(e) => setLevelName(e.target.value)}
-              placeholder="Nombre del nivel"
-              isInverted={isInverted}
-              autoFocus
-              onKeyDown={(e) => {
-                  e.stopPropagation(); // Prevent 'E' key from toggling inversion
-                  if (e.key === 'Enter') {
-                      handleSaveConfirm(); // Allow saving with Enter key
-                  }
-              }}
-            />
-            <SaveDialogButtons isInverted={isInverted}>
-              <button onClick={() => setSaveDialogOpen(false)}>Cancelar</button>
-              <button
-                onClick={handleSaveConfirm}
-                disabled={!levelName.trim()} // Disable if name is empty or whitespace
-              >
-                Guardar
-              </button>
-            </SaveDialogButtons>
+           {/* ... Contenido del diálogo de guardar ... */}
+            <SaveDialogContent isInverted={isInverted}>
+                <h2>Guardar Nivel</h2>
+                <p>Introduce un nombre para tu nivel:</p>
+                <Input
+                type="text"
+                value={levelName}
+                onChange={(e) => setLevelName(e.target.value)}
+                placeholder="Nombre del nivel"
+                isInverted={isInverted}
+                autoFocus
+                onKeyDown={(e) => {
+                    e.stopPropagation(); // Prevent 'E' key from toggling inversion
+                    if (e.key === 'Enter') {
+                        handleSaveConfirm(); // Allow saving with Enter key
+                    }
+                     if (e.key === 'Escape') {
+                       setSaveDialogOpen(false); // Allow closing with Escape
+                     }
+                }}
+                />
+                <SaveDialogButtons isInverted={isInverted}>
+                {/* Usamos el componente ConfirmationModal con los estilos correctos */}
+                <button onClick={() => setSaveDialogOpen(false)}>Cancelar</button> {/* Estilo de botón de cancelar por defecto del modal */}
+                <button
+                    onClick={handleSaveConfirm}
+                    disabled={!levelName.trim()} // Disable if name is empty or whitespace
+                    // style={{ backgroundColor: getActiveColor(isInverted), color: getInactiveColor(isInverted) }} // Estilo de botón de confirmar
+                >
+                    Guardar
+                </button>
+                </SaveDialogButtons>
           </SaveDialogContent>
         </SaveDialog>
       )}
+
+      {/* --- NUEVO MODAL DE CONFIRMACIÓN DE SALIDA --- */}
+      <ConfirmationModal
+        isOpen={isExitConfirmModalOpen}
+        onClose={handleCancelExit} // Función para cerrar (botón Cancelar o clic fuera)
+        onConfirm={handleConfirmExit} // Función para confirmar (botón Confirmar)
+        message="¿Estás seguro de que quieres salir? Se perderán los cambios no guardados."
+        isInverted={isInverted} // Pasa el estado de inversión para los estilos
+      />
+      {/* --- FIN NUEVO MODAL --- */}
+
     </EditorContainer>
   );
 };
 
 export default LevelEditor;
-
-
 // --- END OF FILE LevelEditor.jsx ---
