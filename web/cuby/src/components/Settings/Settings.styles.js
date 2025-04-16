@@ -26,7 +26,22 @@ export const SettingsContent = styled.div`
   background-color: transparent;
   max-width: 1200px; /* Aumentado de 800px para aprovechar más espacio */
   width: 90%;
-  overflow: hidden;
+  max-height: 80vh;
+  overflow-y: auto;
+  
+  /* Ocultar la barra de desplazamiento pero mantener la funcionalidad */
+  /* Para navegadores basados en WebKit (Chrome, Safari, nuevas versiones de Edge) */
+  &::-webkit-scrollbar {
+    width: 0.1em;
+    background: transparent;
+  }
+  
+  /* Para Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  
+  /* Para Internet Explorer y Edge anterior */
+  -ms-overflow-style: none;
 `;
 
 export const Title = styled.h1`
@@ -181,8 +196,14 @@ export const BackButton = styled.button`
 // Mensaje de error para teclas duplicadas
 export const ErrorMessage = styled.div`
   background-color: ${props => props.$isInverted ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
-  color: ${props => props.$isInverted ? '#ff6666' : '#ff3333'};
-  border: 2px solid ${props => props.$isInverted ? '#ff6666' : '#ff3333'};
+  color: ${props => props.$success 
+    ? (props.$isInverted ? '#66bb6a' : '#4caf50')  // Verde para mensajes de éxito
+    : (props.$isInverted ? '#ff6666' : '#ff3333')  // Rojo para mensajes de error
+  };
+  border: 2px solid ${props => props.$success 
+    ? (props.$isInverted ? '#66bb6a' : '#4caf50')  // Verde para mensajes de éxito
+    : (props.$isInverted ? '#ff6666' : '#ff3333')  // Rojo para mensajes de error
+  };
   border-radius: 8px;
   padding: 12px 20px;
   margin-bottom: 20px;
@@ -193,4 +214,26 @@ export const ErrorMessage = styled.div`
     0% { opacity: 0; transform: translateY(-10px); }
     100% { opacity: 1; transform: translateY(0); }
   `} 0.3s ease-out;
+`;
+
+// Botón para resetear progreso
+export const ResetButton = styled.button`
+  background-color: ${props => props.$isInverted ? '#ff6666' : '#ff3333'};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 18px;
+  font-family: 'Excalifont';
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: ${props => props.$isInverted ? '#ff3333' : '#e53935'};
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
 `;

@@ -8,6 +8,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
  * - Mapeo de controles (teclas personalizables)
  * - Persistencia de configuración en localStorage
  * - Validación para evitar teclas duplicadas
+ * - Seguimiento de niveles completados
  */
 
 // Valores predeterminados para las teclas
@@ -36,6 +37,27 @@ export const SettingsProvider = ({ children }) => {
   const [keyMapping, setKeyMapping] = useState(() => {
     const savedKeyMapping = localStorage.getItem('gameKeyMapping');
     return savedKeyMapping !== null ? JSON.parse(savedKeyMapping) : DEFAULT_KEY_MAPPING;
+  });
+  
+  // Estado para seguimiento de niveles completados
+  const [completedLevels, setCompletedLevels] = useState(() => {
+    try {
+      const savedCompletedLevels = localStorage.getItem('completedLevels');
+      // Asegurarse de que lo que leemos es un array válido
+      const parsedLevels = savedCompletedLevels ? JSON.parse(savedCompletedLevels) : null;
+      
+      if (!Array.isArray(parsedLevels)) {
+        // Si no es un array, resetear a los valores predeterminados
+        console.warn("Datos de niveles completados inválidos. Reseteando a valores predeterminados.");
+        localStorage.setItem('completedLevels', JSON.stringify([]))
+        return [];
+      }
+      return parsedLevels;
+    } catch (e) {
+      console.error("Error al cargar los niveles completados:", e);
+      localStorage.setItem('completedLevels', JSON.stringify([]))
+      return [];
+    }
   });
   
   const [changingControl, setChangingControl] = useState(null);
@@ -144,6 +166,50 @@ export const SettingsProvider = ({ children }) => {
     setErrorMessage(null);
   };
   
+  // Marcar un nivel como completado
+  const markLevelAsCompleted = (levelId) => {
+    console.log(`Marcando nivel ${levelId} como completado`);
+    
+    setCompletedLevels(prev => {
+      // Si el nivel ya está en la lista, devolvemos la misma lista
+      if (prev.includes(levelId)) return prev;
+      
+      // Añadir el nuevo nivel completado a la lista
+      const newCompletedLevels = [...prev, levelId];
+      
+      // Guardar en localStorage
+      localStorage.setItem('completedLevels', JSON.stringify(newCompletedLevels));
+      
+      console.log("Niveles completados actualizados:", newCompletedLevels);
+      return newCompletedLevels;
+    });
+  };
+  
+  // Verificar si un nivel está desbloqueado
+  const isLevelUnlocked = (levelId) => {
+    // Convertir a número por seguridad
+    const id = Number(levelId);
+    
+    // El nivel 1 siempre está desbloqueado
+    if (id === 1) return true;
+    
+    // Para que un nivel esté desbloqueado, el nivel anterior debe estar completado
+    const previousLevelCompleted = completedLevels.includes(id - 1);
+    
+    console.log(`Verificando nivel ${id}: El nivel anterior ${id-1} está ${previousLevelCompleted ? "completado" : "no completado"}`);
+    console.log("Niveles completados actuales:", completedLevels);
+    
+    return previousLevelCompleted;
+  };
+  
+  // Resetear los niveles completados (para pruebas)
+  const resetCompletedLevels = () => {
+    console.log("Reseteando niveles completados");
+    localStorage.removeItem('completedLevels'); // Eliminar completamente del localStorage primero
+    setCompletedLevels([]);
+    localStorage.setItem('completedLevels', JSON.stringify([]));
+  };
+  
   // Efecto para escuchar teclas cuando estamos cambiando un control
   useEffect(() => {
     if (!changingControl) return;
@@ -176,7 +242,11 @@ export const SettingsProvider = ({ children }) => {
         assignNewKey, 
         cancelChangingControl,
         errorMessage,
-        clearErrorMessage
+        clearErrorMessage,
+        completedLevels,
+        markLevelAsCompleted,
+        isLevelUnlocked,
+        resetCompletedLevels
       }}
     >
       {children}

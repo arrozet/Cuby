@@ -7,6 +7,7 @@ import {
   UserLevelsButton
 } from './LevelSelect.styles';
 import { useInversion } from '../../context/InversionContext';
+import { useSettings } from '../../context/SettingsContext';
 import BackArrow from '../common/BackArrow/BackArrow';
 import SettingsButton from '../common/SettingsButton/SettingsButton';
 
@@ -18,19 +19,20 @@ const LevelSelect = () => {
   const navigate = useNavigate();
   const [levels, setLevels] = useState([]);
   const { isInverted, toggleInversion } = useInversion();
+  const { isLevelUnlocked, completedLevels } = useSettings();
   const [keyPressed, setKeyPressed] = useState(false);
   
   // Detectar niveles disponibles
   useEffect(() => {
-    // Por ahora solo tenemos level1, pero esto permitirá escalar fácilmente
+    // Utilizamos isLevelUnlocked para determinar qué niveles están bloqueados
     const availableLevels = [
-      { id: 1, level: level1, name: level1.name, locked: false },
-      // AQUI SE PUEDEN AÑADIR MAS NIVELES
-      { id: 2, level: level2, name: level2.name, locked: false } // TODO: SISTEMA DE DESBLOQUEO DE NIVELES
+      { id: 1, level: level1, name: level1.name, locked: false }, // El nivel 1 siempre está desbloqueado
+      // Se comprueba si el nivel 2 está desbloqueado
+      { id: 2, level: level2, name: level2.name, locked: !isLevelUnlocked(2) }
     ];
 
     setLevels(availableLevels);
-  }, []);
+  }, [completedLevels, isLevelUnlocked]); // Recargar cuando cambien los niveles completados
   
   const startLevel = (levelId) => {
     // Por ahora solo navega a una ruta con el ID, pero podrías pasar datos del nivel también

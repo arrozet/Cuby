@@ -14,7 +14,8 @@ import {
   KeyButton,
   SpacebarButton,
   JumpControlGroup,
-  ErrorMessage
+  ErrorMessage,
+  ResetButton
 } from './Settings.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -39,11 +40,15 @@ const Settings = () => {
     keyMapping, 
     changingControl, 
     startChangingControl,
-    errorMessage 
+    errorMessage,
+    completedLevels,
+    resetCompletedLevels 
   } = useSettings();
 
   // Estado para controlar si la tecla E ya fue procesada
   const [eKeyPressed, setEKeyPressed] = useState(false);
+  // Estado para mostrar un mensaje de confirmación después de resetear niveles
+  const [resetMessage, setResetMessage] = useState('');
   
   const handleBack = () => {
     navigate('/levels');
@@ -56,6 +61,15 @@ const Settings = () => {
 
   const handleKeyClick = (controlKey) => {
     startChangingControl(controlKey);
+  };
+
+  // Función para resetear el progreso de los niveles
+  const handleResetProgress = () => {
+    resetCompletedLevels();
+    setResetMessage('Progreso de niveles reseteado. Ahora solo el nivel 1 está desbloqueado.');
+    setTimeout(() => {
+      setResetMessage('');
+    }, 3000);
   };
 
   /**
@@ -236,6 +250,31 @@ const Settings = () => {
             <div style={{ textAlign: 'center', marginTop: '20px', color: isInverted ? 'black' : 'white' }}>
               Presiona una tecla para asignarla a "{controlDescriptions[changingControl]}" o ESC para cancelar
             </div>
+          )}
+        </Section>
+        
+        {/* Sección de progreso del juego */}
+        <Section>
+          <SectionTitle $isInverted={isInverted}>Progreso del Juego</SectionTitle>
+          
+          <div style={{ marginBottom: '15px', color: isInverted ? 'black' : 'white' }}>
+            Niveles completados: {completedLevels.length === 1
+              ? 'Nivel 1' 
+              : completedLevels.filter(id => id !== 1).map(id => `Nivel ${id}`).join(', ')
+            }
+          </div>
+          
+          <ResetButton 
+            onClick={handleResetProgress}
+            $isInverted={isInverted}
+          >
+            Resetear Progreso de Niveles
+          </ResetButton>
+          
+          {resetMessage && (
+            <ErrorMessage $isInverted={isInverted} $success>
+              {resetMessage}
+            </ErrorMessage>
           )}
         </Section>
       </SettingsContent>

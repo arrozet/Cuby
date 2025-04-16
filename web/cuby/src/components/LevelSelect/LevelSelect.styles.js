@@ -37,39 +37,40 @@ export const LevelsGrid = styled.div`
   max-width: 600px;
 `;
 
-export const LevelCard = styled.div.attrs(props => ({
-  style: {
-    backgroundColor: props.locked ? '#333' : getActiveColor(props.$isInverted),
-    borderColor: getActiveColor(props.$isInverted),
-    color: getInactiveColor(props.$isInverted),
-    cursor: props.locked ? 'not-allowed' : 'pointer',
-    transform: (!props.locked && props.hover) ? 'scale(1.05)' : 'scale(1)'
-  }
-}))`
+export const LevelCard = styled.div`
   width: 150px;
   height: 150px;
-  border: 3px solid;
-  border-radius: 20px; /* Esquinas redondeadas en lugar de círculo */
+  border: 3px solid ${props => props.locked ? '#555' : getActiveColor(props.$isInverted)};
+  border-radius: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   transition: transform 0.2s, background-color 0.3s;
+  background-color: ${props => props.locked ? 'rgba(50, 50, 50, 0.7)' : getActiveColor(props.$isInverted)};
+  color: ${props => getInactiveColor(props.$isInverted)};
+  cursor: ${props => props.locked ? 'not-allowed' : 'pointer'};
+  filter: ${props => props.locked ? 'grayscale(50%)' : 'none'};
+  opacity: ${props => props.locked ? 0.8 : 1};
   
   &:hover {
     animation: ${props => !props.locked && css`${pulse} 1.5s infinite ease-in-out`};
+    transform: ${props => !props.locked && 'scale(1.05)'};
   }
   
   .level-number {
-    font-size: 64px; /* Número más grande */
-    font-weight: normal; /* Sin negrita */
+    font-size: 64px;
+    font-weight: normal;
+    opacity: ${props => props.locked ? 0.5 : 1};
   }
   
   .lock-icon {
     position: absolute;
     top: 10px;
     right: 10px;
-    font-size: 24px;
+    font-size: 28px;
+    color: #ff9800;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
 `;
 

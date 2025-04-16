@@ -7,6 +7,7 @@ import Controls from '../UI/Control';
 import BackArrow from '../common/BackArrow/BackArrow';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
+import { useSettings } from '../../context/SettingsContext'; // Importamos useSettings
 import { 
   applyGravity, 
   checkPlatformCollisions,
@@ -40,6 +41,9 @@ const Game = () => {
   // Usar el contexto global de inversión
   const { isInverted, toggleInversion } = useInversion();
   
+  // Usar el contexto global de configuración para marcar niveles completados
+  const { markLevelAsCompleted, isLevelUnlocked, completedLevels } = useSettings();
+  
   // Estado para las dimensiones del juego (responsive)
   const [gameDimensions, setGameDimensions] = useState({
     width: window.innerWidth,
@@ -50,6 +54,10 @@ const Game = () => {
   const [currentLevel, setCurrentLevel] = useState(null);
   // Estados del juego
   const [hasWon, setHasWon] = useState(false);
+  // Guardar el ID numérico del nivel para cuando se complete
+  const [currentLevelId, setCurrentLevelId] = useState(null);
+  // Estado para determinar si el nivel está autorizado
+  const [isLevelAuthorized, setIsLevelAuthorized] = useState(false);
 
   /**
    * Estado del jugador que contiene todas sus propiedades físicas y de gameplay
@@ -73,50 +81,93 @@ const Game = () => {
   // Estado para controlar si la tecla E ya fue procesada
   const [eKeyPressed, setEKeyPressed] = useState(false);
   
-  // Cargar el nivel correcto basado en la ruta
+  // Verificar si el nivel está desbloqueado antes de cargarlo
   useEffect(() => {
-    // Verificar si es un nivel de usuario (corregido para funcionar con HashRouter)
+    // Convertir levelId a número para comparación
+    const numericId = Number(levelId);
+    
+    // Resetear el estado de autorización al cambiar de nivel
+    setIsLevelAuthorized(false);
+    
+    console.log(`Intentando cargar el nivel ${numericId}`);
+    console.log(`Niveles completados: ${JSON.stringify(completedLevels)}`);
+    
+    // Determinar si el nivel está autorizado para jugar
+    let authorized = false;
+    
+    // Los niveles de usuario siempre están autorizados
     if (window.location.hash.includes('/game/user/')) {
-      const userLevel = getUserLevelById(levelId);
-      if (userLevel) {
-        setCurrentLevel(userLevel);
-        setPlayerState(prevState => ({
-          ...prevState,
-          x: userLevel.playerStart.x,
-          y: userLevel.playerStart.y
-        }));
-      } else {
-        // Si no se encuentra, cargar nivel predeterminado
-        setCurrentLevel(level1);
-        setPlayerState(prevState => ({
-          ...prevState,
-          x: level1.playerStart.x,
-          y: level1.playerStart.y
-        }));
-      }
-    } else {
-      // Cargar nivel predeterminado según el ID
-      const numericId = Number(levelId);
-      let levelToLoad;
-      switch(numericId) {
-        case 1:
-          levelToLoad = level1;
-          break;
-        case 2:
-          levelToLoad = level2;
-          break;
-        default:
-          levelToLoad = level1;
-          break;
-      }
-      setCurrentLevel(levelToLoad);
-      setPlayerState(prevState => ({
-        ...prevState,
-        x: levelToLoad.playerStart.x,
-        y: levelToLoad.playerStart.y
-      }));
+      console.log("Es un nivel de usuario, está autorizado");
+      authorized = true;
     }
-  }, [levelId]);
+    // El nivel 1 siempre está autorizado
+    else if (numericId === 1) {
+      console.log("Es el nivel 1, está autorizado");
+      authorized = true;
+    }
+    // Para otros niveles, verificar si el nivel anterior está completado
+    else {
+      const isUnlocked = isLevelUnlocked(numericId);
+      console.log(`Verificando si el nivel ${numericId} está desbloqueado: ${isUnlocked}`);
+      
+      if (isUnlocked) {
+        authorized = true;
+      } else {
+        console.log(`Nivel ${numericId} no está desbloqueado. Redirigiendo a selección de niveles.`);
+        navigate('/levels');
+        return; // Salir temprano
+      }
+    }
+    
+    // Actualizar el estado de autorización
+    setIsLevelAuthorized(authorized);
+    
+    // Solo cargar el nivel si está autorizado
+    if (authorized) {
+      // Cargar el nivel correspondiente
+      if (window.location.hash.includes('/game/user/')) {
+        const userLevel = getUserLevelById(levelId);
+        if (userLevel) {
+          setCurrentLevel(userLevel);
+          setPlayerState(prevState => ({
+            ...prevState,
+            x: userLevel.playerStart.x,
+            y: userLevel.playerStart.y
+          }));
+        } else {
+          // Si no se encuentra, cargar nivel predeterminado
+          setCurrentLevel(level1);
+          setPlayerState(prevState => ({
+            ...prevState,
+            x: level1.playerStart.x,
+            y: level1.playerStart.y
+          }));
+          setCurrentLevelId(1);
+        }
+      } else {
+        // Cargar nivel predeterminado según el ID
+        setCurrentLevelId(numericId); // Guardar el ID numérico del nivel
+        let levelToLoad;
+        switch(numericId) {
+          case 1:
+            levelToLoad = level1;
+            break;
+          case 2:
+            levelToLoad = level2;
+            break;
+          default:
+            levelToLoad = level1;
+            break;
+        }
+        setCurrentLevel(levelToLoad);
+        setPlayerState(prevState => ({
+          ...prevState,
+          x: levelToLoad.playerStart.x,
+          y: levelToLoad.playerStart.y
+        }));
+      }
+    }
+  }, [levelId, navigate, isLevelUnlocked, completedLevels]);
 
   /**
    * Reinicia el estado del juego a sus valores iniciales
@@ -175,6 +226,17 @@ const Game = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  /**
+   * Efecto para marcar el nivel como completado cuando el jugador gana
+   */
+  useEffect(() => {
+    if (hasWon && currentLevelId) {
+      console.log(`¡Victoria en nivel ${currentLevelId}! Marcando como completado.`);
+      // Marcar el nivel como completado cuando el jugador gana
+      markLevelAsCompleted(currentLevelId);
+    }
+  }, [hasWon, currentLevelId, markLevelAsCompleted]);
 
   /**
    * Actualiza el estado del juego en cada frame
@@ -262,6 +324,10 @@ const Game = () => {
   useGameLoop(updateGameState);
 
   // Renderizado condicional después de todas las llamadas de hooks
+  if (!isLevelAuthorized) {
+    return <div>Verificando nivel...</div>;
+  }
+  
   if (!currentLevel) {
     return <div>Cargando nivel...</div>;
   }
