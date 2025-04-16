@@ -1,0 +1,185 @@
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+/**
+ * Contexto para almacenar y gestionar las configuraciones del juego
+ *
+ * Este contexto maneja:
+ * - Configuración de volumen
+ * - Mapeo de controles (teclas personalizables)
+ * - Persistencia de configuración en localStorage
+ * - Validación para evitar teclas duplicadas
+ */
+
+// Valores predeterminados para las teclas
+const DEFAULT_KEY_MAPPING = {
+  jump: { name: 'W', display: 'W' },
+  jumpAlt: { name: ' ', display: 'Barra espaciadora' },
+  left: { name: 'A', display: 'A' },
+  right: { name: 'D', display: 'D' },
+  crouch: { name: 'S', display: 'S' },
+  interact: { name: 'F', display: 'F' },
+  invertColors: { name: 'E', display: 'E' },
+  restart: { name: 'R', display: 'R' },
+};
+
+const SettingsContext = createContext();
+
+export const useSettings = () => useContext(SettingsContext);
+
+export const SettingsProvider = ({ children }) => {
+  // Intentar cargar configuraciones desde localStorage o usar valores predeterminados
+  const [volume, setVolume] = useState(() => {
+    const savedVolume = localStorage.getItem('gameVolume');
+    return savedVolume !== null ? parseFloat(savedVolume) : 0.5; // Valor predeterminado: 50%
+  });
+  
+  const [keyMapping, setKeyMapping] = useState(() => {
+    const savedKeyMapping = localStorage.getItem('gameKeyMapping');
+    return savedKeyMapping !== null ? JSON.parse(savedKeyMapping) : DEFAULT_KEY_MAPPING;
+  });
+  
+  const [changingControl, setChangingControl] = useState(null);
+  
+  // Estado para mostrar mensaje de error cuando una tecla ya está asignada
+  const [errorMessage, setErrorMessage] = useState(null);
+  
+  // Función para cambiar el volumen
+  const changeVolume = (newVolume) => {
+    setVolume(newVolume);
+    // Aquí se agregaría lógica para ajustar el volumen real del juego
+    // Por ahora solo guardamos el valor
+    localStorage.setItem('gameVolume', newVolume);
+  };
+  
+  // Función para iniciar el cambio de un control
+  const startChangingControl = (controlKey) => {
+    // ESC no se puede reasignar a ningún control
+    if (controlKey === 'invertColors') return; // E también es especial y no se puede cambiar
+    
+    // Limpiar cualquier mensaje de error previo
+    setErrorMessage(null);
+    
+    setChangingControl(controlKey);
+  };
+  
+  // Verificar si una tecla ya está asignada a otro control
+  const isKeyAlreadyAssigned = (key, currentControlKey) => {
+    const lowerKey = key.toLowerCase();
+    
+    // Verificar cada asignación de tecla
+    for (const [controlKey, keyInfo] of Object.entries(keyMapping)) {
+      // Saltamos el control actual que estamos cambiando
+      if (controlKey === currentControlKey) continue;
+      
+      // Si la tecla ya está asignada a otro control, retornar true
+      if (keyInfo.name.toLowerCase() === lowerKey) {
+        return controlKey; // Devolvemos la acción a la que está asignada
+      }
+    }
+    
+    // La tecla no está asignada a ningún otro control
+    return null;
+  };
+  
+  // Función para asignar una nueva tecla a un control
+  const assignNewKey = (key) => {
+    if (!changingControl) return;
+    
+    // Evitar asignar la tecla ESC o E (invertir colores)
+    if (key.toLowerCase() === 'escape') {
+      setChangingControl(null);
+      return;
+    }
+    
+    if (key.toLowerCase() === 'e' && changingControl !== 'invertColors') {
+      setErrorMessage("La tecla 'E' está reservada para invertir colores y no se puede reasignar.");
+      setTimeout(() => setErrorMessage(null), 3000); // Limpiar el mensaje después de 3 segundos
+      return;
+    }
+    
+    // Verificar si la tecla ya está asignada
+    const conflictingControl = isKeyAlreadyAssigned(key, changingControl);
+    if (conflictingControl) {
+      setErrorMessage(`La tecla '${key.toUpperCase()}' ya está asignada a '${getControlDescription(conflictingControl)}'. Elige otra tecla.`);
+      // No limpiamos el mensaje aquí para que el usuario pueda leerlo
+      return;
+    }
+    
+    const keyDisplay = key === ' ' ? 'Barra espaciadora' : key.toUpperCase();
+    
+    // Actualizar el mapeo de teclas
+    const updatedKeyMapping = {
+      ...keyMapping,
+      [changingControl]: { name: key.toLowerCase(), display: keyDisplay }
+    };
+    
+    setKeyMapping(updatedKeyMapping);
+    localStorage.setItem('gameKeyMapping', JSON.stringify(updatedKeyMapping));
+    setChangingControl(null);
+  };
+  
+  // Obtener la descripción de un control para mostrar mensajes de error
+  const getControlDescription = (controlKey) => {
+    const descriptions = {
+      jump: 'Saltar',
+      jumpAlt: 'Saltar (alternativo)',
+      left: 'Izquierda',
+      right: 'Derecha',
+      crouch: 'Agacharse',
+      interact: 'Interactuar',
+      invertColors: 'Invertir colores',
+      restart: 'Reiniciar'
+    };
+    return descriptions[controlKey] || controlKey;
+  };
+  
+  // Cancelar el cambio de control con ESC
+  const cancelChangingControl = () => {
+    setChangingControl(null);
+    setErrorMessage(null);
+  };
+  
+  // Eliminar el mensaje de error después de un tiempo
+  const clearErrorMessage = () => {
+    setErrorMessage(null);
+  };
+  
+  // Efecto para escuchar teclas cuando estamos cambiando un control
+  useEffect(() => {
+    if (!changingControl) return;
+    
+    const handleKeyDown = (e) => {
+      e.preventDefault();
+      
+      if (e.key === 'Escape') {
+        cancelChangingControl();
+      } else {
+        assignNewKey(e.key);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [changingControl]);
+  
+  return (
+    <SettingsContext.Provider 
+      value={{ 
+        volume, 
+        changeVolume, 
+        keyMapping, 
+        changingControl, 
+        startChangingControl, 
+        assignNewKey, 
+        cancelChangingControl,
+        errorMessage,
+        clearErrorMessage
+      }}
+    >
+      {children}
+    </SettingsContext.Provider>
+  );
+};

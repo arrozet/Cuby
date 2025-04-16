@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSettings } from '../context/SettingsContext';
 
 /**
  * Hook personalizado para detectar y manejar las teclas presionadas
@@ -7,67 +8,66 @@ import { useState, useEffect } from 'react';
  * - Mantiene un registro del estado de las teclas relevantes para el juego
  * - Previene el comportamiento por defecto de la tecla espacio
  * - Limpia los event listeners automáticamente al desmontar
+ * - Utiliza las teclas personalizadas definidas por el usuario
  * 
  * @returns {Object} Un objeto con el estado de cada tecla monitoreada
  *                   donde la clave es el carácter de la tecla y el valor es booleano
  * 
  * @example
  * const keysPressed = useKeyPress();
- * if (keysPressed.a) {
+ * if (keysPressed.left) {
  *   // Mover a la izquierda
  * }
- * if (keysPressed[' ']) {
+ * if (keysPressed.jump) {
  *   // Saltar
  * }
  */
 export const useKeyPress = () => {
-  // Estado inicial de las teclas monitoreadas
-  const [keysPressed, setKeysPressed] = useState({
-    a: false,           // Movimiento a la izquierda
-    d: false,           // Movimiento a la derecha
-    s: false,           // Agacharse (no implementado aún)
-    e: false,           // Invertir colores
-    f: false,           // Interactuar
-    w: false,           // Saltar
-    ' ': false,         // Saltar
-    r: false,           // Reiniciar nivel
-    arrowleft: false,   // Movimiento a la izquierda (alternativo)
-    arrowright: false,  // Movimiento a la derecha (alternativo)
-    arrowup: false,     // Saltar (alternativo)
-    arrowdown: false    // Agacharse (alternativo, no implementado)
+  // Obtener la configuración de teclas del usuario
+  const { keyMapping } = useSettings();
+  
+  // Estado inicial con las acciones de juego (en lugar de teclas específicas)
+  const [actionPressed, setActionPressed] = useState({
+    left: false,
+    right: false,
+    jump: false,
+    crouch: false,
+    invertColors: false,
+    interact: false,
+    restart: false
   });
 
-
-  /**
-   * ¿Por qué el array de dependencias está vacío []?
-   * 
-   * 1. Si pusiéramos [keysPressed], cada vez que se pulse una tecla:
-   *    - Se recrearían las funciones handleKeyDown y handleKeyUp
-   *    - Se eliminarían y volverían a añadir los event listeners
-   *    - Todo esto en cada pulsación, lo cual es ineficiente
-   * 
-   * 2. No necesitamos [keysPressed] porque:
-   *    - Usamos setKeysPressed(prev => ...), donde 'prev' SIEMPRE tiene el valor más reciente
-   *    - Es como tener una "línea directa" al último estado sin necesidad de dependencias
-   * 
-   * Por tanto, los event listeners se crean una vez al inicio y se limpian al final.
-   */
   useEffect(() => {
+    // Genera un mapeo inverso de teclas -> acción para procesar eventos de teclado
+    const keyToActionMapping = {};
+    
+    Object.entries(keyMapping).forEach(([action, keyInfo]) => {
+      // Agregamos la tecla a la acción correspondiente
+      keyToActionMapping[keyInfo.name.toLowerCase()] = action;
+      
+      // Manejamos el caso especial de jumpAlt que mapea a la misma acción que jump
+      if (action === 'jumpAlt') {
+        keyToActionMapping[keyInfo.name.toLowerCase()] = 'jump';
+      }
+    });
+    
     /**
      * Maneja el evento de tecla presionada
      * @param {KeyboardEvent} event - Evento del teclado
      */
     const handleKeyDown = (event) => {
-      const key = event.key.toLowerCase(); // Convertir a minúsculas
+      const key = event.key.toLowerCase();
+      
       // Prevenir el scroll de la página con la barra espaciadora
-      if (event.key === ' ') {
+      if (key === ' ') {
         event.preventDefault();
       }
       
-      // Actualizar el estado usando el setter funcional para acceder al estado más reciente
-      setKeysPressed(prev => 
-        prev.hasOwnProperty(key) ? { ...prev, [key]: true } : prev
-      );
+      // Verificar si la tecla está mapeada a alguna acción
+      const action = keyToActionMapping[key];
+      if (action) {
+        setActionPressed(prev => ({ ...prev, [action]: true }));
+      }
     };
 
     /**
@@ -75,16 +75,18 @@ export const useKeyPress = () => {
      * @param {KeyboardEvent} event - Evento del teclado
      */
     const handleKeyUp = (event) => {
-      const key = event.key.toLowerCase(); // Convertir a minúsculas
+      const key = event.key.toLowerCase();
+      
       // Prevenir el scroll de la página con la barra espaciadora
-      if (event.key === ' ') {
+      if (key === ' ') {
         event.preventDefault();
       }
       
-      // Actualizar el estado usando el setter funcional para acceder al estado más reciente
-      setKeysPressed(prev => 
-        prev.hasOwnProperty(key) ? { ...prev, [key]: false } : prev
-      );
+      // Verificar si la tecla está mapeada a alguna acción
+      const action = keyToActionMapping[key];
+      if (action) {
+        setActionPressed(prev => ({ ...prev, [action]: false }));
+      }
     };
 
     // Agregar los event listeners
@@ -96,7 +98,23 @@ export const useKeyPress = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []); // Sin dependencia a keysPressed ya que usamos el setter funcional
+  }, [keyMapping]); // Dependencia de keyMapping para recrear los listeners cuando las teclas cambien
 
-  return keysPressed;
+  // Para mantener compatibilidad con el código existente, también incluimos las teclas originales
+  const legacyKeysMapping = {
+    a: actionPressed.left,
+    d: actionPressed.right,
+    w: actionPressed.jump,
+    s: actionPressed.crouch,
+    e: actionPressed.invertColors,
+    f: actionPressed.interact,
+    r: actionPressed.restart,
+    ' ': actionPressed.jump,
+    arrowleft: actionPressed.left,
+    arrowright: actionPressed.right,
+    arrowup: actionPressed.jump,
+    arrowdown: actionPressed.crouch
+  };
+
+  return { ...legacyKeysMapping, ...actionPressed };
 };
