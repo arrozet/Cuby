@@ -1,8 +1,11 @@
+// --- START OF FILE LevelEditor.jsx ---
+
+// ... imports remain the same ...
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  EditorContainer, 
-  EditorSidebar, 
+import {
+  EditorContainer,
+  EditorSidebar,
   EditorCanvas,
   SidebarTitle,
   ElementsContainer,
@@ -20,90 +23,76 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameE
 import { getUserLevelById, saveUserLevel, createEmptyLevel } from '../../utils/levelManager';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
+
 const LevelEditor = () => {
+  // ... (hooks and state variables remain the same) ...
   const { levelId } = useParams();
   const navigate = useNavigate();
   const { isInverted, toggleInversion } = useInversion();
-  
-  // Estado para el nivel que se está editando
   const [level, setLevel] = useState(null);
-  
-  // Estado para el elemento seleccionado
   const [selectedElement, setSelectedElement] = useState(null);
-  
-  // Estado para el modo de editor (colocar, borrar)
   const [editorMode, setEditorMode] = useState('place');
-  
-  // Estado para el diálogo de guardado
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [levelName, setLevelName] = useState('');
-  
-  // Estado para controlar la tecla E
   const [eKeyPressed, setEKeyPressed] = useState(false);
-
-  // Estado para saber si hay cambios no guardados
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  
-  // Add new state for platform dimensions
-  const [platformSize, setPlatformSize] = useState({
-    width: 100,
-    height: 20
-  });
-
-  // In LevelEditor.jsx, add these new states
+  const [platformSize, setPlatformSize] = useState({ width: 100, height: 20 });
   const [isSelectingPortalDestination, setIsSelectingPortalDestination] = useState(false);
   const [pendingPortal, setPendingPortal] = useState(null);
-  
-  // Añade este estado cerca del inicio del componente, junto a los otros estados
   const [portalCounter, setPortalCounter] = useState(1);
-  
-  // Añadir un nuevo estado para rastrear la posición del cursor y el elemento en vista previa
   const [previewElement, setPreviewElement] = useState(null);
-  
-  // Manejar la inversión con la tecla E
+
+  // ... (useEffect hooks and functions like handleCanvasClick, handleSave, etc. remain the same) ...
+
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key.toLowerCase() === 'e' && !eKeyPressed) {
+      if (e.key.toLowerCase() === 'e' && !eKeyPressed && !saveDialogOpen /* Prevent toggle when dialog is open */) {
         setEKeyPressed(true);
         toggleInversion();
       }
     };
-    
     const handleKeyUp = (e) => {
       if (e.key.toLowerCase() === 'e') {
         setEKeyPressed(false);
       }
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-    
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [toggleInversion, eKeyPressed]);
-  
-  // Carga el nivel si estamos editando, o crea uno nuevo
+  }, [toggleInversion, eKeyPressed, saveDialogOpen]); // Added saveDialogOpen dependency
+
   useEffect(() => {
     if (levelId === 'new') {
-      // Crear un nivel vacío
       setLevel(createEmptyLevel());
-      setHasUnsavedChanges(false); // No hay cambios al crear un nivel vacío
+      setHasUnsavedChanges(false);
     } else {
-      // Cargar nivel existente
       const existingLevel = getUserLevelById(levelId);
       if (existingLevel) {
-        setLevel(existingLevel);
+        // Ensure elements are instances of classes if loaded from simple JSON
+         const reconstructedLevel = {
+          ...existingLevel,
+          platforms: (existingLevel.platforms || []).map(p => p instanceof Platform ? p : new Platform(p)),
+          obstacles: (existingLevel.obstacles || []).map(o => o instanceof Spike ? o : new Spike(o)),
+          trampolines: (existingLevel.trampolines || []).map(t => t instanceof Trampoline ? t : new Trampoline(t)),
+          portals: (existingLevel.portals || []).map(p => p instanceof Portal ? p : new Portal(p)),
+          goal: existingLevel.goal instanceof Goal ? existingLevel.goal : new Goal(existingLevel.goal || { x: 700, y: 500 })
+        };
+        setLevel(reconstructedLevel);
         setHasUnsavedChanges(false);
-        setLevelName(existingLevel.name);
+        setLevelName(reconstructedLevel.name || '');
+         // Update portal counter based on loaded level
+        const maxPortalId = Math.max(...(reconstructedLevel.portals || []).map(p => p.portalId || 0), 0);
+        setPortalCounter(maxPortalId + 1);
       } else {
-        // Si no existe, crear uno vacío
         setLevel(createEmptyLevel());
         setHasUnsavedChanges(false);
       }
     }
   }, [levelId]);
+
 
   useEffect(() => {
     if (hasUnsavedChanges) {
@@ -112,141 +101,121 @@ const LevelEditor = () => {
         e.returnValue = '¿Estás seguro de que quieres salir? Se perderán los cambios no guardados.';
         return e.returnValue;
       };
-      
       window.addEventListener('beforeunload', handleBeforeUnload);
       return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }
   }, [hasUnsavedChanges]);
-  
-  // Manejar el arrastre y colocación de elementos
+
   const handleCanvasClick = (e) => {
-    // Obtener la posición del clic relativa al canvas
     const canvas = e.currentTarget;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // Modo borrar: eliminar elementos en esa posición sin importar qué esté seleccionado
+
     if (editorMode === 'erase') {
       eraseElementAt(x, y);
       return;
     }
-    
-    // Para modo colocar, necesitamos un elemento seleccionado
+
     if (!selectedElement || !level) return;
-    
-    // Obtener el color contrario al fondo actual
     const elementColor = getActiveColor(isInverted);
-    
-    // Crear el nuevo elemento según el tipo seleccionado
     let newElement;
-    
+
     switch (selectedElement) {
-      case 'platform':
-        newElement = new Platform({ 
-          x, y, 
-          color: elementColor, 
-          width: platformSize.width, 
-          height: platformSize.height 
+       case 'platform':
+        newElement = new Platform({
+          x, y,
+          color: elementColor,
+          width: platformSize.width,
+          height: platformSize.height
         });
-        if (!level.platforms.some(p => JSON.stringify(p) === JSON.stringify(newElement))) {
-          setLevel({
-            ...level,
-            platforms: [...level.platforms, newElement]
-          });
-          setHasUnsavedChanges(true);
-        }
+        setLevel(prevLevel => ({
+          ...prevLevel,
+          platforms: [...prevLevel.platforms, newElement]
+        }));
+        setHasUnsavedChanges(true);
         break;
       case 'spike':
-        newElement = new Spike({ 
-          x, 
-          y: y - Spike.defaultHeight, 
-          color: elementColor 
+         newElement = new Spike({
+            x,
+            y: y - Spike.defaultHeight, // Adjust y to place base at cursor
+            color: elementColor
         });
-        if (!level.obstacles.some(o => JSON.stringify(o) === JSON.stringify(newElement))) {
-          setLevel({
-            ...level,
-            obstacles: [...level.obstacles, newElement]
-          });
-          setHasUnsavedChanges(true);
-        }
+        setLevel(prevLevel => ({
+            ...prevLevel,
+            obstacles: [...prevLevel.obstacles, newElement]
+        }));
+        setHasUnsavedChanges(true);
         break;
-      case 'trampoline':
-        newElement = new Trampoline({ x, y, color: elementColor });
-        if (!level.trampolines.some(t => JSON.stringify(t) === JSON.stringify(newElement))) {
-          setLevel({
-            ...level,
-            trampolines: [...level.trampolines, newElement]
-          });
-          setHasUnsavedChanges(true);
-        }
-        break;
+       case 'trampoline':
+         newElement = new Trampoline({ x, y, color: elementColor });
+          setLevel(prevLevel => ({
+              ...prevLevel,
+              trampolines: [...prevLevel.trampolines, newElement]
+          }));
+         setHasUnsavedChanges(true);
+         break;
       case 'portal':
         if (isSelectingPortalDestination && pendingPortal) {
-          const finalPortal = new Portal({ 
+          const finalPortal = new Portal({
             ...pendingPortal,
             destination: { x, y },
-            portalId: portalCounter 
+            portalId: portalCounter
           });
-          if (!level.portals.some(p => JSON.stringify(p) === JSON.stringify(finalPortal))) {
-            setLevel({
-              ...level,
-              portals: [...level.portals, finalPortal]
-            });
-            setHasUnsavedChanges(true);
-          }
+          setLevel(prevLevel => ({
+            ...prevLevel,
+            portals: [...prevLevel.portals, finalPortal]
+          }));
+          setHasUnsavedChanges(true);
           setIsSelectingPortalDestination(false);
           setPendingPortal(null);
           setPortalCounter(prev => prev + 1);
         } else {
-          const newPortal = {
-            x, 
-            y, 
-            color: elementColor,
+          const newPortalBase = {
+            x,
+            y,
+            color: elementColor, // Portals might have fixed color or use theme
             width: 40,
             height: 60,
-            portalId: portalCounter 
+            portalId: portalCounter
           };
-          setPendingPortal(newPortal);
+          setPendingPortal(newPortalBase);
           setIsSelectingPortalDestination(true);
         }
         break;
       case 'goal':
         newElement = new Goal({ x, y });
-        if (JSON.stringify(level.goal) !== JSON.stringify(newElement)) {
-          setLevel({
-            ...level,
+         // Only allow one goal - replace existing
+        setLevel(prevLevel => ({
+            ...prevLevel,
             goal: newElement
-          });
-          setHasUnsavedChanges(true);
-        }
+        }));
+        setHasUnsavedChanges(true);
         break;
       case 'player-start':
-        if (JSON.stringify(level.playerStart) !== JSON.stringify({ x, y })) {
-          setLevel({
-            ...level,
+         // Only allow one start point - replace existing
+        setLevel(prevLevel => ({
+            ...prevLevel,
             playerStart: { x, y }
-          });
-          setHasUnsavedChanges(true);
-        }
+        }));
+        setHasUnsavedChanges(true);
         break;
       default:
         break;
     }
   };
-  
-  // Add this new function
+
   const handleCanvasContextMenu = (e) => {
     e.preventDefault();
     if (isSelectingPortalDestination) {
       setIsSelectingPortalDestination(false);
       setPendingPortal(null);
     }
+     // Optional: Could add functionality like deselecting element or opening context menu
   };
 
-  // Modificar el manejo del movimiento del ratón para desactivar la vista previa en modo borrar
   const handleCanvasMouseMove = (e) => {
-    if (editorMode === 'erase' || !selectedElement) {
+    if (editorMode === 'erase' || !selectedElement || isSelectingPortalDestination) {
       setPreviewElement(null);
       return;
     }
@@ -255,78 +224,33 @@ const LevelEditor = () => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const elementColor = getActiveColor(isInverted);
-
     let newPreviewElement;
+
     switch (selectedElement) {
       case 'platform':
-        newPreviewElement = {
-          type: 'platform',
-          x,
-          y,
-          width: platformSize.width,
-          height: platformSize.height,
-          color: elementColor,
-        };
+        newPreviewElement = { type: 'platform', x, y, width: platformSize.width, height: platformSize.height, color: elementColor };
         break;
       case 'spike':
-        newPreviewElement = {
-          type: 'spike',
-          x,
-          y: y - Spike.defaultHeight,
-          width: Spike.defaultWidth,
-          height: Spike.defaultHeight,
-          color: elementColor,
-        };
+        newPreviewElement = { type: 'spike', x, y: y - Spike.defaultHeight, width: Spike.defaultWidth, height: Spike.defaultHeight, color: elementColor };
         break;
       case 'trampoline':
-        newPreviewElement = {
-          type: 'trampoline',
-          x,
-          y,
-          width: Trampoline.defaultWidth,
-          height: Trampoline.defaultHeight,
-          color: elementColor,
-        };
+        newPreviewElement = { type: 'trampoline', x, y, width: Trampoline.defaultWidth, height: Trampoline.defaultHeight, color: elementColor };
         break;
       case 'portal':
-        newPreviewElement = {
-          type: 'portal',
-          x,
-          y,
-          width: 40,
-          height: 60,
-          color: 'purple',
-        };
+        newPreviewElement = { type: 'portal', x, y, width: 40, height: 60, color: 'purple' }; // Fixed color for portal preview
         break;
       case 'goal':
-        newPreviewElement = {
-          type: 'goal',
-          x,
-          y,
-          width: Goal.defaultWidth,
-          height: Goal.defaultHeight,
-        };
+        newPreviewElement = { type: 'goal', x, y, width: Goal.defaultWidth, height: Goal.defaultHeight };
         break;
       case 'player-start':
-        newPreviewElement = {
-          type: 'player-start',
-          x,
-          y,
-          width: 40,
-          height: 40,
-          color: elementColor,
-        };
+        newPreviewElement = { type: 'player-start', x, y, width: 40, height: 40, color: elementColor };
         break;
-      default:
-        newPreviewElement = null;
+      default: newPreviewElement = null;
     }
-
     setPreviewElement(newPreviewElement);
   };
 
-  // Limpiar la vista previa cuando el ratón sale del canvas
   const handleCanvasMouseLeave = () => {
     setPreviewElement(null);
   };
@@ -341,16 +265,14 @@ const LevelEditor = () => {
     }
   };
 
-  // Función para borrar elementos en una posición
-  const eraseElementAt = (x, y) => {
+   const eraseElementAt = (x, y) => {
     if (!level) return;
-    
-    // Función auxiliar mejorada para verificar si un punto está dentro de un elemento
-    const isPointInElement = (point, element) => {
-      // Si el elemento no tiene dimensiones definidas, usar valores predeterminados
-      const width = element.width || 40; // Valor por defecto para elementos sin ancho específico
-      const height = element.height || 40; // Valor por defecto para elementos sin alto específico
-      
+
+    const isPointInElement = (point, element, defaultSize = { width: 40, height: 40 }) => {
+      const width = element.width || defaultSize.width;
+      const height = element.height || defaultSize.height;
+      // For spikes, the clickable area might be slightly different depending on placement logic
+      // Let's assume x,y is top-left for now for simplicity in erase check
       return (
         point.x >= element.x &&
         point.x <= element.x + width &&
@@ -358,678 +280,349 @@ const LevelEditor = () => {
         point.y <= element.y + height
       );
     };
-    
-    // Comprobar y registrar para depuración
-    console.log('Intentando borrar en posición:', x, y);
-    console.log('Elementos actuales:', {
-      platforms: level.platforms.length,
-      obstacles: level.obstacles.length,
-      trampolines: level.trampolines.length,
-      portals: level.portals.length
-    });
-    
-    // También comprobar si el punto de inicio del jugador o la meta están siendo borrados
-    const isPlayerStartErased = 
-      x >= level.playerStart.x && 
-      x <= level.playerStart.x + 40 && 
-      y >= level.playerStart.y && 
-      y <= level.playerStart.y + 40;
-      
-    const isGoalErased = isPointInElement({ x, y }, level.goal);
-    
-    // Filtrar los elementos que no están en la posición del clic
-    const updatedPlatforms = level.platforms.filter(
-      platform => !isPointInElement({ x, y }, platform)
-    );
-    
-    const updatedObstacles = level.obstacles.filter(
-      obstacle => !isPointInElement({ x, y }, obstacle)
-    );
-    
-    const updatedTrampolines = level.trampolines.filter(
-      trampoline => !isPointInElement({ x, y }, trampoline)
-    );
-    
-    const updatedPortals = level.portals.filter(
-      portal => !isPointInElement({ x, y }, portal)
-    );
-    
-    // Actualizar el nivel con los elementos filtrados
-    const updatedLevel = {
-      ...level,
-      platforms: updatedPlatforms,
-      obstacles: updatedObstacles,
-      trampolines: updatedTrampolines,
-      portals: updatedPortals
-    };
-    
-    // Si se borró la meta, crear una nueva meta en una posición segura
-    if (isGoalErased) {
-      updatedLevel.goal = new Goal({ x: 700, y: 500 });
+
+    let changed = false;
+    const updatedPlatforms = level.platforms.filter(p => !isPointInElement({ x, y }, p));
+    if (updatedPlatforms.length !== level.platforms.length) changed = true;
+
+    const updatedObstacles = level.obstacles.filter(o => !isPointInElement({ x, y }, o, { width: Spike.defaultWidth, height: Spike.defaultHeight }));
+     if (updatedObstacles.length !== level.obstacles.length) changed = true;
+
+    const updatedTrampolines = level.trampolines.filter(t => !isPointInElement({ x, y }, t, { width: Trampoline.defaultWidth, height: Trampoline.defaultHeight }));
+     if (updatedTrampolines.length !== level.trampolines.length) changed = true;
+
+     // Check portals based on their main body, not destination
+    const updatedPortals = level.portals.filter(p => !isPointInElement({ x, y }, p, { width: p.width || 40, height: p.height || 60 }));
+    if (updatedPortals.length !== level.portals.length) changed = true;
+
+
+    const updatedLevel = { ...level };
+
+    // Check player start
+    if (isPointInElement({ x, y }, level.playerStart, { width: 40, height: 40 })) {
+      // Reset player start to default if erased
+       updatedLevel.playerStart = { x: 50, y: 450 }; // Or keep previous default
+       changed = true;
     }
-    
-    // Si se borró el punto de inicio, recolocarlo en una posición segura
-    if (isPlayerStartErased) {
-      updatedLevel.playerStart = { x: 50, y: 450 };
+
+     // Check goal
+    if (isPointInElement({ x, y }, level.goal, { width: Goal.defaultWidth, height: Goal.defaultHeight })) {
+       // Reset goal to default if erased
+       updatedLevel.goal = new Goal({ x: 700, y: 500 }); // Or keep previous default
+       changed = true;
+     }
+
+    if (changed) {
+        updatedLevel.platforms = updatedPlatforms;
+        updatedLevel.obstacles = updatedObstacles;
+        updatedLevel.trampolines = updatedTrampolines;
+        updatedLevel.portals = updatedPortals; // Update portals as well
+        setLevel(updatedLevel);
+        setHasUnsavedChanges(true);
     }
-    
-    // Actualizar el nivel con todos los cambios
-    setLevel(updatedLevel);
-    setHasUnsavedChanges(true);
-    
-    // Registrar resultados para depuración
-    console.log('Elementos después del borrado:', {
-      platforms: updatedLevel.platforms.length,
-      obstacles: updatedLevel.obstacles.length,
-      trampolines: updatedLevel.trampolines.length,
-      portals: updatedLevel.portals.length
-    });
-  };
-  
-  // Manejar guardado de nivel
+};
+
+
   const handleSave = () => {
     if (!level) return;
-    
-    // Si no tiene nombre, mostrar diálogo para introducir nombre
-    if (!level.name || level.name === 'Untitled Level') {
+    if (!level.name || level.name === 'Untitled Level' || levelId === 'new') {
+       setLevelName(level.name === 'Untitled Level' ? '' : level.name || ''); // Pre-fill if exists but maybe needs confirmation
       setSaveDialogOpen(true);
       return;
     }
-    
-    // Si ya tiene nombre, guardar directamente
-    const savedLevelId = saveUserLevel(level, levelId === 'new' ? null : levelId);
+    const savedLevelId = saveUserLevel(level, levelId); // Use existing levelId if not 'new'
     if (savedLevelId) {
-      navigate('/user-levels');
+      setHasUnsavedChanges(false); // Mark as saved
+      navigate('/user-levels'); // Redirect after saving existing
     }
   };
-  
-  // Manejar confirmación de guardado con nombre
+
   const handleSaveConfirm = () => {
-    if (!level || !levelName) return;
-    
+    if (!level || !levelName.trim()) {
+      alert("Por favor, introduce un nombre válido para el nivel.");
+      return;
+    }
     const levelToSave = {
       ...level,
-      name: levelName
+      name: levelName.trim()
     };
-    
-    const savedLevelId = saveUserLevel(levelToSave, levelId === 'new' ? null : levelId);
+    const idToSaveUnder = levelId === 'new' ? null : levelId;
+    const savedLevelId = saveUserLevel(levelToSave, idToSaveUnder);
     if (savedLevelId) {
       setSaveDialogOpen(false);
       setHasUnsavedChanges(false);
+      // If it was a new level, navigate to the edit page of the newly saved level ID?
+      // Or just back to the list. Let's go back to the list for simplicity.
       navigate('/user-levels');
+    } else {
+      alert("Error al guardar el nivel."); // Provide feedback on failure
     }
   };
 
-  // Añade estas funciones después de handleSaveConfirm:
-
-const handleExport = () => {
-  if (!level) return;
-  
-  const levelData = JSON.stringify(level, null, 2);
-  const blob = new Blob([levelData], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${level.name || 'untitled-level'}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-const handleImport = () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedLevel = JSON.parse(e.target.result);
-        
-        // Recrear las instancias de las clases correctas
-        const reconstructedLevel = {
-          ...importedLevel,
-          platforms: importedLevel.platforms.map(p => new Platform(p)),
-          obstacles: importedLevel.obstacles.map(o => new Spike(o)),
-          trampolines: importedLevel.trampolines.map(t => new Trampoline(t)),
-          portals: importedLevel.portals.map(p => new Portal(p)),
-          goal: new Goal(importedLevel.goal)
-        };
-        
-        setLevel(reconstructedLevel);
-        setHasUnsavedChanges(false);
-        setLevelName(reconstructedLevel.name || '');
-        
-        // Actualizar el contador de portales
-        const maxPortalId = Math.max(
-          ...reconstructedLevel.portals.map(p => p.portalId || 0),
-          0
-        );
-        setPortalCounter(maxPortalId + 1);
-        
-      } catch (error) {
-        console.error('Error al importar el nivel:', error);
-        alert('Error al importar el nivel. Asegúrate de que el archivo es válido.');
-      }
-    };
-    reader.readAsText(file);
+  const handleExport = () => {
+    if (!level) return;
+    // Ensure the level name is up-to-date before exporting
+    const levelToExport = { ...level, name: levelName || level.name || 'untitled-level' };
+    const levelData = JSON.stringify(levelToExport, null, 2);
+    const blob = new Blob([levelData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${levelToExport.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`; // Sanitize filename
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
-  input.click();
-};
-  
-  // Si el nivel aún no está cargado, mostrar carga
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importedLevel = JSON.parse(event.target.result);
+          // Basic validation (check for essential properties)
+          if (!importedLevel || typeof importedLevel.playerStart !== 'object' || typeof importedLevel.goal !== 'object') {
+              throw new Error("Invalid level file structure.");
+          }
+
+           // Recreate class instances
+          const reconstructedLevel = {
+              ...createEmptyLevel(), // Start with defaults
+              ...importedLevel, // Override with imported data
+              id: levelId === 'new' ? `imported_${Date.now()}` : levelId, // Assign new ID if 'new', else keep current
+              name: importedLevel.name || 'Imported Level',
+              platforms: (importedLevel.platforms || []).map(p => new Platform(p)),
+              obstacles: (importedLevel.obstacles || []).map(o => new Spike(o)),
+              trampolines: (importedLevel.trampolines || []).map(t => new Trampoline(t)),
+              portals: (importedLevel.portals || []).map(p => new Portal(p)),
+              goal: new Goal(importedLevel.goal)
+          };
+
+          setLevel(reconstructedLevel);
+          setHasUnsavedChanges(true); // Mark as changed after import
+          setLevelName(reconstructedLevel.name);
+          const maxPortalId = Math.max(...(reconstructedLevel.portals || []).map(p => p.portalId || 0), 0);
+          setPortalCounter(maxPortalId + 1);
+          alert('Nivel importado con éxito. Recuerda guardarlo.');
+
+        } catch (error) {
+          console.error('Error al importar el nivel:', error);
+          alert(`Error al importar el nivel: ${error.message}. Asegúrate de que el archivo JSON es válido.`);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   if (!level) {
     return <div>Cargando editor...</div>;
   }
-  
-  // Color opuesto al fondo para los elementos
+
   const oppositeColor = getInactiveColor(isInverted);
   const currentColor = getActiveColor(isInverted);
-  
+
   return (
     <EditorContainer isInverted={isInverted}>
       <EditorToolbar>
-        {/* BackArrow a la izquierda, ajustada más hacia arriba */}
-        <div style={{ position: 'absolute', left: '5px', top: '-10px', transform: 'translateY(0)' }}>
+        <div style={{ position: 'absolute', left: '5px', top: '-10px' /* Adjusted top */ }}>
           <BackArrow onClick={handleGoBack} />
         </div>
-        
-        {/* Botones centrales */}
-        <div style={{ 
-          display: 'flex', 
-          margin: '0 auto', 
-          alignItems: 'center' 
-        }}>
-          <ToolbarItem 
+
+        <div style={{ display: 'flex', margin: '0 auto', alignItems: 'center' }}>
+          <ToolbarItem
             isActive={editorMode === 'place'}
             onClick={() => setEditorMode('place')}
             isInverted={isInverted}
           >
             Colocar
           </ToolbarItem>
-          
-          <ToolbarItem 
+
+          <ToolbarItem
             isActive={editorMode === 'erase'}
             onClick={() => setEditorMode('erase')}
             isInverted={isInverted}
           >
             Borrar
           </ToolbarItem>
-          
-          <ToolbarItem 
+
+          <ToolbarItem
             onClick={toggleInversion}
             isInverted={isInverted}
-            style={{ 
-              marginLeft: '20px', 
-              backgroundColor: 'transparent'
-            }}
+            style={{ marginLeft: '20px' }} // Keep margin if needed
+            // Removed inline background color
           >
             Invertir Colores (E)
           </ToolbarItem>
         </div>
-        
-        {/* Botón de guardar a la derecha */}
+
         <div style={{ position: 'absolute', right: '15px', display: 'flex', gap: '10px' }}>
-          <ToolbarItem 
+          <ToolbarItem
             onClick={handleExport}
             isInverted={isInverted}
-            style={{ backgroundColor: 'transparent' }}
+             // Removed inline background color
           >
             Exportar
           </ToolbarItem>
-          
-          <ToolbarItem 
+
+          <ToolbarItem
             onClick={handleImport}
             isInverted={isInverted}
-            style={{ backgroundColor: 'transparent' }}
+             // Removed inline background color
           >
             Importar
           </ToolbarItem>
-          
-          <ToolbarItem 
+
+          <ToolbarItem
             onClick={handleSave}
             isInverted={isInverted}
-            style={{ backgroundColor: 'transparent' }}
+             // Removed inline background color
           >
-            Guardar Nivel
+            Guardar Nivel {hasUnsavedChanges ? '*' : ''} {/* Indicate unsaved changes */}
           </ToolbarItem>
         </div>
       </EditorToolbar>
-      
-      <div style={{ display: 'flex', flex: 1, width: '100%' }}>
-        <EditorCanvas 
-          onClick={handleCanvasClick} 
-          onContextMenu={handleCanvasContextMenu} 
-          onMouseMove={handleCanvasMouseMove} 
-          onMouseLeave={handleCanvasMouseLeave} 
+
+      <div style={{ display: 'flex', flex: 1, width: '100%', overflow: 'hidden' /* Prevent layout shifts */ }}>
+        <EditorCanvas
+          onClick={handleCanvasClick}
+          onContextMenu={handleCanvasContextMenu}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseLeave={handleCanvasMouseLeave}
           isInverted={isInverted}
         >
-          {/* Renderizar el elemento en vista previa */}
-          {previewElement && previewElement.type === 'trampoline' ? (
-            <div
-              style={{
-                position: 'absolute',
-                left: previewElement.x,
-                top: previewElement.y,
-                width: previewElement.width,
-                height: previewElement.height,
-                backgroundColor: previewElement.color || 'transparent',
-                borderRadius: '50% 50% 0 0',
-                opacity: 0.5,
-                border: `1px solid ${previewElement.color === 'black' ? 'white' : 'black'}`,
-                pointerEvents: 'none',
-              }}
-            />
-          ) : previewElement && previewElement.type === 'spike' ? (
-            <div
-              style={{
-                position: 'absolute',
-                left: previewElement.x,
-                top: previewElement.y,
-                width: 0,
-                height: 0,
-                borderLeft: `${previewElement.width / 2}px solid transparent`,
-                borderRight: `${previewElement.width / 2}px solid transparent`,
-                borderBottom: `${previewElement.height}px solid ${previewElement.color}`,
-                opacity: 0.5,
-                pointerEvents: 'none',
-              }}
-            />
-          ) : previewElement && (
-            <div
-              style={{
-                position: 'absolute',
-                left: previewElement.x,
-                top: previewElement.y,
-                width: previewElement.width,
-                height: previewElement.height,
-                backgroundColor: previewElement.color || 'transparent',
-                opacity: 0.5,
-                border: previewElement.type === 'goal' ? '2px dashed white' : '1px solid white',
-                borderRadius: previewElement.type === 'goal' ? '50%' : '0',
-                pointerEvents: 'none',
-              }}
-            />
+           {/* Render preview element */}
+          {previewElement && previewElement.type === 'trampoline' && (
+             <div style={{ position: 'absolute', left: previewElement.x, top: previewElement.y, width: previewElement.width, height: previewElement.height, backgroundColor: previewElement.color || 'transparent', borderRadius: '50% 50% 0 0', opacity: 0.5, border: `1px dashed ${previewElement.color === 'black' ? 'white' : 'black'}`, pointerEvents: 'none' }} />
           )}
+          {previewElement && previewElement.type === 'spike' && (
+             <div style={{ position: 'absolute', left: previewElement.x, top: previewElement.y, width: 0, height: 0, borderLeft: `${previewElement.width / 2}px solid transparent`, borderRight: `${previewElement.width / 2}px solid transparent`, borderBottom: `${previewElement.height}px solid ${previewElement.color}`, opacity: 0.5, pointerEvents: 'none' }} />
+           )}
+           {previewElement && previewElement.type !== 'trampoline' && previewElement.type !== 'spike' && (
+             <div style={{ position: 'absolute', left: previewElement.x, top: previewElement.y, width: previewElement.width, height: previewElement.height, backgroundColor: previewElement.type === 'player-start' || previewElement.type === 'platform' ? previewElement.color : 'transparent', opacity: 0.5, border: `2px dashed ${previewElement.type === 'goal' ? (isInverted ? 'black' : 'white') : (previewElement.type === 'portal' ? 'purple' : (previewElement.color === 'black' ? 'white' : 'black'))}`, borderRadius: previewElement.type === 'goal' ? '50%' : (previewElement.type === 'portal' ? '8px' : '0'), pointerEvents: 'none' }} />
+           )}
 
-          {/* Renderizar el contenido del nivel */}
-          {/* Usar el componente Level pero con interactividad adicional */}
-          {/* Esta parte es similar a lo que ya tienes en Level.jsx */}
-          {/* Renderizado de plataformas */}
+
+          {/* Render level elements */}
           {level.platforms.map((platform, index) => (
-            <div
-              key={`platform-${index}`}
-              style={{
-                position: 'absolute',
-                left: platform.x,
-                top: platform.y,
-                width: platform.width,
-                height: platform.height,
-                // Si el color coincide con el color activo actual, mostrar relleno
-                backgroundColor: platform.color === (isInverted ? 'black' : 'white') ? 
-                  platform.color : 'transparent',
-                // Siempre mostrar un borde del color contrario al de la plataforma
-                border: `1px solid ${platform.color === 'black' ? 'white' : 'black'}`,
-                boxSizing: 'border-box'
-              }}
-            />
+            <div key={`platform-${index}`} style={{ position: 'absolute', left: platform.x, top: platform.y, width: platform.width, height: platform.height, backgroundColor: platform.color === currentColor ? platform.color : 'transparent', border: `1px solid ${platform.color === 'black' ? 'white' : 'black'}`, boxSizing: 'border-box' }} />
           ))}
-          
-          {/* Renderizado de obstáculos (pinchos) */}
           {level.obstacles.map((obstacle, index) => (
-            <div
-              key={`obstacle-${index}`}
-              style={{
-                position: 'absolute',
-                left: obstacle.x,
-                top: obstacle.y,
-                width: obstacle.width,
-                height: obstacle.height,
-              }}
-            >
-              {/* Triángulo para el pico (spike) */}
-              <div style={{
-                position: 'absolute',
-                width: 0,
-                height: 0,
-                left: 0,
-                top: 0,
-                borderLeft: `${obstacle.width / 2}px solid transparent`,
-                borderRight: `${obstacle.width / 2}px solid transparent`,
-                borderBottom: `${obstacle.height}px solid ${obstacle.color}`,
-                opacity: obstacle.color === (isInverted ? 'black' : 'white') ? 1 : 0.3,
-                filter: `drop-shadow(0px 0px 1px ${obstacle.color === 'black' ? 'white' : 'black'})`
-              }}></div>
-            </div>
+            <div key={`obstacle-${index}`} style={{ position: 'absolute', left: obstacle.x, top: obstacle.y, width: 0, height: 0, borderLeft: `${obstacle.width / 2}px solid transparent`, borderRight: `${obstacle.width / 2}px solid transparent`, borderBottom: `${obstacle.height}px solid ${obstacle.color}`, opacity: obstacle.color === currentColor ? 1 : 0.3, filter: `drop-shadow(0px 0px 1px ${obstacle.color === 'black' ? 'white' : 'black'})` }}/>
           ))}
-          
-          {/* Renderizado de trampolines */}
           {level.trampolines.map((trampoline, index) => (
-            <div
-              key={`trampoline-${index}`}
-              style={{
-                position: 'absolute',
-                left: trampoline.x,
-                top: trampoline.y,
-                width: trampoline.width,
-                height: trampoline.height,
-                backgroundColor: trampoline.color === (isInverted ? 'black' : 'white') ? 
-                  trampoline.color : 'transparent',
-                // Contorno siempre visible del color contrario
-                border: `1px solid ${trampoline.color === 'black' ? 'white' : 'black'}`,
-                borderRadius: '50% 50% 0 0',
-                opacity: trampoline.color === (isInverted ? 'black' : 'white') ? 1 : 0.3
-              }}
-            />
+            <div key={`trampoline-${index}`} style={{ position: 'absolute', left: trampoline.x, top: trampoline.y, width: trampoline.width, height: trampoline.height, backgroundColor: trampoline.color === currentColor ? trampoline.color : 'transparent', border: `1px solid ${trampoline.color === 'black' ? 'white' : 'black'}`, borderRadius: '50% 50% 0 0', opacity: trampoline.color === currentColor ? 1 : 0.3 }} />
           ))}
-          
-          {/* Renderizado de portales - siempre visibles */}
           {level.portals.map((portal, index) => (
             <React.Fragment key={`portal-${index}`}>
-              {/* Portal principal */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: portal.x,
-                  top: portal.y,
-                  width: portal.width,
-                  height: portal.height,
-                  backgroundColor: 'purple',
-                  border: '1px solid #ffffff',
-                  opacity: 0.8,
-                  borderRadius: '8px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <div style={{
-                  fontSize: `${portal.width * 0.5}px`,
-                  color: 'white',
-                  fontWeight: 'bold'
-                }}>{portal.portalId}</div>
-              </div>
-              
-              {/* Indicador de destino */}
+              <div style={{ position: 'absolute', left: portal.x, top: portal.y, width: portal.width, height: portal.height, backgroundColor: 'purple', border: '1px solid white', opacity: 0.8, borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: `${portal.width * 0.5}px`, fontWeight: 'bold' }}>{portal.portalId}</div>
               {portal.destination && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: portal.destination.x,
-                    top: portal.destination.y,
-                    width: 20,
-                    height: 20,
-                    border: '2px dashed purple',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    opacity: 0.6
-                  }}
-                >
-                  <div style={{
-                    fontSize: '12px',
-                    color: 'purple',
-                    fontWeight: 'bold'
-                  }}>{portal.portalId}</div>
-                </div>
+                <div style={{ position: 'absolute', left: portal.destination.x, top: portal.destination.y, width: 20, height: 20, border: '2px dashed purple', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.6, color: 'purple', fontSize: '12px', fontWeight: 'bold' }}>{portal.portalId}</div>
               )}
             </React.Fragment>
           ))}
-          
-          {/* Renderizado de la meta */}
-          <div
-            style={{
-              position: 'absolute',
-              left: level.goal.x,
-              top: level.goal.y,
-              width: level.goal.width,
-              height: level.goal.height,
-              border: `3px dashed ${isInverted ? 'black' : 'white'}`,
-              borderRadius: '50%'
-            }}
-          />
-          
-          {/* Punto de inicio del jugador */}
-          <div
-            style={{
-              position: 'absolute',
-              left: level.playerStart.x,
-              top: level.playerStart.y,
-              width: 40,
-              height: 40,
-              backgroundColor: isInverted ? 'black' : 'white',
-              opacity: 0.7
-            }}
-          />
-          {isSelectingPortalDestination && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: getActiveColor(isInverted),
-              color: getInactiveColor(isInverted),
-              padding: '10px',
-              textAlign: 'center',
-              zIndex: 100,
-              opacity: 0.9
-            }}>
-              Haz clic en cualquier lugar para establecer el destino del portal, o clic derecho para cancelar.
-            </div>
-          )}
-          {pendingPortal && (
-            <div
-              style={{
-                position: 'absolute',
-                left: pendingPortal.x,
-                top: pendingPortal.y,
-                width: pendingPortal.width,
-                height: pendingPortal.height,
-                backgroundColor: 'purple',
-                border: '1px solid #ffffff',
-                opacity: 0.8,
-                borderRadius: '8px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <div style={{
-                fontSize: `${pendingPortal.width * 0.5}px`,
-                color: 'white',
-                fontWeight: 'bold'
-              }}>{pendingPortal.portalId}</div>
-            </div>
-          )}
+          {level.goal && (
+             <div style={{ position: 'absolute', left: level.goal.x, top: level.goal.y, width: level.goal.width, height: level.goal.height, border: `3px dashed ${currentColor}`, borderRadius: '50%' }} />
+           )}
+          {level.playerStart && (
+             <div style={{ position: 'absolute', left: level.playerStart.x, top: level.playerStart.y, width: 40, height: 40, backgroundColor: currentColor, opacity: 0.7 }} />
+           )}
+
+          {/* Portal placement UI */}
+           {isSelectingPortalDestination && (
+             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: getActiveColor(isInverted), color: getInactiveColor(isInverted), padding: '10px', textAlign: 'center', zIndex: 100, opacity: 0.9 }}>
+               Haz clic para establecer el destino del portal {portalCounter}, o clic derecho para cancelar.
+             </div>
+           )}
+           {pendingPortal && ( // Show the first portal placement while selecting destination
+             <div style={{ position: 'absolute', left: pendingPortal.x, top: pendingPortal.y, width: pendingPortal.width, height: pendingPortal.height, backgroundColor: 'purple', border: '1px solid white', opacity: 0.8, borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: `${pendingPortal.width * 0.5}px`, fontWeight: 'bold' }}>{pendingPortal.portalId}</div>
+           )}
         </EditorCanvas>
-        
+
         <EditorSidebar isInverted={isInverted}>
-          <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
-          <ElementsContainer>
-            <ElementButton 
-              onClick={() => setSelectedElement('platform')}
-              isSelected={selectedElement === 'platform'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '10px', 
-                  backgroundColor: oppositeColor, 
-                  marginRight: '10px',
-                  border: `1px solid ${currentColor}`
-                }}></div>
-                Plataforma
-              </div>
+           <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
+           <ElementsContainer>
+             {/* Element Buttons using ElementButton styled component */}
+            <ElementButton onClick={() => { setSelectedElement('platform'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'platform'} isInverted={isInverted}>
+                 <div style={{ display: 'flex', alignItems: 'center' }}>
+                   <div style={{ width: '30px', height: '10px', backgroundColor: oppositeColor, marginRight: '10px', border: `1px solid ${currentColor}` }}></div>Plataforma
+                 </div>
             </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('spike')}
-              isSelected={selectedElement === 'spike'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '20px', 
-                  marginRight: '10px',
-                  position: 'relative'
-                }}>
-                  {/* Forma de triángulo para el pico */}
-                  <div style={{ 
-                    position: 'absolute',
-                    width: 0,
-                    height: 0,
-                    left: 0,
-                    bottom: 0,
-                    borderLeft: '15px solid transparent',
-                    borderRight: '15px solid transparent',
-                    borderBottom: `20px solid ${oppositeColor}`,
-                    filter: `drop-shadow(0px 0px 1px ${currentColor})`
-                  }}></div>
+            <ElementButton onClick={() => { setSelectedElement('spike'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'spike'} isInverted={isInverted}>
+                 <div style={{ display: 'flex', alignItems: 'center' }}>
+                   <div style={{ width: '30px', height: '20px', marginRight: '10px', position: 'relative' }}>
+                     <div style={{ position: 'absolute', width: 0, height: 0, left: 0, bottom: 0, borderLeft: '15px solid transparent', borderRight: '15px solid transparent', borderBottom: `20px solid ${oppositeColor}`, filter: `drop-shadow(0px 0px 1px ${currentColor})` }}></div>
+                   </div>Pico
+                 </div>
+             </ElementButton>
+             <ElementButton onClick={() => { setSelectedElement('trampoline'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'trampoline'} isInverted={isInverted}>
+               <div style={{ display: 'flex', alignItems: 'center' }}>
+                 <div style={{ width: '30px', height: '15px', backgroundColor: oppositeColor, marginRight: '10px', borderRadius: '15px 15px 0 0', border: `1px solid ${currentColor}` }}></div>Trampolín
+               </div>
+             </ElementButton>
+             <ElementButton onClick={() => { setSelectedElement('portal'); /* Don't reset portal state here */ }} isSelected={selectedElement === 'portal'} isInverted={isInverted}>
+               <div style={{ display: 'flex', alignItems: 'center' }}>
+                 <div style={{ width: '30px', height: '30px', backgroundColor: 'purple', marginRight: '10px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.8, border: '1px solid white' }}><span style={{ color: 'white', fontSize: '16px' }}>◊</span></div>Portal
+               </div>
+             </ElementButton>
+             <ElementButton onClick={() => { setSelectedElement('goal'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'goal'} isInverted={isInverted}>
+               <div style={{ display: 'flex', alignItems: 'center' }}>
+                 <div style={{ width: '20px', height: '20px', marginRight: '10px', border: `2px dashed ${currentColor}`, borderRadius: '50%' }}></div>Meta
+               </div>
+             </ElementButton>
+             <ElementButton onClick={() => { setSelectedElement('player-start'); setIsSelectingPortalDestination(false); }} isSelected={selectedElement === 'player-start'} isInverted={isInverted}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ width: '20px', height: '20px', backgroundColor: currentColor, marginRight: '10px', opacity: 0.7 }}></div>Inicio Jugador
                 </div>
-                Pico
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('trampoline')}
-              isSelected={selectedElement === 'trampoline'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '15px', 
-                  backgroundColor: oppositeColor, 
-                  marginRight: '10px',
-                  borderRadius: '15px 15px 0 0',
-                  border: `1px solid ${currentColor}`
-                }}></div>
-                Trampolín
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('portal')}
-              isSelected={selectedElement === 'portal'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '30px', 
-                  height: '30px', 
-                  backgroundColor: 'purple', 
-                  marginRight: '10px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  opacity: 0.8,
-                  border: '1px solid #ffffff'
-                }}>
-                  <span style={{ color: 'white', fontSize: '16px' }}>◊</span>
-                </div>
-                Portal
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('goal')}
-              isSelected={selectedElement === 'goal'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '20px', 
-                  height: '20px', 
-                  marginRight: '10px',
-                  border: `2px dashed ${currentColor}`,
-                  borderRadius: '50%'
-                }}></div>
-                Meta
-              </div>
-            </ElementButton>
-            
-            <ElementButton 
-              onClick={() => setSelectedElement('player-start')}
-              isSelected={selectedElement === 'player-start'}
-              isInverted={isInverted}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ 
-                  width: '20px', 
-                  height: '20px', 
-                  backgroundColor: currentColor, 
-                  marginRight: '10px',
-                  opacity: 0.7
-                }}></div>
-                Inicio Jugador
-              </div>
-            </ElementButton>
-          </ElementsContainer>
-          
-          {selectedElement && selectedElement === 'platform' && (
-            <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-              <h3 style={{ color: currentColor, marginBottom: '10px' }}>Tamaño de Plataforma</h3>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ color: currentColor, display: 'block', marginBottom: '5px' }}>
-                  Ancho: {platformSize.width}px
-                </label>
-                <input 
-                  type="range" 
-                  min="20" 
-                  max="300" 
-                  value={platformSize.width} 
-                  onChange={(e) => setPlatformSize(prev => ({ ...prev, width: Number(e.target.value) }))}
-                  style={{ width: '100%' }}
-                />
-              </div>
-              <div>
-                <label style={{ color: currentColor, display: 'block', marginBottom: '5px' }}>
-                  Alto: {platformSize.height}px
-                </label>
-                <input 
-                  type="range" 
-                  min="10" 
-                  max="100" 
-                  value={platformSize.height} 
-                  onChange={(e) => setPlatformSize(prev => ({ ...prev, height: Number(e.target.value) }))}
-                  style={{ width: '100%' }}
-                />
-              </div>
-            </div>
-          )}
+             </ElementButton>
+           </ElementsContainer>
+
+           {selectedElement === 'platform' && (
+             <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${currentColor}50`, borderRadius: '5px' }}>
+               <h3 style={{ color: currentColor, marginBottom: '10px', fontSize: '16px' }}>Tamaño Plataforma</h3>
+               <div style={{ marginBottom: '10px' }}>
+                 <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>Ancho: {platformSize.width}px</label>
+                 <input type="range" min="20" max="500" value={platformSize.width} onChange={(e) => setPlatformSize(prev => ({ ...prev, width: Number(e.target.value) }))} style={{ width: '100%' }} />
+               </div>
+               <div>
+                 <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>Alto: {platformSize.height}px</label>
+                 <input type="range" min="10" max="100" value={platformSize.height} onChange={(e) => setPlatformSize(prev => ({ ...prev, height: Number(e.target.value) }))} style={{ width: '100%' }} />
+               </div>
+             </div>
+           )}
         </EditorSidebar>
       </div>
-      
+
       {saveDialogOpen && (
         <SaveDialog>
           <SaveDialogContent isInverted={isInverted}>
             <h2>Guardar Nivel</h2>
             <p>Introduce un nombre para tu nivel:</p>
-            <Input 
-              type="text" 
-              value={levelName} 
+            <Input
+              type="text"
+              value={levelName}
               onChange={(e) => setLevelName(e.target.value)}
               placeholder="Nombre del nivel"
               isInverted={isInverted}
               autoFocus
-              onKeyDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                  e.stopPropagation(); // Prevent 'E' key from toggling inversion
+                  if (e.key === 'Enter') {
+                      handleSaveConfirm(); // Allow saving with Enter key
+                  }
+              }}
             />
-            <SaveDialogButtons>
+            <SaveDialogButtons isInverted={isInverted}>
               <button onClick={() => setSaveDialogOpen(false)}>Cancelar</button>
-              <button 
-                onClick={handleSaveConfirm} 
-                disabled={!levelName}
+              <button
+                onClick={handleSaveConfirm}
+                disabled={!levelName.trim()} // Disable if name is empty or whitespace
               >
                 Guardar
               </button>
@@ -1042,3 +635,6 @@ const handleImport = () => {
 };
 
 export default LevelEditor;
+
+
+// --- END OF FILE LevelEditor.jsx ---
