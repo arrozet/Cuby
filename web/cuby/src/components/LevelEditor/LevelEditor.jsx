@@ -837,6 +837,7 @@ const handleImport = () => {
               placeholder="Nombre del nivel"
               isInverted={isInverted}
               autoFocus
+              onKeyDown={(e) => e.stopPropagation()}
             />
             <SaveDialogButtons>
               <button onClick={() => setSaveDialogOpen(false)}>Cancelar</button>
