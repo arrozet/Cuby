@@ -24,14 +24,20 @@ const StartScreen = () => {
     }
   }, []);
 
+  const handleClick = useCallback(() => {
+    navigate('/levels');
+  }, [navigate]);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('click', handleClick);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('click', handleClick);
     };
-  }, [handleKeyDown, handleKeyUp]);
+  }, [handleKeyDown, handleKeyUp, handleClick]);
 
   return (
     <StartContainer $isInverted={isInverted}>

@@ -284,7 +284,7 @@ const Game = () => {
       {hasWon && (
         <WinMessage>
           <h2>¡Nivel completado!</h2>
-          <button onClick={() => navigate('/levels')}>Seleccionar nivel</button>
+          <button onClick={() => navigate(window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels')}>Seleccionar nivel</button>
           <button onClick={restartGame}>Jugar de nuevo</button>
         </WinMessage>
       )}
