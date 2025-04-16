@@ -251,7 +251,11 @@ const Game = () => {
    * Maneja el regreso a la pantalla de selección de niveles
    */
   const handleBackToLevels = () => {
-    navigate('/levels');
+    if (window.location.hash.includes('/game/user/')) {
+      navigate('/user-levels');
+    } else {
+      navigate('/levels');
+    }
   };
 
   // Iniciar el bucle del juego
