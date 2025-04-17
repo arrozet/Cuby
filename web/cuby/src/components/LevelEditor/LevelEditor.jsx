@@ -430,7 +430,7 @@ const LevelEditor = () => {
           alert(`Error al importar el nivel: ${error.message}. Asegúrate de que el archivo JSON es válido.`);
         }
       };
-      reader.readText(file);
+      reader.readAsText(file);
     };
     input.click();
   };
