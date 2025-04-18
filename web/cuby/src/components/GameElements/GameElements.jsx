@@ -42,7 +42,7 @@ export class Spike extends GameObject {
 export class Trampoline extends GameObject {
   static defaultWidth = 50;
   static defaultHeight = 20;
-  static defaultForce = -10000;
+  static defaultForce = -1700;
 
   constructor({ x, y, color, width, height, force }) {
     super({ x, y, width: width || Trampoline.defaultWidth, height: height || Trampoline.defaultHeight, color });

@@ -241,9 +241,13 @@ const Game = () => {
     player.y = collisionResult.y;
     player.isOnGround = collisionResult.bottom; // Update ground status
 
-    // Velocities are now modified directly within checkPlatformCollisions
-    // if (collisionResult.bottom || collisionResult.top) player.vy = 0;
-    // if (collisionResult.left || collisionResult.right) player.vx = 0;
+    // Reset velocities based on collision flags returned by checkPlatformCollisions
+    if (collisionResult.bottom || collisionResult.top) {
+        player.vy = 0; // Stop vertical movement on vertical collision
+    }
+    if (collisionResult.left || collisionResult.right) {
+        player.vx = 0; // Stop horizontal movement on horizontal collision
+    }
 
 
     // Trampolines (apply after platform resolution)

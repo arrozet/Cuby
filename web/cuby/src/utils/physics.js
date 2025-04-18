@@ -54,8 +54,17 @@ export const processTrampolineCollisions = (player, trampolines, isInverted) => 
       isElementActive(trampoline.color, isInverted) &&
       checkCollision(player, trampoline)
     ) {
-      player.velocityY = trampoline.force / player.weight;
-      player.y = trampoline.y - player.height;
+      // Check if player is landing on top (moving down or still, and bottom is near top)
+      const playerBottom = player.y + player.height;
+      const trampolineTop = trampoline.y;
+      // Small tolerance to ensure contact
+      const tolerance = 5; 
+      if (player.velocityY >= 0 && playerBottom >= trampolineTop && playerBottom <= trampolineTop + tolerance) {
+        player.velocityY = trampoline.force / player.weight;
+        // Optional: Snap player position to top of trampoline
+        // player.y = trampoline.y - player.height; 
+        // Note: Be cautious with direct position manipulation if it conflicts with platform collision
+      }
     }
   });
 };
@@ -64,7 +73,7 @@ export const processTrampolineCollisions = (player, trampolines, isInverted) => 
  * Detecta las colisiones con obstáculos activos y reinicia la posición
  * del jugador cuando colisiona con alguno
  * 
- * @param {Object} player - Objeto jugador con propiedades x, y, width, height
+ * @param {Object} player - Objeto jugador con propiedades x, y, width, height, velocityY
  * @param {Array} obstacles - Array de obstáculos con propiedades x, y, width, height, color
  * @param {boolean} isInverted - Estado actual de inversión de color
  * @param {Object} startPosition - Posición inicial del jugador con propiedades x, y
@@ -187,8 +196,7 @@ export const checkPlatformCollisions = (player, platforms, isInverted, deltaTime
         resolvedY = platform.y + platform.height;
         collisionState.top = true;
       }
-      // Stop vertical movement upon collision
-      player.velocityY = 0; // Modify player's velocity directly here
+      // Velocity reset is handled in the game loop based on collisionState
       verticalCollider.y = resolvedY; // Update collider for subsequent checks in this loop if needed
     }
   }
@@ -206,8 +214,7 @@ export const checkPlatformCollisions = (player, platforms, isInverted, deltaTime
         resolvedX = platform.x + platform.width;
         collisionState.left = true;
       }
-       // Stop horizontal movement upon collision
-       player.velocityX = 0; // Modify player's velocity directly here
+       // Velocity reset is handled in the game loop based on collisionState
        horizontalCollider.x = resolvedX; // Update collider for subsequent checks
     }
   }
