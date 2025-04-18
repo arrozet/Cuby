@@ -12,34 +12,30 @@ export const UserLevelsContainer = styled.div`
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
-  /* Reducimos el padding superior inicial */
-  padding: 60px 20px 20px;
+  /* Reducimos más el padding superior */
+  padding: 40px 20px 20px; // Antes era 60px
   position: relative;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    /* Reducimos aún más el padding superior en móvil */
-    padding-top: 50px;
+    /* Reducimos más el padding superior en móvil */
+    padding-top: 35px; // Antes era 50px
   }
 `;
 
 export const Title = styled.h1`
-  font-size: 48px;
-  /* Reducimos el margen inferior inicial */
-  margin-bottom: 30px;
+  font-size: 40px; // Ligeramente más pequeño
+  /* Reducimos significativamente el margen inferior */
+  margin-bottom: 15px; // Antes era 30px
   color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 32px; // Ligeramente más pequeño en móvil
+    font-size: 28px; // Ligeramente más pequeño en móvil
     /* Reducimos más el margen inferior en móvil */
-    margin-bottom: 20px;
+    margin-bottom: 10px; // Antes era 20px
   }
 `;
-
-// UserLevels.styles.js
-
-// ... (otros styled components sin cambios)
 
 export const LevelsList = styled.div`
   display: grid;
@@ -47,34 +43,27 @@ export const LevelsList = styled.div`
   gap: 20px;
   width: 100%;
   max-width: 1000px;
-  /* Restauramos padding horizontal y mantenemos box-sizing */
   padding: 10px 20px;
   box-sizing: border-box;
+  overflow-y: auto;
 
-  /* --- CORRECCIÓN: Restaurar scroll y añadir max-height --- */
-  overflow-y: auto; /* Permite el scroll vertical si el contenido excede max-height */
-  /* Establecemos una altura máxima. Calculamos el espacio restante restando
-     la altura estimada del header (padding-top, título, botón) y el padding inferior.
-     Ajusta el valor '240px' si el header ocupa más o menos espacio en tu layout final. */
-  max-height: calc(100vh - 240px);
-  /* --- FIN CORRECCIÓN --- */
-
+  /* Ajustamos max-height para darle más espacio a la lista,
+     restando menos porque la cabecera ahora es más pequeña.
+     AJUSTA ESTE VALOR (190px) SI ES NECESARIO */
+  max-height: calc(100vh - 190px); // Antes era ~240px
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr; // Asegura una sola columna
+    grid-template-columns: 1fr;
     gap: 15px;
-    /* Ajustamos padding y quitamos max-width para que ocupe el ancho disponible menos el padding del container */
-    padding: 10px 5px; // Menos padding horizontal dentro de la lista
-    max-width: 100%; // Permitir que use el ancho completo del contenedor padre
+    padding: 10px 5px;
+    max-width: 100%;
 
-    /* --- CORRECCIÓN: Ajustar max-height para móvil --- */
-    /* Ajusta el valor '200px' si el header en móvil ocupa más o menos espacio. */
-    max-height: calc(100vh - 200px);
-     /* --- FIN CORRECCIÓN --- */
+    /* Ajustamos max-height para móvil.
+       AJUSTA ESTE VALOR (165px) SI ES NECESARIO */
+    max-height: calc(100vh - 165px); // Antes era ~200px
   }
 `;
 
-// ... (el resto de los styled components sin cambios: LevelCard, ActionButton, etc.)
 export const LevelCard = styled.div`
   background-color: ${props => getActiveColor(props.$isInverted)}20;
   border: 2px solid ${props => getActiveColor(props.$isInverted)};
@@ -84,7 +73,7 @@ export const LevelCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 160px; // Añadimos una altura mínima para consistencia
+  min-height: 160px;
 
   h3 {
     font-size: 24px;
@@ -103,7 +92,7 @@ export const LevelCard = styled.div`
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: auto; // Empuja los botones hacia abajo si hay espacio extra
+    margin-top: auto;
 
     button {
       background-color: ${props => getActiveColor(props.$isInverted)};
@@ -121,32 +110,24 @@ export const LevelCard = styled.div`
       &:hover {
         opacity: 0.8;
       }
-
-       /* Ya no es necesario el media query específico para 400px si flex-grow funciona bien */
-      /* @media (max-width: 400px) {
-         min-width: 80px;
-      } */
     }
   }
 
   @media (max-width: 768px) {
-    padding: 15px; // Mantenemos padding reducido
-    min-height: 150px; // Mantenemos altura mínima similar
+    padding: 15px;
+    min-height: 150px;
 
     h3 {
-      /* Aumentamos ligeramente el tamaño del título en móvil */
       font-size: 21px;
     }
 
     p {
-      /* Aumentamos ligeramente el tamaño del párrafo en móvil */
       font-size: 14px;
     }
 
     .actions button {
-      /* Aumentamos ligeramente el tamaño y padding de los botones en móvil */
       font-size: 14px;
-      padding: 8px 10px; // Más cómodo para tocar
+      padding: 8px 10px;
     }
   }
 `;
@@ -176,12 +157,12 @@ export const ActionButton = styled.button`
 `;
 
 export const ButtonContainer = styled.div`
-  /* Reducimos el margen inferior inicial */
-  margin-bottom: 25px;
+  /* Reducimos significativamente el margen inferior */
+  margin-bottom: 15px; // Antes era 25px
 
   @media (max-width: 768px) {
     /* Reducimos más el margen inferior en móvil */
-    margin-bottom: 15px;
+    margin-bottom: 10px; // Antes era 15px
   }
 `;
 
@@ -189,7 +170,7 @@ export const NoLevelsMessage = styled.p`
   font-size: 24px;
   color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
-  margin-top: 40px;
+  margin-top: 40px; // Mantenemos un margen superior razonable para el mensaje
 
   @media (max-width: 768px) {
     font-size: 18px;
