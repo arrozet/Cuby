@@ -11,15 +11,16 @@ import { useKeyPress } from '../../hooks/useKeyPress'; // Corrected import if ne
 import { useSettings } from '../../context/SettingsContext';
 import { useInversion } from '../../context/InversionContext'; // Import useInversion
 import {
-  applyGravity,
+  // applyGravity, // Removed unused import
   checkPlatformCollisions,
-  processTramplineCollisions, // Corrected typo if necessary: processTrampolineCollisions
+  processTrampolineCollisions, // Corrected import name
   processObstacleCollisions,
   processPortalCollisions,
   checkVictoryCondition
 } from '../../utils/physics';
 // Import base dimensions from constants
-import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE, BASE_GAME_WIDTH, BASE_GAME_HEIGHT } from '../../constants/gameConstants';
+// Added GRAVITY import
+import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE, BASE_GAME_WIDTH, BASE_GAME_HEIGHT, GRAVITY } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 import { level2 } from '../../levels/level2';
 import { getUserLevelById } from '../../utils/levelManager';
@@ -41,7 +42,7 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameE
 const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
-  const { keyMapping } = useSettings(); // Assuming keyMapping provides action names
+  // const { keyMapping } = useSettings(); // Removed unused variable
   const { isInverted } = useInversion(); // Get inversion state
   const [currentLevel, setCurrentLevel] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,10 +53,17 @@ const Game = () => {
   // --- Game State ---
   // Store player state in a ref for direct access in game loop, update state less frequently if needed
   const playerStateRef = useRef({
-    x: 50, y: 450, vx: 0, vy: 0, isOnGround: false, canJump: true, isCrouching: false, weight: 1 // Added weight for trampoline physics
+    x: 50, y: 450, vx: 0, vy: 0, isOnGround: false, canJump: true, isCrouching: false, weight: 1, // Added weight for trampoline physics
+    // Coyote Time and Jump Buffering states
+    coyoteTimeCounter: 0,
+    jumpBufferCounter: 0,
   });
   // State for React rendering
   const [playerRenderState, setPlayerRenderState] = useState(playerStateRef.current);
+
+  // Constants for jump timing tolerance
+  const COYOTE_TIME_DURATION = 0.1; // seconds
+  const JUMP_BUFFER_DURATION = 0.1; // seconds
 
   // --- Load Level ---
   useEffect(() => {
@@ -102,8 +110,10 @@ const Game = () => {
         vx: 0,
         vy: 0,
         isOnGround: false,
-        canJump: true,
+        canJump: true, // Reset canJump
         isCrouching: false,
+        coyoteTimeCounter: 0, // Reset counters
+        jumpBufferCounter: 0,
       };
       setPlayerRenderState(playerStateRef.current);
 
@@ -154,29 +164,45 @@ const Game = () => {
     // Work directly with the ref for physics calculations
     const player = playerStateRef.current;
 
-    // --- Movement ---
+    // --- Update Counters ---
+    player.coyoteTimeCounter = player.isOnGround ? COYOTE_TIME_DURATION : Math.max(0, player.coyoteTimeCounter - deltaTime);
+    player.jumpBufferCounter = Math.max(0, player.jumpBufferCounter - deltaTime);
+
+    // --- Input Processing ---
+    // Horizontal Movement
     player.vx = 0;
     if (keysPressed.left) player.vx -= MOVEMENT_SPEED;
     if (keysPressed.right) player.vx += MOVEMENT_SPEED;
 
+    // Jump Buffering
+    if (keysPressed.jump) {
+      player.jumpBufferCounter = JUMP_BUFFER_DURATION;
+    }
+
     // --- Gravity ---
-    // Correct call to applyGravity
-    player.vy = applyGravity(player.vy, player.isOnGround, deltaTime, player.weight);
+    // Apply gravity - velocity is updated directly within checkPlatformCollisions now
+    // Only apply gravity if not on ground OR if coyote time is active (to allow falling)
+    if (!player.isOnGround && player.coyoteTimeCounter <= 0) {
+        player.vy += GRAVITY * player.weight * deltaTime;
+    } else if (player.isOnGround) {
+        // Ensure vertical velocity is 0 when grounded, unless just bounced
+        // This might be handled by collision resolution, but good to be sure
+        // player.vy = 0; // Re-evaluate if needed, collision should handle this
+    }
+
 
     // --- Jumping ---
-    if (keysPressed.jump && player.isOnGround && player.canJump) {
-      player.vy = -JUMP_FORCE;
-      player.isOnGround = false;
-      player.canJump = false; // Prevent holding jump for continuous effect
-    }
-    // Allow jumping again when the key is released
-    if (!keysPressed.jump) {
-      player.canJump = true;
-    }
+    // Check for jump condition: buffered jump OR jump press during coyote time
+    const canUseCoyoteTime = player.coyoteTimeCounter > 0 && !player.isOnGround; // Allow jump shortly after leaving ground
+    const hasBufferedJump = player.jumpBufferCounter > 0;
 
-    // --- Potential Position ---
-    let potentialX = player.x + player.vx * deltaTime;
-    let potentialY = player.y + player.vy * deltaTime;
+    if (hasBufferedJump && (player.isOnGround || canUseCoyoteTime)) {
+      player.vy = JUMP_FORCE; // Use the constant directly
+      player.isOnGround = false;
+      player.coyoteTimeCounter = 0; // Consume coyote time
+      player.jumpBufferCounter = 0; // Consume jump buffer
+      // player.canJump = false; // Removed - buffering handles intention
+    }
 
     // --- Collisions ---
     // Create a player object for collision checks
@@ -190,31 +216,30 @@ const Game = () => {
         weight: player.weight // Pass weight
     };
 
-    // Platforms
-    // checkPlatformCollisions needs the player object and deltaTime to predict movement
-    // Assuming checkPlatformCollisions resolves position and returns state
+    // Platforms - Pass deltaTime and update player state based on the *returned* values
     const collisionResult = checkPlatformCollisions(
-        playerCollider,
+        playerCollider, // Pass the collider representation
         currentLevel.platforms,
         isInverted,
-        deltaTime // Pass deltaTime if the function needs it to resolve
+        deltaTime // Pass deltaTime
     );
 
     // Update player state based on platform collision resolution
     player.x = collisionResult.x;
     player.y = collisionResult.y;
-    player.isOnGround = collisionResult.bottom; // Assuming 'bottom' means landed on ground
-    if (collisionResult.bottom || collisionResult.top) player.vy = 0; // Stop vertical velocity on floor/ceiling hit
-    if (collisionResult.left || collisionResult.right) player.vx = 0; // Stop horizontal velocity on wall hit
+    player.isOnGround = collisionResult.bottom; // Update ground status
+
+    // Velocities are now modified directly within checkPlatformCollisions
+    // if (collisionResult.bottom || collisionResult.top) player.vy = 0;
+    // if (collisionResult.left || collisionResult.right) player.vx = 0;
 
 
     // Trampolines (apply after platform resolution)
-    // Assuming processTrampolineCollisions modifies the player object passed to it
     // Pass the updated playerCollider state after platform collisions
-    playerCollider.x = player.x;
+    playerCollider.x = player.x; // Use resolved position
     playerCollider.y = player.y;
-    playerCollider.velocityY = player.vy; // Pass current velocity
-    processTramplineCollisions( // Corrected typo: processTrampolineCollisions
+    playerCollider.velocityY = player.vy; // Pass current velocity (potentially modified by platform collision)
+    processTrampolineCollisions( // Corrected typo
         playerCollider,
         currentLevel.trampolines,
         isInverted
@@ -228,7 +253,7 @@ const Game = () => {
 
 
     // Obstacles (check final position for frame)
-    // Assuming processObstacleCollisions modifies player if collision occurs
+    // Pass the playerCollider with the latest position
     playerCollider.x = player.x;
     playerCollider.y = player.y;
     processObstacleCollisions(
@@ -239,12 +264,15 @@ const Game = () => {
     );
     // Check if position was reset
     if (playerCollider.x === currentLevel.playerStart.x && playerCollider.y === currentLevel.playerStart.y) {
+        // Reset player state fully
         player.x = playerCollider.x;
         player.y = playerCollider.y;
         player.vx = 0;
         player.vy = 0;
-        player.isOnGround = false; // Reset state
-        player.canJump = true;
+        player.isOnGround = false;
+        player.canJump = true; // Allow jump immediately after reset
+        player.coyoteTimeCounter = 0;
+        player.jumpBufferCounter = 0;
         // Update render state immediately for reset
         setPlayerRenderState({ ...player });
         return; // Skip rest of the tick after reset
@@ -252,7 +280,7 @@ const Game = () => {
 
 
     // Portals (check final position for frame)
-    // Assuming processPortalCollisions modifies player if collision occurs
+    // Pass the playerCollider with the latest position
     playerCollider.x = player.x;
     playerCollider.y = player.y;
     processPortalCollisions(
@@ -267,22 +295,27 @@ const Game = () => {
         player.vx = 0; // Reset velocity after teleport
         player.vy = 0;
         player.isOnGround = false; // Assume not on ground after teleport
+        player.coyoteTimeCounter = 0; // Reset counters after teleport
+        player.jumpBufferCounter = 0;
     }
 
 
     // --- Boundaries ---
     // Apply boundaries to the final resolved position
-    if (player.x < 0) player.x = 0;
-    if (player.x + PLAYER_SIZE > BASE_GAME_WIDTH) player.x = BASE_GAME_WIDTH - PLAYER_SIZE;
-    if (player.y < 0) { player.y = 0; if(player.vy < 0) player.vy = 0; }
+    if (player.x < 0) { player.x = 0; player.vx = 0; } // Stop velocity at boundary
+    if (player.x + PLAYER_SIZE > BASE_GAME_WIDTH) { player.x = BASE_GAME_WIDTH - PLAYER_SIZE; player.vx = 0; } // Stop velocity at boundary
+    if (player.y < 0) { player.y = 0; if(player.vy < 0) player.vy = 0; } // Stop velocity at boundary
     // Optional: Reset if falls too far
     if (player.y > BASE_GAME_HEIGHT + 200) { // Reset if fallen far below screen
+        // Reset player state fully
         player.x = currentLevel.playerStart.x;
         player.y = currentLevel.playerStart.y;
         player.vx = 0;
         player.vy = 0;
         player.isOnGround = false;
         player.canJump = true;
+        player.coyoteTimeCounter = 0;
+        player.jumpBufferCounter = 0;
         setPlayerRenderState({ ...player }); // Update render state
         return; // Skip rest of tick
     }
@@ -312,6 +345,8 @@ const Game = () => {
       vy: 0,
       isOnGround: false,
       canJump: true,
+      coyoteTimeCounter: 0, // Reset counters on restart
+      jumpBufferCounter: 0,
     };
     setPlayerRenderState(playerStateRef.current);
     setHasWon(false);

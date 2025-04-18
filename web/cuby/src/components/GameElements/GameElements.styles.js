@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { getActiveColor, getInactiveColor } from '../../utils/colors';
+import { getActiveColor } from '../../utils/colors';
 
 export const Platform = styled.div.attrs(props => ({
   style: {

@@ -18,7 +18,8 @@ export let GAME_HEIGHT = window.innerHeight;
 export const GRAVITY = 1500; // pixels per second squared
 
 // Fuerza del salto (negativa porque salta hacia arriba)
-export const JUMP_FORCE = -8000; // pixels per second
+// Adjusted jump force to a more reasonable value
+export const JUMP_FORCE = -650; // pixels per second
 
 // Velocidad de movimiento horizontal
 export const MOVEMENT_SPEED = 600;

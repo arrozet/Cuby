@@ -48,7 +48,7 @@ export const checkCollision = (obj1, obj2) => {
  * @param {Array} trampolines - Array de trampolines con propiedades x, y, width, height, color, force
  * @param {boolean} isInverted - Estado actual de inversión de color
  */
-export const processTramplineCollisions = (player, trampolines, isInverted) => {
+export const processTrampolineCollisions = (player, trampolines, isInverted) => {
   trampolines.forEach(trampoline => {
     if (
       isElementActive(trampoline.color, isInverted) &&
@@ -146,60 +146,76 @@ const teleportPlayer = (player, destination) => {
  * @param {Object} player - Objeto jugador con propiedades x, y, width, height, velocityX, velocityY
  * @param {Array} platforms - Array de plataformas con propiedades x, y, width, height, color
  * @param {boolean} isInverted - Estado actual de inversión de color
- * @returns {Object} Objeto con el estado de colisión y si está en el suelo
+ * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
+ * @returns {Object} Objeto con la posición resuelta (x, y) y el estado de colisión (top, bottom, left, right)
  */
-export const checkPlatformCollisions = (player, platforms, isInverted) => {
+export const checkPlatformCollisions = (player, platforms, isInverted, deltaTime) => {
   // Filtrar solo las plataformas activas según el estado de inversión
-  const activePlatforms = platforms.filter(platform => 
+  const activePlatforms = platforms.filter(platform =>
     isElementActive(platform.color, isInverted)
   );
-  
-  let onGround = false;
-  let collisions = { 
-    top: false,    // Colisión con la parte superior de una plataforma
-    bottom: false, // Colisión con la parte inferior (aterrizaje)
-    left: false,   // Colisión con el lado izquierdo
-    right: false   // Colisión con el lado derecho
+
+  let resolvedX = player.x + player.velocityX * deltaTime;
+  let resolvedY = player.y + player.velocityY * deltaTime;
+  let collisionState = {
+    top: false,
+    bottom: false,
+    left: false,
+    right: false
   };
 
-  // Verificar colisiones con cada plataforma activa
-  activePlatforms.forEach(platform => {
-    if (checkCollision(player, platform)) {
-      // Calcular la profundidad de penetración en cada dirección
-      const overlapLeft = player.x + player.width - platform.x;
-      const overlapRight = platform.x + platform.width - player.x;
-      const overlapTop = player.y + player.height - platform.y;
-      const overlapBottom = platform.y + platform.height - player.y;
-      
-      // Encontrar la dirección de menor penetración
-      const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
-      
-      // Resolver la colisión según la dirección de menor penetración
-      if (minOverlap === overlapTop && player.velocityY >= 0) {
-        // Colisión inferior (aterrizaje)
-        player.y = platform.y - player.height;
-        player.velocityY = 0;
-        onGround = true;
-        collisions.bottom = true;
-      } 
-      else if (minOverlap === overlapBottom && player.velocityY <= 0) {
-        // Colisión superior (golpe desde abajo)
-        player.y = platform.y + platform.height;
-        player.velocityY = 0;
-        collisions.top = true;
-      }
-      else if (minOverlap === overlapLeft && player.velocityX >= 0) {
-        // Colisión con el lado izquierdo
-        player.x = platform.x - player.width;
-        collisions.right = true;
-      }
-      else if (minOverlap === overlapRight && player.velocityX <= 0) {
-        // Colisión con el lado derecho
-        player.x = platform.x + platform.width;
-        collisions.left = true;
-      }
-    }
-  });
+  // Helper function to check collision between two AABBs
+  const checkAABBCollision = (rect1, rect2) => {
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.y + rect1.height > rect2.y
+    );
+  };
 
-  return { onGround, collisions };
+  // --- Vertical Collision Check ---
+  let verticalCollider = { ...player, y: resolvedY }; // Check potential vertical position
+  for (const platform of activePlatforms) {
+    if (checkAABBCollision(verticalCollider, platform)) {
+      if (player.velocityY > 0) { // Moving down
+        // Landed on top of the platform
+        resolvedY = platform.y - player.height;
+        collisionState.bottom = true;
+      } else if (player.velocityY < 0) { // Moving up
+        // Hit bottom of the platform
+        resolvedY = platform.y + platform.height;
+        collisionState.top = true;
+      }
+      // Stop vertical movement upon collision
+      player.velocityY = 0; // Modify player's velocity directly here
+      verticalCollider.y = resolvedY; // Update collider for subsequent checks in this loop if needed
+    }
+  }
+
+  // --- Horizontal Collision Check ---
+  let horizontalCollider = { ...player, x: resolvedX, y: resolvedY }; // Check potential horizontal position *after* vertical resolution
+  for (const platform of activePlatforms) {
+    if (checkAABBCollision(horizontalCollider, platform)) {
+      if (player.velocityX > 0) { // Moving right
+        // Hit left side of the platform
+        resolvedX = platform.x - player.width;
+        collisionState.right = true;
+      } else if (player.velocityX < 0) { // Moving left
+        // Hit right side of the platform
+        resolvedX = platform.x + platform.width;
+        collisionState.left = true;
+      }
+       // Stop horizontal movement upon collision
+       player.velocityX = 0; // Modify player's velocity directly here
+       horizontalCollider.x = resolvedX; // Update collider for subsequent checks
+    }
+  }
+
+  // Return the resolved position and collision flags
+  return {
+    x: resolvedX,
+    y: resolvedY,
+    ...collisionState // Spread the collision flags (top, bottom, left, right)
+  };
 };
