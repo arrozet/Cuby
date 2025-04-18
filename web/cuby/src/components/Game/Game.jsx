@@ -1,360 +1,384 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react'; // Added useRef
 import { useParams, useNavigate } from 'react-router-dom';
-import { GameContainer, WinMessage } from './Game.styles';
+// Import GameWrapper and updated GameContainer/WinMessage
+import { GameWrapper, GameContainer, WinMessage } from './Game.styles';
 import Player from '../Player/Player';
 import Level from '../Level/Level';
-import Controls from '../UI/Control';
-import BackArrow from '../common/BackArrow/BackArrow';
+import Controls from '../UI/Control'; // Ensure Controls styles are responsive too
+import BackArrow from '../common/BackArrow/BackArrow'; // Ensure BackArrow styles are responsive
 import { useGameLoop } from '../../hooks/useGameLoop';
-import { useKeyPress } from '../../hooks/useKeyPress';
-import { useSettings } from '../../context/SettingsContext'; // Importamos useSettings
-import { 
-  applyGravity, 
+import { useKeyPress } from '../../hooks/useKeyPress'; // Corrected import if needed, assuming it's default export or named export
+import { useSettings } from '../../context/SettingsContext';
+import { useInversion } from '../../context/InversionContext'; // Import useInversion
+import {
+  applyGravity,
   checkPlatformCollisions,
-  processTramplineCollisions,
+  processTramplineCollisions, // Corrected typo if necessary: processTrampolineCollisions
   processObstacleCollisions,
   processPortalCollisions,
   checkVictoryCondition
 } from '../../utils/physics';
-import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE } from '../../constants/gameConstants';
+// Import base dimensions from constants
+import { PLAYER_SIZE, MOVEMENT_SPEED, JUMP_FORCE, BASE_GAME_WIDTH, BASE_GAME_HEIGHT } from '../../constants/gameConstants';
 import { level1 } from '../../levels/level1';
 import { level2 } from '../../levels/level2';
 import { getUserLevelById } from '../../utils/levelManager';
-import { useInversion } from '../../context/InversionContext';
+// Import game element classes if needed for reconstruction
+import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameElements';
 
 /**
  * Game Component - El componente principal del juego que maneja la lógica del gameplay
- * 
+ *
  * Este componente gestiona:
  * - El estado del jugador (posición, velocidad, etc.)
  * - La detección de colisiones con plataformas y objetos
  * - El sistema de color invertido
  * - La lógica de victoria
  * - Los controles del jugador
- * 
+ *
  * @component
  */
 const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
-  
-  // Usar el contexto global de inversión
-  const { isInverted, toggleInversion } = useInversion();
-  
-  // Usar el contexto global de configuración para marcar niveles completados
-  const { markLevelAsCompleted, isLevelUnlocked, completedLevels } = useSettings();
-  
-  // Estado para las dimensiones del juego (responsive)
-  const [gameDimensions, setGameDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight
-  });
-  
-  // Configuración del nivel actual
+  const { keyMapping } = useSettings(); // Assuming keyMapping provides action names
+  const { isInverted } = useInversion(); // Get inversion state
   const [currentLevel, setCurrentLevel] = useState(null);
-  // Estados del juego
+  const [isLoading, setIsLoading] = useState(true);
   const [hasWon, setHasWon] = useState(false);
-  // Guardar el ID numérico del nivel para cuando se complete
-  const [currentLevelId, setCurrentLevelId] = useState(null);
-  // Estado para determinar si el nivel está autorizado
-  const [isLevelAuthorized, setIsLevelAuthorized] = useState(false);
+  const [scale, setScale] = useState(1); // State for scale factor
+  const [gamePos, setGamePos] = useState({ top: 0, left: 0 }); // State for centering offset
 
-  /**
-   * Estado del jugador que contiene todas sus propiedades físicas y de gameplay
-   */
-  const [playerState, setPlayerState] = useState({
-    x: 50, // Default value until currentLevel is loaded
-    y: 450, // Default value until currentLevel is loaded
-    width: PLAYER_SIZE,
-    height: PLAYER_SIZE,
-    velocityX: 0,
-    velocityY: 0,
-    onGround: false,
-    weight: 5.0,
-    coyoteTime: 0,
-    hasCoyoteJumped: false
+  // --- Game State ---
+  // Store player state in a ref for direct access in game loop, update state less frequently if needed
+  const playerStateRef = useRef({
+    x: 50, y: 450, vx: 0, vy: 0, isOnGround: false, canJump: true, isCrouching: false, weight: 1 // Added weight for trampoline physics
   });
+  // State for React rendering
+  const [playerRenderState, setPlayerRenderState] = useState(playerStateRef.current);
 
-  // Hook personalizado para detectar teclas presionadas
-  const keysPressed = useKeyPress();
-
-  // Estado para controlar si la tecla E ya fue procesada
-  const [eKeyPressed, setEKeyPressed] = useState(false);
-  
-  // Verificar si el nivel está desbloqueado antes de cargarlo
+  // --- Load Level ---
   useEffect(() => {
-    // Convertir levelId a número para comparación
-    const numericId = Number(levelId);
-    
-    // Resetear el estado de autorización al cambiar de nivel
-    setIsLevelAuthorized(false);
-    
-    console.log(`Intentando cargar el nivel ${numericId}`);
-    console.log(`Niveles completados: ${JSON.stringify(completedLevels)}`);
-    
-    // Determinar si el nivel está autorizado para jugar
-    let authorized = false;
-    
-    // Los niveles de usuario siempre están autorizados
-    if (window.location.hash.includes('/game/user/')) {
-      console.log("Es un nivel de usuario, está autorizado");
-      authorized = true;
-    }
-    // El nivel 1 siempre está autorizado
-    else if (numericId === 1) {
-      console.log("Es el nivel 1, está autorizado");
-      authorized = true;
-    }
-    // Para otros niveles, verificar si el nivel anterior está completado
-    else {
-      const isUnlocked = isLevelUnlocked(numericId);
-      console.log(`Verificando si el nivel ${numericId} está desbloqueado: ${isUnlocked}`);
-      
-      if (isUnlocked) {
-        authorized = true;
-      } else {
-        console.log(`Nivel ${numericId} no está desbloqueado. Redirigiendo a selección de niveles.`);
-        navigate('/levels');
-        return; // Salir temprano
-      }
-    }
-    
-    // Actualizar el estado de autorización
-    setIsLevelAuthorized(authorized);
-    
-    // Solo cargar el nivel si está autorizado
-    if (authorized) {
-      // Cargar el nivel correspondiente
-      if (window.location.hash.includes('/game/user/')) {
+    setIsLoading(true);
+    setHasWon(false);
+    let levelData;
+    const isUserLevel = window.location.hash.includes('/game/user/');
+
+    try {
+      if (isUserLevel) {
         const userLevel = getUserLevelById(levelId);
         if (userLevel) {
-          setCurrentLevel(userLevel);
-          setPlayerState(prevState => ({
-            ...prevState,
-            x: userLevel.playerStart.x,
-            y: userLevel.playerStart.y
-          }));
+          // Reconstruct level objects to ensure methods are available
+          levelData = {
+            ...userLevel,
+            platforms: (userLevel.platforms || []).map(p => p instanceof Platform ? p : new Platform(p)),
+            obstacles: (userLevel.obstacles || []).map(o => o instanceof Spike ? o : new Spike(o)),
+            trampolines: (userLevel.trampolines || []).map(t => t instanceof Trampoline ? t : new Trampoline(t)),
+            portals: (userLevel.portals || []).map(p => p instanceof Portal ? p : new Portal(p)),
+            goal: userLevel.goal instanceof Goal ? userLevel.goal : new Goal(userLevel.goal || { x: 700, y: 500 }),
+            playerStart: userLevel.playerStart || { x: 50, y: 450 } // Ensure playerStart exists
+          };
         } else {
-          // Si no se encuentra, cargar nivel predeterminado
-          setCurrentLevel(level1);
-          setPlayerState(prevState => ({
-            ...prevState,
-            x: level1.playerStart.x,
-            y: level1.playerStart.y
-          }));
-          setCurrentLevelId(1);
+          throw new Error("User level not found");
         }
       } else {
-        // Cargar nivel predeterminado según el ID
-        setCurrentLevelId(numericId); // Guardar el ID numérico del nivel
-        let levelToLoad;
-        switch(numericId) {
-          case 1:
-            levelToLoad = level1;
-            break;
-          case 2:
-            levelToLoad = level2;
-            break;
-          default:
-            levelToLoad = level1;
-            break;
+        switch (levelId) {
+          case '1': levelData = level1; break;
+          case '2': levelData = level2; break;
+          default: throw new Error("Predefined level not found");
         }
-        setCurrentLevel(levelToLoad);
-        setPlayerState(prevState => ({
-          ...prevState,
-          x: levelToLoad.playerStart.x,
-          y: levelToLoad.playerStart.y
-        }));
+        // Ensure predefined levels also have playerStart
+        if (!levelData.playerStart) {
+            levelData.playerStart = { x: 50, y: 450 };
+        }
       }
-    }
-  }, [levelId, navigate, isLevelUnlocked, completedLevels]);
 
-  /**
-   * Reinicia el estado del juego a sus valores iniciales
-   */
+      setCurrentLevel(levelData);
+      // Reset player state ref and render state
+      playerStateRef.current = {
+        ...playerStateRef.current, // Keep weight or other persistent properties if needed
+        x: levelData.playerStart.x,
+        y: levelData.playerStart.y,
+        vx: 0,
+        vy: 0,
+        isOnGround: false,
+        canJump: true,
+        isCrouching: false,
+      };
+      setPlayerRenderState(playerStateRef.current);
+
+    } catch (error) {
+      console.error("Error loading level:", levelId, error);
+      navigate(isUserLevel ? '/user-levels' : '/levels'); // Redirect on error
+      return; // Stop execution
+    } finally {
+      setIsLoading(false);
+    }
+  }, [levelId, navigate]);
+
+
+  // --- Scaling and Centering Logic ---
+  useEffect(() => {
+    const calculateLayout = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const scaleX = screenWidth / BASE_GAME_WIDTH;
+      const scaleY = screenHeight / BASE_GAME_HEIGHT;
+      const newScale = Math.min(scaleX, scaleY); // Fit inside screen
+
+      const scaledWidth = BASE_GAME_WIDTH * newScale;
+      const scaledHeight = BASE_GAME_HEIGHT * newScale;
+
+      const newTop = (screenHeight - scaledHeight) / 2;
+      const newLeft = (screenWidth - scaledWidth) / 2;
+
+      setScale(newScale);
+      setGamePos({ top: newTop, left: newLeft });
+    };
+
+    calculateLayout(); // Initial calculation
+    window.addEventListener('resize', calculateLayout); // Recalculate on resize
+
+    return () => window.removeEventListener('resize', calculateLayout); // Cleanup listener
+  }, []); // Empty dependency array, runs once on mount and cleans up
+
+
+  // --- Input Handling ---
+  // Correct usage of useKeyPress hook
+  const keysPressed = useKeyPress(); // Returns object like { left: false, jump: true, ... }
+
+  // --- Game Loop Logic ---
+  const gameTick = useCallback((deltaTime) => {
+    if (!currentLevel || hasWon || isLoading) return;
+
+    // Work directly with the ref for physics calculations
+    const player = playerStateRef.current;
+
+    // --- Movement ---
+    player.vx = 0;
+    if (keysPressed.left) player.vx -= MOVEMENT_SPEED;
+    if (keysPressed.right) player.vx += MOVEMENT_SPEED;
+
+    // --- Gravity ---
+    // Correct call to applyGravity
+    player.vy = applyGravity(player.vy, player.isOnGround, deltaTime, player.weight);
+
+    // --- Jumping ---
+    if (keysPressed.jump && player.isOnGround && player.canJump) {
+      player.vy = -JUMP_FORCE;
+      player.isOnGround = false;
+      player.canJump = false; // Prevent holding jump for continuous effect
+    }
+    // Allow jumping again when the key is released
+    if (!keysPressed.jump) {
+      player.canJump = true;
+    }
+
+    // --- Potential Position ---
+    let potentialX = player.x + player.vx * deltaTime;
+    let potentialY = player.y + player.vy * deltaTime;
+
+    // --- Collisions ---
+    // Create a player object for collision checks
+    let playerCollider = {
+        x: player.x,
+        y: player.y,
+        width: PLAYER_SIZE,
+        height: PLAYER_SIZE,
+        velocityX: player.vx, // Pass velocities
+        velocityY: player.vy,
+        weight: player.weight // Pass weight
+    };
+
+    // Platforms
+    // checkPlatformCollisions needs the player object and deltaTime to predict movement
+    // Assuming checkPlatformCollisions resolves position and returns state
+    const collisionResult = checkPlatformCollisions(
+        playerCollider,
+        currentLevel.platforms,
+        isInverted,
+        deltaTime // Pass deltaTime if the function needs it to resolve
+    );
+
+    // Update player state based on platform collision resolution
+    player.x = collisionResult.x;
+    player.y = collisionResult.y;
+    player.isOnGround = collisionResult.bottom; // Assuming 'bottom' means landed on ground
+    if (collisionResult.bottom || collisionResult.top) player.vy = 0; // Stop vertical velocity on floor/ceiling hit
+    if (collisionResult.left || collisionResult.right) player.vx = 0; // Stop horizontal velocity on wall hit
+
+
+    // Trampolines (apply after platform resolution)
+    // Assuming processTrampolineCollisions modifies the player object passed to it
+    // Pass the updated playerCollider state after platform collisions
+    playerCollider.x = player.x;
+    playerCollider.y = player.y;
+    playerCollider.velocityY = player.vy; // Pass current velocity
+    processTramplineCollisions( // Corrected typo: processTrampolineCollisions
+        playerCollider,
+        currentLevel.trampolines,
+        isInverted
+    );
+    // Update player state from the modified collider
+    player.vy = playerCollider.velocityY;
+    if (playerCollider.y !== player.y) { // If trampoline changed y position
+        player.y = playerCollider.y;
+        player.isOnGround = false; // Bounce means not on ground
+    }
+
+
+    // Obstacles (check final position for frame)
+    // Assuming processObstacleCollisions modifies player if collision occurs
+    playerCollider.x = player.x;
+    playerCollider.y = player.y;
+    processObstacleCollisions(
+        playerCollider,
+        currentLevel.obstacles,
+        isInverted,
+        currentLevel.playerStart // Pass start position for reset
+    );
+    // Check if position was reset
+    if (playerCollider.x === currentLevel.playerStart.x && playerCollider.y === currentLevel.playerStart.y) {
+        player.x = playerCollider.x;
+        player.y = playerCollider.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.isOnGround = false; // Reset state
+        player.canJump = true;
+        // Update render state immediately for reset
+        setPlayerRenderState({ ...player });
+        return; // Skip rest of the tick after reset
+    }
+
+
+    // Portals (check final position for frame)
+    // Assuming processPortalCollisions modifies player if collision occurs
+    playerCollider.x = player.x;
+    playerCollider.y = player.y;
+    processPortalCollisions(
+        playerCollider,
+        currentLevel.portals,
+        isInverted
+    );
+    // Check if position changed due to portal
+    if (playerCollider.x !== player.x || playerCollider.y !== player.y) {
+        player.x = playerCollider.x;
+        player.y = playerCollider.y;
+        player.vx = 0; // Reset velocity after teleport
+        player.vy = 0;
+        player.isOnGround = false; // Assume not on ground after teleport
+    }
+
+
+    // --- Boundaries ---
+    // Apply boundaries to the final resolved position
+    if (player.x < 0) player.x = 0;
+    if (player.x + PLAYER_SIZE > BASE_GAME_WIDTH) player.x = BASE_GAME_WIDTH - PLAYER_SIZE;
+    if (player.y < 0) { player.y = 0; if(player.vy < 0) player.vy = 0; }
+    // Optional: Reset if falls too far
+    if (player.y > BASE_GAME_HEIGHT + 200) { // Reset if fallen far below screen
+        player.x = currentLevel.playerStart.x;
+        player.y = currentLevel.playerStart.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.isOnGround = false;
+        player.canJump = true;
+        setPlayerRenderState({ ...player }); // Update render state
+        return; // Skip rest of tick
+    }
+
+    // --- Victory ---
+    // Check victory with the final player position
+    if (!hasWon && checkVictoryCondition({ x: player.x, y: player.y, width: PLAYER_SIZE, height: PLAYER_SIZE }, currentLevel.goal)) {
+      setHasWon(true);
+      // Unlock level logic could go here using markLevelAsCompleted from SettingsContext
+    }
+
+    // Update the state used for rendering
+    setPlayerRenderState({ ...player });
+
+  }, [currentLevel, keysPressed, hasWon, isLoading, isInverted]); // Dependencies
+
+
+  // --- Restart Logic ---
   const restartGame = useCallback(() => {
-    if (currentLevel) {
-      setPlayerState(prevState => ({
-        ...prevState,
-        x: currentLevel.playerStart.x,
-        y: currentLevel.playerStart.y,
-        velocityX: 0,
-        velocityY: 0,
-        onGround: false,
-        coyoteTime: 0,
-        hasCoyoteJumped: false
-      }));
-      setHasWon(false);
-    }
-  }, [currentLevel]);
+    if (!currentLevel) return;
+    // Reset player state ref and render state
+    playerStateRef.current = {
+      ...playerStateRef.current,
+      x: currentLevel.playerStart.x,
+      y: currentLevel.playerStart.y,
+      vx: 0,
+      vy: 0,
+      isOnGround: false,
+      canJump: true,
+    };
+    setPlayerRenderState(playerStateRef.current);
+    setHasWon(false);
+  }, [currentLevel]); // Dependency
 
-  /**
-   * Efecto para manejar la inversión de colores con la tecla 'E'
-   */
   useEffect(() => {
-    if (keysPressed.e && !eKeyPressed) {
-      // Solo invertir si la tecla E acaba de ser presionada
-      setEKeyPressed(true);
-      toggleInversion();
-    } else if (!keysPressed.e && eKeyPressed) {
-      // Resetear el estado cuando se suelta la tecla
-      setEKeyPressed(false);
-    }
-  }, [keysPressed.e, toggleInversion, eKeyPressed]);
-
-  /**
-   * Efecto para manejar el reinicio del juego con la tecla 'R'
-   */
-  useEffect(() => {
-    if (keysPressed.r) {
+    // Use action from keysPressed
+    if (keysPressed.restart) {
       restartGame();
     }
-  }, [keysPressed.r, restartGame]);
+  }, [keysPressed.restart, restartGame]); // Depend on the specific action state
 
-  /**
-   * Efecto para manejar el redimensionamiento de la ventana
-   */
-  useEffect(() => {
-    const handleResize = () => {
-      // Actualiza las dimensiones del juego cuando la ventana cambia de tamaño
-      setGameDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-    };
-  
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Start the game loop
+  useGameLoop(gameTick);
 
-  /**
-   * Efecto para marcar el nivel como completado cuando el jugador gana
-   */
-  useEffect(() => {
-    if (hasWon && currentLevelId) {
-      console.log(`¡Victoria en nivel ${currentLevelId}! Marcando como completado.`);
-      // Marcar el nivel como completado cuando el jugador gana
-      markLevelAsCompleted(currentLevelId);
-    }
-  }, [hasWon, currentLevelId, markLevelAsCompleted]);
-
-  /**
-   * Actualiza el estado del juego en cada frame
-   * @param {number} deltaTime - Tiempo transcurrido desde el último frame en segundos
-   */
-  const updateGameState = useCallback((deltaTime) => {
-    if (hasWon || !currentLevel) return;
-
-    setPlayerState(prevState => {
-      const newState = { ...prevState };
-      
-      // Gestión del Coyote Time (tiempo extra para saltar después de caer)
-      const COYOTE_TIME_MAX = 0.06;
-      if (newState.onGround) {
-        newState.coyoteTime = COYOTE_TIME_MAX;
-        newState.hasCoyoteJumped = false;
-      } else {
-        newState.coyoteTime = Math.max(0, newState.coyoteTime - deltaTime);
-      }
-
-      // Procesamiento del movimiento horizontal
-      newState.velocityX = 0;
-      if (keysPressed.a || keysPressed.arrowleft) {
-        newState.velocityX = -MOVEMENT_SPEED;
-      }
-      if (keysPressed.d || keysPressed.arrowright) {
-        newState.velocityX = MOVEMENT_SPEED;
-      }
-      
-      // Procesamiento del salto
-      if ((keysPressed[' '] || keysPressed.w || keysPressed.arrowup) && 
-          (newState.onGround || (newState.coyoteTime > 0 && !newState.hasCoyoteJumped))) {
-        newState.velocityY = JUMP_FORCE / newState.weight;
-        newState.onGround = false;
-        newState.hasCoyoteJumped = true;
-        newState.coyoteTime = 0;
-      }
-      
-      // Aplicación de la física
-      newState.velocityY = applyGravity(newState.velocityY, newState.onGround, deltaTime, newState.weight);
-      newState.x += newState.velocityX * deltaTime;
-      newState.y += newState.velocityY * deltaTime;
-      
-      // Restricciones de los límites del mundo
-      newState.x = Math.max(0, Math.min(newState.x, gameDimensions.width - newState.width));
-      newState.y = Math.max(0, newState.y);
-
-      // Colisión con el suelo
-      if (newState.y + newState.height > gameDimensions.height) {
-        newState.y = gameDimensions.height - newState.height;
-        newState.velocityY = 0;
-        newState.onGround = true;
-      }
-      
-      // Procesamiento de colisiones con plataformas
-      const { onGround } = checkPlatformCollisions(newState, currentLevel.platforms, isInverted);
-      newState.onGround = onGround;
-      
-      // Procesamiento de colisiones con objetos del juego
-      processTramplineCollisions(newState, currentLevel.trampolines, isInverted);
-      processObstacleCollisions(newState, currentLevel.obstacles, isInverted, currentLevel.playerStart);
-      processPortalCollisions(newState, currentLevel.portals, isInverted);
-      
-      // Verificación de victoria
-      if (checkVictoryCondition(newState, currentLevel.goal)) {
-        setHasWon(true);
-      }
-      
-      return newState;
-    });
-  }, [hasWon, currentLevel, keysPressed, isInverted, gameDimensions.width, gameDimensions.height]);
-
-  /**
-   * Maneja el regreso a la pantalla de selección de niveles
-   */
+  // --- Navigation ---
   const handleBackToLevels = () => {
-    if (window.location.hash.includes('/game/user/')) {
-      navigate('/user-levels');
-    } else {
-      navigate('/levels');
-    }
+    const backPath = window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels';
+    navigate(backPath);
   };
 
-  // Iniciar el bucle del juego
-  useGameLoop(updateGameState);
-
-  // Renderizado condicional después de todas las llamadas de hooks
-  if (!isLevelAuthorized) {
-    return <div>Verificando nivel...</div>;
-  }
-  
-  if (!currentLevel) {
-    return <div>Cargando nivel...</div>;
+  // --- Render ---
+  if (isLoading || !currentLevel) {
+    return <GameWrapper $isInverted={isInverted}><div>Loading Level...</div></GameWrapper>; // Show loading within wrapper
   }
 
   return (
-    <GameContainer width={gameDimensions.width} height={gameDimensions.height}>
-      <BackArrow onClick={handleBackToLevels} />
-      <Level 
-        width={gameDimensions.width} 
-        height={gameDimensions.height}
-        level={currentLevel}
-      />
-      <Player 
-        x={playerState.x}
-        y={playerState.y}
-        size={PLAYER_SIZE}
-      />
-      <Controls />
-      
-      {hasWon && (
-        <WinMessage>
-          <h2>¡Nivel completado!</h2>
-          <button onClick={() => navigate(window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels')}>Seleccionar nivel</button>
-          <button onClick={restartGame}>Jugar de nuevo</button>
-        </WinMessage>
-      )}
-    </GameContainer>
+    <GameWrapper $isInverted={isInverted}>
+      <GameContainer
+        baseWidth={BASE_GAME_WIDTH}
+        baseHeight={BASE_GAME_HEIGHT}
+        $isInverted={isInverted} // Pass inversion for border/bg
+        style={{
+          transform: `scale(${scale})`,
+          top: `${gamePos.top}px`,
+          left: `${gamePos.left}px`,
+          position: 'absolute', // Position relative to the wrapper
+        }}
+      >
+        {/* Position BackArrow relative to the scaled container */}
+        <BackArrow onClick={handleBackToLevels} />
+        <Level
+          // Level uses base dimensions internally for element placement
+          width={BASE_GAME_WIDTH}
+          height={BASE_GAME_HEIGHT}
+          level={currentLevel}
+          // Context handles inversion within Level and its elements
+        />
+        <Player
+          x={playerRenderState.x} // Use render state
+          y={playerRenderState.y} // Use render state
+          size={PLAYER_SIZE}
+          // Context handles inversion within Player
+        />
+        {/* Controls might need style adjustments for responsiveness */}
+        <Controls />
+
+        {hasWon && (
+          // Pass inversion state to WinMessage for styling
+          <WinMessage $isInverted={isInverted}>
+            <h2>¡Nivel completado!</h2>
+            <button onClick={() => navigate(window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels')}>Seleccionar nivel</button>
+            <button onClick={restartGame}>Jugar de nuevo</button>
+          </WinMessage>
+        )}
+      </GameContainer>
+    </GameWrapper>
   );
 };
 

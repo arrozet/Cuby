@@ -20,81 +20,100 @@ export const LevelSelectContainer = styled.div`
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
   position: relative;
+  padding: 20px; /* Add base padding */
+  padding-top: 80px; /* Extra padding top for buttons */
+  overflow-y: auto; /* Allow scroll if content overflows */
 `;
 
-export const Title = styled.h1`
-  font-size: 36px;
-  margin-bottom: 60px;
-  color: white;
-  text-align: center;
-`;
+// Title removed as it wasn't in the original LevelSelect.jsx, add if needed
 
 export const LevelsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 150px);
-  gap: 30px;
+  /* Flexible columns: fit as many 120px-1fr cards as possible */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: clamp(15px, 4vw, 30px); /* Responsive gap */
   justify-content: center;
-  max-width: 600px;
+  width: 100%;
+  max-width: 800px; /* Adjust max width */
+  margin-top: 20px; /* Add margin below buttons */
 `;
 
 export const LevelCard = styled.div`
-  width: 150px;
-  height: 150px;
+  aspect-ratio: 1 / 1; /* Maintain square shape */
   border: 3px solid ${props => props.locked ? '#555' : getActiveColor(props.$isInverted)};
-  border-radius: 20px;
+  border-radius: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  transition: transform 0.2s, background-color 0.3s;
+  transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
   background-color: ${props => props.locked ? 'rgba(50, 50, 50, 0.7)' : getActiveColor(props.$isInverted)};
   color: ${props => getInactiveColor(props.$isInverted)};
   cursor: ${props => props.locked ? 'not-allowed' : 'pointer'};
   filter: ${props => props.locked ? 'grayscale(50%)' : 'none'};
-  opacity: ${props => props.locked ? 0.8 : 1};
-  
+  opacity: ${props => props.locked ? 0.7 : 1}; /* Slightly more faded when locked */
+
   &:hover {
     animation: ${props => !props.locked && css`${pulse} 1.5s infinite ease-in-out`};
-    transform: ${props => !props.locked && 'scale(1.05)'};
+    transform: ${props => !props.locked ? 'scale(1.05)' : 'none'};
   }
-  
+
   .level-number {
-    font-size: 64px;
+    /* Responsive font size */
+    font-size: clamp(2.5rem, 10vw, 4rem);
     font-weight: normal;
     opacity: ${props => props.locked ? 0.5 : 1};
   }
-  
+
   .lock-icon {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 28px;
+    top: clamp(5px, 1.5vw, 10px); /* Responsive position */
+    right: clamp(5px, 1.5vw, 10px); /* Responsive position */
+    font-size: clamp(1.2rem, 4vw, 1.75rem); /* Responsive size */
     color: #ff9800;
     text-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
 `;
 
-export const UserLevelsButton = styled.button`
+// Common style for top buttons
+const TopButton = styled.button`
   position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: clamp(15px, 3vh, 25px); /* Responsive top */
   background-color: ${props => getActiveColor(props.$isInverted)};
   color: ${props => getInactiveColor(props.$isInverted)};
   border: none;
   border-radius: 10px;
-  padding: 12px 25px;
-  font-size: 18px;
+  padding: clamp(8px, 1.5vh, 12px) clamp(15px, 4vw, 25px); /* Responsive padding */
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Responsive font size */
   font-family: 'Excalifont';
   cursor: pointer;
-  transition: transform 0.2s; /* Cambiado de 'all' a 'transform' */
+  transition: transform 0.2s, background-color 0.3s, color 0.3s;
   z-index: 10;
-  
+
   &:hover {
-    transform: translateX(-50%) scale(1.05);
-    /* Se definen explícitamente los colores para evitar cambios */
+    transform: scale(1.05);
+    /* Re-apply colors on hover to prevent unexpected changes */
     background-color: ${props => getActiveColor(props.$isInverted)};
     color: ${props => getInactiveColor(props.$isInverted)};
-    /* Se elimina la opacidad si aún estuviera presente */
   }
 `;
+
+
+export const UserLevelsButton = styled(TopButton)`
+  /* Center the button */
+  left: 50%;
+  transform: translateX(-50%);
+
+  &:hover {
+    /* Keep centering transform on hover */
+    transform: translateX(-50%) scale(1.05);
+  }
+`;
+
+// Apply similar responsive styles to BackArrow and SettingsButton containers
+// (Assuming they are used in LevelSelect.jsx)
+
+// Example: If BackArrow uses BackArrowContainer from its own styles:
+// Ensure BackArrow.styles.js uses clamp for size/position
+// Example: If SettingsButton uses SettingsButtonContainer:
+// Ensure SettingsButton.styles.js uses clamp for size/position
