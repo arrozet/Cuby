@@ -15,7 +15,7 @@ export const EditorContainer = styled.div`
   overflow: hidden;
 `;
 
-// Toolbar y ToolbarGroup sin cambios respecto a la versión anterior
+// Toolbar y ToolbarGroup sin cambios
 export const EditorToolbar = styled.div`
   width: 100%;
   display: flex;
@@ -49,7 +49,7 @@ export const ToolbarGroup = styled.div`
   &.left-group {}
 `;
 
-// ToolbarItem sin cambios respecto a la versión anterior
+// ToolbarItem sin cambios
 export const ToolbarItem = styled.button`
   background-color: ${props => props.isActive ? (props.isInverted ? 'black' : 'white') : 'transparent'};
   color: ${props => props.isActive ? (props.isInverted ? 'white' : 'black') : getActiveColor(props.isInverted)};
@@ -79,7 +79,7 @@ export const ToolbarItem = styled.button`
 export const EditorCanvas = styled.div`
   flex: 1;
   background-color: ${props => getInactiveColor(props.isInverted)};
-  position: relative;
+  position: relative; /* Needed for absolute positioning of children like LevelContentWrapper */
   overflow: hidden;
   /* Cursor logic driven by editorMode and isDragging state */
   cursor: ${props => {
@@ -91,15 +91,16 @@ export const EditorCanvas = styled.div`
       return 'crosshair'; // Default place mode
     }
   }};
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; /* Using flex might affect LevelContentWrapper positioning, ensure it's absolute */
+  /* Remove justify/align center if LevelContentWrapper handles its own position */
+  /* justify-content: center; */
+  /* align-items: center; */
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
 `;
 
-// LevelContentWrapper sin cambios respecto a la versión anterior
+// LevelContentWrapper sin cambios
 export const LevelContentWrapper = styled.div`
   position: absolute; /* Use absolute for precise positioning relative to scaled canvas */
   width: ${props => props.logicalWidth || 1200}px;
@@ -108,9 +109,11 @@ export const LevelContentWrapper = styled.div`
   border: 1px dashed ${props => getActiveColor(props.isInverted)}50;
   /* transform-origin is set inline now */
   will-change: transform; /* Hint for performance */
+  pointer-events: none; /* Allow clicks to pass through to the canvas */
+  /* Contained elements should have pointer-events: auto if they need interaction, but these are just visuals */
 `;
 
-// ZoomControls sin cambios respecto a la versión anterior
+// ZoomControls sin cambios
 export const ZoomControls = styled.div`
   position: absolute;
   bottom: 20px;
@@ -121,7 +124,7 @@ export const ZoomControls = styled.div`
   z-index: 20;
 `;
 
-// ZoomButton sin cambios respecto a la versión anterior
+// ZoomButton sin cambios
 export const ZoomButton = styled(ToolbarItem)`
   padding: 8px;
   font-size: 18px;
@@ -136,7 +139,7 @@ export const ZoomButton = styled(ToolbarItem)`
 `;
 
 
-// --- EditorSidebar con mejoras estéticas ---
+// EditorSidebar sin cambios
 export const EditorSidebar = styled.div`
   width: 250px;
   height: 100%;
@@ -156,7 +159,7 @@ export const EditorSidebar = styled.div`
   @media (max-width: 600px) { width: 180px; padding: 15px 10px; }
 `;
 
-// --- SidebarTitle con mejoras estéticas ---
+// SidebarTitle sin cambios
 export const SidebarTitle = styled.h2`
   color: ${props => getActiveColor(props.isInverted)};
   font-size: clamp(1.3rem, 4vw, 1.5rem);
@@ -173,49 +176,49 @@ export const ElementsContainer = styled.div`
   gap: 12px;
 `;
 
-// --- ElementButton con correcciones de texto y borde ---
+// *** CORRECTION: ElementButton styles reworked for better selection/hover ***
 export const ElementButton = styled.button`
   display: flex;
   align-items: center;
   gap: 12px;
-
-  /* Background slightly lighter/more noticeable when selected */
-  background-color: ${props => props.isSelected
-    ? getActiveColor(props.isInverted) + '25' // More subtle background when selected
-    : 'transparent'};
-
-  /* Text Color: ALWAYS use the active color (White in Dark, Black in Light) */
-  color: ${props => getActiveColor(props.isInverted)};
-
-  /* Border: ALWAYS use active color (White in Dark, Black in Light), thicker when selected */
-  border-width: ${props => props.isSelected ? '2px' : '1px'};
-  border-style: solid;
-  border-color: ${props => getActiveColor(props.isInverted)};
-
-  border-radius: 6px;
-  /* Adjust padding based on border width to keep content alignment consistent */
-  padding: ${props => props.isSelected ? '11px 9px' : '12px 10px'};
+  width: 100%;
   text-align: left;
   font-family: 'Excalifont';
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, border-width 0.1s ease-in-out, padding 0.1s ease-in-out;
-  width: 100%;
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, border-width 0.1s ease-in-out, padding 0.1s ease-in-out;
 
-  & > div:first-child {
-    flex-shrink: 0;
-  }
+  /* Base State */
+  background-color: transparent;
+  color: ${props => getActiveColor(props.isInverted)};
+  border: 1px solid ${props => getActiveColor(props.isInverted)}80; /* Slightly less prominent border */
+  padding: 12px 10px;
 
+  /* Selected State */
+  ${({ isSelected, isInverted }) => isSelected && css`
+    border-width: 2px; /* Thicker border */
+    border-color: ${getActiveColor(isInverted)}; /* Prominent border color */
+    /* Subtle background: light greyish overlay, works in both modes */
+    background-color: ${isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
+    padding: 11px 9px; /* Adjust padding for border */
+  `}
+
+  /* Hover State */
   &:hover:not(:disabled) {
-    background-color: ${props => getActiveColor(props.isInverted)}2A;
-    /* Keep border color consistent on hover, maybe slightly brighter? */
-    border-color: ${props => getActiveColor(props.isInverted)}CC;
-    /* Text color on hover: Invert for contrast, ONLY IF NOT SELECTED */
+    border-color: ${props => getActiveColor(props.isInverted)}; /* Full color border on hover */
+    /* Background Inversion (only if not selected) */
     ${props => !props.isSelected && css`
-       color: ${getInactiveColor(props.isInverted)};
+      background-color: ${props.isInverted ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)'};
+      color: ${getActiveColor(props.isInverted)}; /* Keep text color active */
     `}
+     /* Hovering over a selected button: Make background slightly more prominent */
+     ${props => props.isSelected && css`
+       background-color: ${props.isInverted ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.1)'};
+     `}
   }
 
+  /* Disabled State */
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -223,8 +226,16 @@ export const ElementButton = styled.button`
     border-color: ${props => getActiveColor(props.isInverted)}30;
     color: ${props => getActiveColor(props.isInverted)}70;
   }
-`;
 
+  /* Icon Container */
+  & > div:first-child {
+    flex-shrink: 0;
+    display: flex; /* Ensure alignment within icon container */
+    align-items: center;
+    justify-content: center;
+    min-width: 30px; /* Give icon area some space */
+  }
+`;
 
 // --- SaveDialog, SaveDialogContent, Input, SaveDialogButtons sin cambios ---
 export const SaveDialog = styled.div`
