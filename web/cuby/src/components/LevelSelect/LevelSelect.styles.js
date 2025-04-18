@@ -12,7 +12,7 @@ export const LevelSelectContainer = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* Removed justify-content: center; to allow top alignment */
   align-items: center;
   background-color: ${props => getInactiveColor(props.$isInverted)};
   font-family: 'Excalifont';
@@ -29,13 +29,21 @@ export const LevelSelectContainer = styled.div`
 
 export const LevelsGrid = styled.div`
   display: grid;
-  /* Flexible columns: fit as many 120px-1fr cards as possible */
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: clamp(15px, 4vw, 30px); /* Responsive gap */
+  /* Flexible columns: fit as many cards as possible */
+  /* On smaller screens, make min size smaller */
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+  gap: clamp(10px, 3vw, 20px); /* Reduced gap */
   justify-content: center;
   width: 100%;
   max-width: 800px; /* Adjust max width */
   margin-top: 20px; /* Add margin below buttons */
+  padding-bottom: 20px; /* Add padding at the bottom */
+
+  /* Larger minimum size for wider screens */
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: clamp(15px, 4vw, 30px); /* Restore original gap */
+  }
 `;
 
 export const LevelCard = styled.div`
@@ -59,8 +67,8 @@ export const LevelCard = styled.div`
   }
 
   .level-number {
-    /* Responsive font size */
-    font-size: clamp(2.5rem, 10vw, 4rem);
+    /* Responsive font size - reduced max size */
+    font-size: clamp(2rem, 8vw, 3rem); 
     font-weight: normal;
     opacity: ${props => props.locked ? 0.5 : 1};
   }
@@ -69,7 +77,7 @@ export const LevelCard = styled.div`
     position: absolute;
     top: clamp(5px, 1.5vw, 10px); /* Responsive position */
     right: clamp(5px, 1.5vw, 10px); /* Responsive position */
-    font-size: clamp(1.2rem, 4vw, 1.75rem); /* Responsive size */
+    font-size: clamp(1rem, 3vw, 1.5rem); /* Reduced size */
     color: #ff9800;
     text-shadow: 0 0 5px rgba(0,0,0,0.5);
   }

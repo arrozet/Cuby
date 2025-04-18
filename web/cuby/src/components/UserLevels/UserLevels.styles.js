@@ -3,7 +3,7 @@ import { getInactiveColor, getActiveColor } from '../../utils/colors';
 
 export const UserLevelsContainer = styled.div`
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,88 +12,141 @@ export const UserLevelsContainer = styled.div`
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
-  /* Responsive padding: top accounts for BackArrow, sides/bottom are flexible */
-  padding: clamp(60px, 10vh, 80px) clamp(10px, 3vw, 20px) clamp(20px, 4vh, 30px);
+  /* Reducimos el padding superior inicial */
+  padding: 60px 20px 20px;
   position: relative;
-  overflow-y: auto; /* Allow scrolling if content overflows */
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    /* Reducimos aún más el padding superior en móvil */
+    padding-top: 50px;
+  }
 `;
 
 export const Title = styled.h1`
-  /* Responsive font size */
-  font-size: clamp(2rem, 7vw, 3rem);
-  /* Responsive margin */
-  margin-bottom: clamp(20px, 5vh, 40px);
+  font-size: 48px;
+  /* Reducimos el margen inferior inicial */
+  margin-bottom: 30px;
   color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 32px; // Ligeramente más pequeño en móvil
+    /* Reducimos más el margen inferior en móvil */
+    margin-bottom: 20px;
+  }
 `;
+
+// UserLevels.styles.js
+
+// ... (otros styled components sin cambios)
 
 export const LevelsList = styled.div`
   display: grid;
-  /* Responsive columns: min width clamp(250px, 30vw, 300px), max 1fr */
-  grid-template-columns: repeat(auto-fill, minmax(clamp(250px, 30vw, 300px), 1fr));
-  /* Responsive gap */
-  gap: clamp(15px, 3vw, 20px);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
   width: 100%;
-  max-width: 1200px; /* Max width for the grid */
-  overflow-y: auto; /* Should be on container, but keep here if needed */
-  /* Responsive padding */
-  padding: clamp(10px, 2vw, 20px);
+  max-width: 1000px;
+  /* Restauramos padding horizontal y mantenemos box-sizing */
+  padding: 10px 20px;
+  box-sizing: border-box;
+
+  /* --- CORRECCIÓN: Restaurar scroll y añadir max-height --- */
+  overflow-y: auto; /* Permite el scroll vertical si el contenido excede max-height */
+  /* Establecemos una altura máxima. Calculamos el espacio restante restando
+     la altura estimada del header (padding-top, título, botón) y el padding inferior.
+     Ajusta el valor '240px' si el header ocupa más o menos espacio en tu layout final. */
+  max-height: calc(100vh - 240px);
+  /* --- FIN CORRECCIÓN --- */
+
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; // Asegura una sola columna
+    gap: 15px;
+    /* Ajustamos padding y quitamos max-width para que ocupe el ancho disponible menos el padding del container */
+    padding: 10px 5px; // Menos padding horizontal dentro de la lista
+    max-width: 100%; // Permitir que use el ancho completo del contenedor padre
+
+    /* --- CORRECCIÓN: Ajustar max-height para móvil --- */
+    /* Ajusta el valor '200px' si el header en móvil ocupa más o menos espacio. */
+    max-height: calc(100vh - 200px);
+     /* --- FIN CORRECCIÓN --- */
+  }
 `;
 
+// ... (el resto de los styled components sin cambios: LevelCard, ActionButton, etc.)
 export const LevelCard = styled.div`
   background-color: ${props => getActiveColor(props.$isInverted)}20;
   border: 2px solid ${props => getActiveColor(props.$isInverted)};
   border-radius: 10px;
-  /* Responsive padding */
-  padding: clamp(15px, 3vw, 20px);
+  padding: 20px;
   color: ${props => getActiveColor(props.$isInverted)};
-  display: flex; /* Use flex for better internal alignment */
-  flex-direction: column; /* Stack content vertically */
-  justify-content: space-between; /* Push actions to the bottom */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px; // Añadimos una altura mínima para consistencia
 
   h3 {
-    /* Responsive font size */
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
-    /* Responsive margin */
-    margin-bottom: clamp(8px, 2vh, 10px);
-    word-break: break-word; /* Prevent long names from overflowing */
+    font-size: 24px;
+    margin-bottom: 10px;
+    word-break: break-word;
   }
 
   p {
-    /* Responsive font size */
-    font-size: clamp(0.8rem, 2vw, 0.9rem);
-    /* Responsive margin */
-    margin-bottom: clamp(10px, 2vh, 15px);
+    font-size: 14px;
+    margin-bottom: 15px;
     opacity: 0.8;
-    flex-grow: 1; /* Allow paragraph to take available space */
   }
 
   .actions {
     display: flex;
-    flex-wrap: wrap; /* Allow buttons to wrap on narrow cards */
-    justify-content: space-between; /* Space out buttons */
-    gap: clamp(5px, 1vw, 10px); /* Responsive gap between buttons */
-    margin-top: auto; /* Ensure actions are at the bottom */
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: auto; // Empuja los botones hacia abajo si hay espacio extra
 
     button {
       background-color: ${props => getActiveColor(props.$isInverted)};
       color: ${props => getInactiveColor(props.$isInverted)};
       border: none;
       border-radius: 5px;
-      /* Responsive padding */
-      padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px);
+      padding: 8px 12px;
       cursor: pointer;
       font-family: 'Excalifont';
-      /* Responsive font size */
-      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      font-size: 14px;
       transition: opacity 0.2s;
-      flex: 1; /* Allow buttons to grow */
-      min-width: 60px; /* Minimum width before wrapping */
-      margin: 2px 0; /* Add small vertical margin when wrapped */
+      flex-grow: 1;
+      text-align: center;
 
       &:hover {
         opacity: 0.8;
       }
+
+       /* Ya no es necesario el media query específico para 400px si flex-grow funciona bien */
+      /* @media (max-width: 400px) {
+         min-width: 80px;
+      } */
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 15px; // Mantenemos padding reducido
+    min-height: 150px; // Mantenemos altura mínima similar
+
+    h3 {
+      /* Aumentamos ligeramente el tamaño del título en móvil */
+      font-size: 21px;
+    }
+
+    p {
+      /* Aumentamos ligeramente el tamaño del párrafo en móvil */
+      font-size: 14px;
+    }
+
+    .actions button {
+      /* Aumentamos ligeramente el tamaño y padding de los botones en móvil */
+      font-size: 14px;
+      padding: 8px 10px; // Más cómodo para tocar
     }
   }
 `;
@@ -103,10 +156,8 @@ export const ActionButton = styled.button`
   color: ${props => getInactiveColor(props.$isInverted)};
   border: none;
   border-radius: 10px;
-  /* Responsive padding */
-  padding: clamp(12px, 2vh, 15px) clamp(20px, 4vw, 25px);
-  /* Responsive font size */
-  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  padding: 15px 25px;
+  font-size: 20px;
   font-family: 'Excalifont';
   cursor: pointer;
   transition: transform 0.2s, opacity 0.2s;
@@ -114,24 +165,34 @@ export const ActionButton = styled.button`
   &:hover {
     transform: scale(1.05);
     opacity: 0.9;
-    /* Keep colors the same on hover */
     background-color: ${props => getActiveColor(props.$isInverted)};
     color: ${props => getInactiveColor(props.$isInverted)};
+  }
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    padding: 12px 20px;
   }
 `;
 
 export const ButtonContainer = styled.div`
-  /* Responsive margin */
-  margin-bottom: clamp(20px, 4vh, 30px);
+  /* Reducimos el margen inferior inicial */
+  margin-bottom: 25px;
+
+  @media (max-width: 768px) {
+    /* Reducimos más el margen inferior en móvil */
+    margin-bottom: 15px;
+  }
 `;
 
 export const NoLevelsMessage = styled.p`
-  /* Responsive font size */
-  font-size: clamp(1.2rem, 4vw, 1.5rem);
+  font-size: 24px;
   color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
-  /* Responsive margin */
-  margin-top: clamp(30px, 6vh, 40px);
-  /* Responsive padding for text wrapping */
-  padding: 0 clamp(15px, 3vw, 20px);
+  margin-top: 40px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    margin-top: 30px;
+  }
 `;
