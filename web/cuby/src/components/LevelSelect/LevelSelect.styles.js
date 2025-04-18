@@ -87,11 +87,14 @@ export const UserLevelsButton = styled.button`
   font-size: 18px;
   font-family: 'Excalifont';
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s; /* Cambiado de 'all' a 'transform' */
   z-index: 10;
   
   &:hover {
     transform: translateX(-50%) scale(1.05);
-    opacity: 0.9;
+    /* Se definen explícitamente los colores para evitar cambios */
+    background-color: ${props => getActiveColor(props.$isInverted)};
+    color: ${props => getInactiveColor(props.$isInverted)};
+    /* Se elimina la opacidad si aún estuviera presente */
   }
 `;
