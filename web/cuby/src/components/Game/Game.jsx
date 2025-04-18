@@ -43,7 +43,8 @@ const Game = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
   // const { keyMapping } = useSettings(); // Removed unused variable
-  const { isInverted } = useInversion(); // Get inversion state
+  const { isInverted, toggleInversion } = useInversion(); // Get inversion state and toggle function
+  const prevInvertKeyPressed = useRef(false); // Ref to track previous invert key state
   const [currentLevel, setCurrentLevel] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasWon, setHasWon] = useState(false);
@@ -156,6 +157,17 @@ const Game = () => {
   // --- Input Handling ---
   // Correct usage of useKeyPress hook
   const keysPressed = useKeyPress(); // Returns object like { left: false, jump: true, ... }
+
+  // --- Handle Inversion Input ---
+  useEffect(() => {
+    // Toggle inversion only when the key is pressed down (transition from false to true)
+    if (keysPressed.invertColors && !prevInvertKeyPressed.current) {
+      toggleInversion();
+    }
+    // Update the previous state for the next render
+    prevInvertKeyPressed.current = keysPressed.invertColors;
+  }, [keysPressed.invertColors, toggleInversion]); // Depend on the specific action state and the toggle function
+
 
   // --- Game Loop Logic ---
   const gameTick = useCallback((deltaTime) => {
