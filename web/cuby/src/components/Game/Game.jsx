@@ -63,7 +63,7 @@ const Game = () => {
   const [playerRenderState, setPlayerRenderState] = useState(playerStateRef.current);
 
   // Constants for jump timing tolerance
-  const COYOTE_TIME_DURATION = 0.1; // seconds
+  const COYOTE_TIME_DURATION = 0.05; // seconds (Reduced from 0.12)
   const JUMP_BUFFER_DURATION = 0.1; // seconds
 
   // --- Load Level ---

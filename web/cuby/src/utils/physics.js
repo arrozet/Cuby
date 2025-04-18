@@ -50,20 +50,44 @@ export const checkCollision = (obj1, obj2) => {
  */
 export const processTrampolineCollisions = (player, trampolines, isInverted) => {
   trampolines.forEach(trampoline => {
-    if (
-      isElementActive(trampoline.color, isInverted) &&
-      checkCollision(player, trampoline)
-    ) {
-      // Check if player is landing on top (moving down or still, and bottom is near top)
+    if (isElementActive(trampoline.color, isInverted)) {
       const playerBottom = player.y + player.height;
+      const playerTop = player.y;
+      const playerLeft = player.x;
+      const playerRight = player.x + player.width;
+
       const trampolineTop = trampoline.y;
-      // Small tolerance to ensure contact
-      const tolerance = 5; 
-      if (player.velocityY >= 0 && playerBottom >= trampolineTop && playerBottom <= trampolineTop + tolerance) {
+      const trampolineLeft = trampoline.x;
+      const trampolineRight = trampoline.x + trampoline.width;
+
+      // Check for horizontal overlap
+      const overlapsHorizontally = playerRight > trampolineLeft && playerLeft < trampolineRight;
+
+      // Check if player's bottom is aligned with or slightly above the trampoline top
+      const tolerance = 5; // Allow slight vertical overlap or gap
+      const isVerticallyAligned = playerBottom >= trampolineTop - tolerance && playerTop < trampolineTop + tolerance;
+
+      // --- MODIFIED COLLISION LOGIC ---
+      // Check if player collides with the trampoline at all (AABB check)
+      const collisionDetected = checkCollision(player, trampoline);
+
+      // Check if the player is primarily hitting the top surface
+      const hittingTopSurface = overlapsHorizontally && playerBottom >= trampolineTop && playerBottom <= trampolineTop + tolerance && player.velocityY >= 0;
+
+      // Check if the player is hitting the sides (and not primarily the top)
+      const hittingSideSurface = collisionDetected && !hittingTopSurface && overlapsHorizontally;
+
+      // Bounce if hitting the top OR hitting the sides
+      if (hittingTopSurface || hittingSideSurface) {
+        // Apply bounce force regardless of hitting top or side
         player.velocityY = trampoline.force / player.weight;
-        // Optional: Snap player position to top of trampoline
-        // player.y = trampoline.y - player.height; 
-        // Note: Be cautious with direct position manipulation if it conflicts with platform collision
+
+        // Optional: If hitting the top, slightly adjust position to prevent sticking
+        // if (hittingTopSurface) {
+        //     player.y = trampoline.y - player.height - 1;
+        // }
+        // Note: Be cautious with direct position manipulation, especially with side collisions.
+        // It might be better to rely on the main collision resolution to handle positioning.
       }
     }
   });

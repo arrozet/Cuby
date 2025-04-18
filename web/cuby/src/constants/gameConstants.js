@@ -15,7 +15,7 @@ export let GAME_HEIGHT = window.innerHeight;
  */
 // La gravedad determina qué tan rápido caen los objetos
 // Valor positivo porque en canvas Y aumenta hacia abajo
-export const GRAVITY = 5000; // pixels per second squared
+export const GRAVITY = 5500; // pixels per second squared (Increased from 5000)
 
 // Fuerza del salto (negativa porque salta hacia arriba)
 // Adjusted jump force to a more reasonable value
