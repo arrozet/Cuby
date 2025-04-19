@@ -14,6 +14,7 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameE
 import { getUserLevelById, saveUserLevel, createEmptyLevel } from '../../utils/levelManager';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 import { FaHandPaper } from 'react-icons/fa';
+import { LevelEncoder } from '../../utils/levelEncoder';
 
 // Constantes
 const LOGICAL_LEVEL_WIDTH = 1200;
@@ -392,8 +393,78 @@ const LevelEditor = () => {
         } else {
             alert("Error al guardar el nivel.");
         } }, [level, levelName, levelId, navigate]);
-    const handleExport = useCallback(() => { if (!level) return; const finalLevelName = levelName || level.name || 'untitled-level'; const levelToExport = { ...level, name: finalLevelName }; const levelData = JSON.stringify(levelToExport, (key, value) => (key === 'id' && value?.startsWith && value.startsWith('imported_')) ? undefined : value , 2); const blob = new Blob([levelData], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${finalLevelName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }, [level, levelName]);
-    const handleImport = useCallback(() => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const importedLevel = JSON.parse(event.target.result); if (!importedLevel || typeof importedLevel.playerStart !== 'object' || typeof importedLevel.goal !== 'object') { throw new Error("Invalid level file structure."); } const reconstructedLevel = { ...createEmptyLevel(), ...importedLevel, id: levelId === 'new' ? `imported_${Date.now()}` : levelId, name: importedLevel.name || 'Imported Level', platforms: (importedLevel.platforms || []).map(p => new Platform(p)), obstacles: (importedLevel.obstacles || []).map(o => new Spike(o)), trampolines: (importedLevel.trampolines || []).map(t => new Trampoline(t)), portals: (importedLevel.portals || []).map(p => new Portal(p)), goal: new Goal(importedLevel.goal) }; setLevel(reconstructedLevel); setHasUnsavedChanges(true); setLevelName(reconstructedLevel.name); const maxPortalId = Math.max(0, ...(reconstructedLevel.portals || []).map(p => p.portalId || 0)); setPortalCounter(maxPortalId + 1); alert('Nivel importado con éxito. Recuerda guardarlo.'); } catch (error) { console.error('Error al importar el nivel:', error); alert(`Error al importar el nivel: ${error.message}. Asegúrate de que el archivo JSON es válido.`); } }; reader.readAsText(file); }; input.click(); }, [levelId]);
+    const handleExport = useCallback(() => {
+        if (!level) return;
+        
+        const finalLevelName = levelName || level.name || 'untitled-level';
+        const levelToExport = {
+            ...level,
+            name: finalLevelName
+        };
+    
+        // Eliminar IDs temporales de niveles importados
+        const cleanedLevel = JSON.parse(
+            JSON.stringify(levelToExport, (key, value) => 
+                (key === 'id' && value?.startsWith && value.startsWith('imported_')) ? undefined : value
+            )
+        );
+    
+        // Codificar el nivel
+        const encodedLevel = LevelEncoder.encode(cleanedLevel);
+        if (!encodedLevel) {
+            alert('Error al exportar el nivel');
+            return;
+        }
+    
+        // Mostrar un modal con el código
+        const textArea = document.createElement('textarea');
+        textArea.value = encodedLevel;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Código del nivel copiado al portapapeles:\n\n' + encodedLevel);
+    }, [level, levelName]);
+    
+    const handleImport = useCallback(() => {
+        const code = prompt('Pega el código del nivel:');
+        if (!code) return;
+    
+        try {
+            // Decodificar el contenido
+            const importedLevel = LevelEncoder.decode(code);
+            
+            if (!importedLevel || typeof importedLevel.playerStart !== 'object' || typeof importedLevel.goal !== 'object') {
+                throw new Error("Estructura del nivel inválida");
+            }
+    
+            // Reconstruir el nivel con las clases correctas
+            const reconstructedLevel = {
+                ...createEmptyLevel(),
+                ...importedLevel,
+                id: levelId === 'new' ? `imported_${Date.now()}` : levelId,
+                name: importedLevel.name || 'Nivel Importado',
+                platforms: (importedLevel.platforms || []).map(p => new Platform(p)),
+                obstacles: (importedLevel.obstacles || []).map(o => new Spike(o)),
+                trampolines: (importedLevel.trampolines || []).map(t => new Trampoline(t)),
+                portals: (importedLevel.portals || []).map(p => new Portal(p)),
+                goal: new Goal(importedLevel.goal)
+            };
+    
+            setLevel(reconstructedLevel);
+            setHasUnsavedChanges(true);
+            setLevelName(reconstructedLevel.name);
+            
+            // Actualizar contador de portales
+            const maxPortalId = Math.max(0, ...(reconstructedLevel.portals || []).map(p => p.portalId || 0));
+            setPortalCounter(maxPortalId + 1);
+            
+            alert('Nivel importado con éxito. Recuerda guardarlo.');
+        } catch (error) {
+            console.error('Error al importar el nivel:', error);
+            alert('Error al importar el nivel: El código no es válido.');
+        }
+    }, [levelId]);
     const handleGoBack = useCallback(() => { if (hasUnsavedChanges) { setIsExitConfirmModalOpen(true); } else { navigate('/user-levels'); } }, [hasUnsavedChanges, navigate]);
     const handleConfirmExit = useCallback(() => { setHasUnsavedChanges(false); setIsExitConfirmModalOpen(false); navigate('/user-levels'); }, [navigate]);
     const handleCancelExit = useCallback(() => { setIsExitConfirmModalOpen(false); }, []);
