@@ -73,6 +73,15 @@ export const SettingsProvider = ({ children }) => {
     localStorage.setItem('gameVolume', newVolume);
   };
   
+  // Función para resetear los controles a los valores predeterminados
+  const resetKeyMapping = () => {
+    setKeyMapping(DEFAULT_KEY_MAPPING);
+    localStorage.setItem('gameKeyMapping', JSON.stringify(DEFAULT_KEY_MAPPING));
+    setErrorMessage(null); // Limpiar cualquier mensaje de error
+    setChangingControl(null); // Cancelar si se estaba cambiando una tecla
+    console.log("Controles reseteados a los valores predeterminados.");
+  };
+
   // Función para iniciar el cambio de un control
   const startChangingControl = (controlKey) => {
     // ESC no se puede reasignar a ningún control
@@ -246,7 +255,8 @@ export const SettingsProvider = ({ children }) => {
         completedLevels,
         markLevelAsCompleted,
         isLevelUnlocked,
-        resetCompletedLevels
+        resetCompletedLevels,
+        resetKeyMapping // Exportar la nueva función
       }}
     >
       {children}

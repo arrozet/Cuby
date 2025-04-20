@@ -15,7 +15,8 @@ import {
   SpacebarButton,
   JumpControlGroup,
   ErrorMessage,
-  ResetButton
+  ResetButton,
+  ResetControlsButton // Importar el nuevo botón
 } from './Settings.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -42,7 +43,8 @@ const Settings = () => {
     startChangingControl,
     errorMessage,
     completedLevels,
-    resetCompletedLevels 
+    resetCompletedLevels,
+    resetKeyMapping // Obtener la función para resetear controles
   } = useSettings();
 
   // Estado para controlar si la tecla E ya fue procesada
@@ -245,6 +247,14 @@ const Settings = () => {
               </ControlGroup>
             </ControlsRow>
           </ControlsSection>
+
+          {/* Botón para resetear controles */}
+          <ResetControlsButton
+            onClick={resetKeyMapping}
+            $isInverted={isInverted}
+          >
+            Restablecer Controles Predeterminados
+          </ResetControlsButton>
           
           {changingControl && !errorMessage && (
             <div style={{ textAlign: 'center', marginTop: '20px', color: isInverted ? 'black' : 'white' }}>

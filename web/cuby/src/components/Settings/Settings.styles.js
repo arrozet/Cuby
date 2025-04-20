@@ -258,6 +258,15 @@ export const ResetButton = styled.button`
   }
 `;
 
+// Botón para resetear controles (similar a ResetButton pero quizás otro color)
+export const ResetControlsButton = styled(ResetButton)`
+  background-color: ${props => props.$isInverted ? '#66b3ff' : '#007bff'}; // Azul
+
+  &:hover {
+    background-color: ${props => props.$isInverted ? '#4da6ff' : '#0056b3'}; // Azul más oscuro
+  }
+`;
+
 // Texto informativo general (como "Niveles completados:")
 export const InfoText = styled.div`
    margin-bottom: 15px;
