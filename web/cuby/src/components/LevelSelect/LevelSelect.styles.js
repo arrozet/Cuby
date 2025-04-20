@@ -31,18 +31,18 @@ export const LevelsGrid = styled.div`
   display: grid;
   /* Flexible columns: fit as many cards as possible */
   /* On smaller screens, make min size smaller */
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
-  gap: clamp(10px, 3vw, 20px); /* Reduced gap */
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Reduced min size */
+  gap: clamp(8px, 2vw, 15px); /* Reduced gap */
   justify-content: center;
   width: 100%;
-  max-width: 800px; /* Adjust max width */
+  max-width: 500px; /* Slightly reduced max width */
   margin-top: 20px; /* Add margin below buttons */
   padding-bottom: 20px; /* Add padding at the bottom */
 
   /* Larger minimum size for wider screens */
   @media (min-width: 600px) {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: clamp(15px, 4vw, 30px); /* Restore original gap */
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Reduced min size */
+    gap: clamp(10px, 3vw, 20px); /* Reduced gap */
   }
 `;
 
@@ -68,7 +68,7 @@ export const LevelCard = styled.div`
 
   .level-number {
     /* Responsive font size - reduced max size */
-    font-size: clamp(2rem, 8vw, 3rem); 
+    font-size: clamp(1.5rem, 6vw, 2.5rem); /* Reduced font size */
     font-weight: normal;
     opacity: ${props => props.locked ? 0.5 : 1};
   }
@@ -77,7 +77,7 @@ export const LevelCard = styled.div`
     position: absolute;
     top: clamp(5px, 1.5vw, 10px); /* Responsive position */
     right: clamp(5px, 1.5vw, 10px); /* Responsive position */
-    font-size: clamp(1rem, 3vw, 1.5rem); /* Reduced size */
+    font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Reduced size */
     color: #ff9800;
     text-shadow: 0 0 5px rgba(0,0,0,0.5);
   }
