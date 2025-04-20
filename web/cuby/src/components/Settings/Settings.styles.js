@@ -173,7 +173,10 @@ export const KeyButton = styled.div`
 
 // Botón para la barra espaciadora (más ancho)
 export const SpacebarButton = styled(KeyButton)`
-  width: clamp(180px, 50vw, 280px); // Ancho responsivo y más grande
+  width: auto; /* Let the button size itself based on content */
+  min-width: clamp(100px, 30vw, 180px); /* Add a minimum width for very short keys */
+  padding-left: clamp(20px, 5vw, 35px); /* Add more horizontal padding */
+  padding-right: clamp(20px, 5vw, 35px);
   font-size: clamp(0.9rem, 3.5vw, 1.3rem); // Fuente ligeramente más pequeña para caber
 `;
 

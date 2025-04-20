@@ -11,12 +11,12 @@ import {
   ControlsRow,
   ControlGroup,
   ControlLabel,
-  KeyButton,
-  SpacebarButton,
+  KeyButton, // Base button component
+  SpacebarButton, // Larger button component
   JumpControlGroup,
   ErrorMessage,
   ResetButton,
-  ResetControlsButton // Importar el nuevo botón
+  ResetControlsButton
 } from './Settings.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -44,14 +44,14 @@ const Settings = () => {
     errorMessage,
     completedLevels,
     resetCompletedLevels,
-    resetKeyMapping // Obtener la función para resetear controles
+    resetKeyMapping
   } = useSettings();
 
   // Estado para controlar si la tecla E ya fue procesada
   const [eKeyPressed, setEKeyPressed] = useState(false);
   // Estado para mostrar un mensaje de confirmación después de resetear niveles
   const [resetMessage, setResetMessage] = useState('');
-  
+
   const handleBack = () => {
     navigate('/levels');
   };
@@ -117,7 +117,31 @@ const Settings = () => {
     invertColors: 'Invertir colores',
     restart: 'Reiniciar'
   };
-  
+
+  // Helper function to get the correct button component based on the assigned key
+  const getButtonComponent = (controlKey) => {
+    // Check if keyMapping and the specific controlKey exist before accessing key
+    // FIX: Check the 'name' property instead of 'key'
+    return keyMapping?.[controlKey]?.name === ' ' 
+      ? SpacebarButton 
+      : KeyButton;
+  };
+
+  // Dynamically determine button components only if keyMapping is loaded
+  const JumpButton = keyMapping ? getButtonComponent('jump') : KeyButton;
+  const JumpAltButton = keyMapping ? getButtonComponent('jumpAlt') : KeyButton;
+  const InvertColorsButton = keyMapping ? getButtonComponent('invertColors') : KeyButton;
+  const RestartButton = keyMapping ? getButtonComponent('restart') : KeyButton;
+  const LeftButton = keyMapping ? getButtonComponent('left') : KeyButton;
+  const CrouchButton = keyMapping ? getButtonComponent('crouch') : KeyButton;
+  const RightButton = keyMapping ? getButtonComponent('right') : KeyButton;
+  const InteractButton = keyMapping ? getButtonComponent('interact') : KeyButton;
+
+  // Render null or a loading indicator if keyMapping is not yet available
+  if (!keyMapping) {
+    return <div>Loading settings...</div>; // Or return null, or a spinner
+  }
+
   return (
     <SettingsContainer $isInverted={isInverted}>
       <BackArrow onClick={handleBack} />
@@ -155,44 +179,48 @@ const Settings = () => {
               {/* Grupo de W y Barra espaciadora para saltar */}
               <JumpControlGroup $isInverted={isInverted}>
                 <ControlLabel $isInverted={isInverted}>Saltar</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for jump */}
+                <JumpButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'jump'}
                   onClick={() => handleKeyClick('jump')}
                 >
                   {keyMapping.jump.display}
-                </KeyButton>
-                <SpacebarButton 
+                </JumpButton>
+                {/* Use dynamic component for jumpAlt */}
+                <JumpAltButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'jumpAlt'}
                   onClick={() => handleKeyClick('jumpAlt')}
                 >
-                  Barra espaciadora
-                </SpacebarButton>
+                  {keyMapping.jumpAlt.display}
+                </JumpAltButton>
               </JumpControlGroup>
               
               {/* Invertir colores (E) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Invertir colores</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for invertColors */}
+                <InvertColorsButton 
                   $isInverted={isInverted} 
-                  $isChanging={changingControl === 'invertColors'}
-                  onClick={() => toggleInversion()} // Cambiado para que al hacer clic invierta los colores
+                  // $isChanging={changingControl === 'invertColors'} // This control is not changeable via key press
+                  onClick={() => toggleInversion()} // Keep original onClick for direct action
                 >
                   {keyMapping.invertColors.display}
-                </KeyButton>
+                </InvertColorsButton>
               </ControlGroup>
               
               {/* Reiniciar (R) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Reiniciar</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for restart */}
+                <RestartButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'restart'}
                   onClick={() => handleKeyClick('restart')}
                 >
                   {keyMapping.restart.display}
-                </KeyButton>
+                </RestartButton>
               </ControlGroup>
             </ControlsRow>
             
@@ -201,49 +229,53 @@ const Settings = () => {
               {/* Izquierda (A) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Izquierda</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for left */}
+                <LeftButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'left'}
                   onClick={() => handleKeyClick('left')}
                 >
                   {keyMapping.left.display}
-                </KeyButton>
+                </LeftButton>
               </ControlGroup>
               
               {/* Agacharse (S) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Agacharse</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for crouch */}
+                <CrouchButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'crouch'}
                   onClick={() => handleKeyClick('crouch')}
                 >
                   {keyMapping.crouch.display}
-                </KeyButton>
+                </CrouchButton>
               </ControlGroup>
               
               {/* Derecha (D) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Derecha</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for right */}
+                <RightButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'right'}
                   onClick={() => handleKeyClick('right')}
                 >
                   {keyMapping.right.display}
-                </KeyButton>
+                </RightButton>
               </ControlGroup>
               
               {/* Interactuar (F) */}
               <ControlGroup>
                 <ControlLabel $isInverted={isInverted}>Interactuar</ControlLabel>
-                <KeyButton 
+                {/* Use dynamic component for interact */}
+                <InteractButton 
                   $isInverted={isInverted} 
                   $isChanging={changingControl === 'interact'}
                   onClick={() => handleKeyClick('interact')}
                 >
                   {keyMapping.interact.display}
-                </KeyButton>
+                </InteractButton>
               </ControlGroup>
             </ControlsRow>
           </ControlsSection>
