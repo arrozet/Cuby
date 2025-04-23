@@ -106,15 +106,20 @@ const TopButton = styled.button`
   }
 `;
 
-
 export const UserLevelsButton = styled(TopButton)`
-  /* Center the button */
-  left: 50%;
-  transform: translateX(-50%);
+  position: absolute;
+  right: 100px;
+  clip-path: none; /* Eliminamos el clip-path */
+  border-radius: 10px; /* Restauramos el border-radius */
+  padding: clamp(12px, 2vh, 16px) clamp(25px, 5vw, 35px);
 
   &:hover {
-    /* Keep centering transform on hover */
-    transform: translateX(-50%) scale(1.05);
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 600px) {
+    right: 90px;
+    padding: clamp(10px, 1.8vh, 14px) clamp(20px, 4vw, 30px);
   }
 `;
 

@@ -78,12 +78,13 @@ const LevelSelect = () => {
       <BackArrow onClick={handleBackClick} />
       <SettingsButton />
       
-      {/* Botón para Mis Niveles */}
+      {/* Botón para Niveles de la Comunidad */}
       <UserLevelsButton 
         onClick={handleUserLevelsClick}
         $isInverted={isInverted}
       >
-        MIS NIVELES
+        NIVELES DE 
+        LA COMUNIDAD
       </UserLevelsButton>
       
       <LevelsGrid>
