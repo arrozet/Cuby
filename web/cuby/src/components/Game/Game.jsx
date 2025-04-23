@@ -50,7 +50,8 @@ const Game = () => {
   const [hasWon, setHasWon] = useState(false);
   const [scale, setScale] = useState(1); // State for scale factor
   const [gamePos, setGamePos] = useState({ top: 0, left: 0 }); // State for centering offset
-
+  const { markLevelAsCompleted } = useSettings();
+  
   // --- Game State ---
   // Store player state in a ref for direct access in game loop, update state less frequently if needed
   const playerStateRef = useRef({
@@ -340,7 +341,8 @@ const Game = () => {
     // Check victory with the final player position
     if (!hasWon && checkVictoryCondition({ x: player.x, y: player.y, width: PLAYER_SIZE, height: PLAYER_SIZE }, currentLevel.goal)) {
       setHasWon(true);
-      // Unlock level logic could go here using markLevelAsCompleted from SettingsContext
+      // Marca el nivel como completado para desbloquear el siguiente
+      markLevelAsCompleted(Number(levelId));
     }
 
     // Update the state used for rendering

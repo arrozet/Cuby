@@ -61,7 +61,12 @@ const Settings = () => {
     changeVolume(newVolume);
   };
 
+  // Cambiado: Ahora solo inicia el proceso de cambiar una tecla cuando se hace clic en un botón
   const handleKeyClick = (controlKey) => {
+    // No permitir cambiar la tecla "E" de invertir colores
+    if (controlKey === 'invertColors') return;
+    
+    // Iniciar el proceso de cambio de tecla
     startChangingControl(controlKey);
   };
 
@@ -203,8 +208,8 @@ const Settings = () => {
                 {/* Use dynamic component for invertColors */}
                 <InvertColorsButton 
                   $isInverted={isInverted} 
-                  // $isChanging={changingControl === 'invertColors'} // This control is not changeable via key press
-                  onClick={() => toggleInversion()} // Keep original onClick for direct action
+                  // $isChanging={changingControl === 'invertColors'} // Este control no se puede cambiar
+                  onClick={() => toggleInversion()} // La E siempre invertirá colores
                 >
                   {keyMapping.invertColors.display}
                 </InvertColorsButton>
@@ -285,7 +290,7 @@ const Settings = () => {
             onClick={resetKeyMapping}
             $isInverted={isInverted}
           >
-            Restablecer Controles Predeterminados
+            Restablecer controles predeterminados
           </ResetControlsButton>
           
           {changingControl && !errorMessage && (
@@ -310,7 +315,7 @@ const Settings = () => {
             onClick={handleResetProgress}
             $isInverted={isInverted}
           >
-            Resetear Progreso de Niveles
+            Resetear progreso de niveles
           </ResetButton>
           
           {resetMessage && (
