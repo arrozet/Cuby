@@ -48,10 +48,30 @@ const LevelEditor = () => {
     const dragStartCoords = useRef({ x: 0, y: 0 });
     const initialViewOffset = useRef({ x: 0, y: 0 });
     const [previousEditorMode, setPreviousEditorMode] = useState('place'); // Store mode before pan
+    const [isEditingName, setIsEditingName] = useState(false); // Nuevo estado para edición de nombre
+    const inputRef = useRef(null); // Ref para el input de nombre
 
     // Refs
     const canvasRef = useRef(null);
     const contentWrapperRef = useRef(null);
+
+    // Handler para guardar el nombre al salir del input o pulsar Enter
+    const handleNameInputBlur = useCallback(() => {
+        setIsEditingName(false);
+        if (levelName.trim() && levelName !== level?.name) {
+            setLevel(prev => ({ ...prev, name: levelName.trim() }));
+            setHasUnsavedChanges(true);
+        }
+    }, [levelName, level]);
+
+    const handleNameInputKeyDown = useCallback((e) => {
+        if (e.key === 'Enter') {
+            handleNameInputBlur();
+        } else if (e.key === 'Escape') {
+            setIsEditingName(false);
+            setLevelName(level?.name || '');
+        }
+    }, [handleNameInputBlur, level]);
 
     // --- Funciones de Zoom ---
     const handleZoomIn = useCallback(() => setZoomLevel(prev => Math.min(MAX_ZOOM, prev * ZOOM_STEP)), []);
@@ -159,6 +179,13 @@ const LevelEditor = () => {
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [hasUnsavedChanges]);
+
+    useEffect(() => {
+        if (isEditingName && inputRef.current) {
+            inputRef.current.focus();
+            inputRef.current.select();
+        }
+    }, [isEditingName]);
 
     // --- Coordenadas Lógicas ---
     const getLogicalCoords = useCallback((clientX, clientY) => {
@@ -375,18 +402,20 @@ const LevelEditor = () => {
     // --- Funciones Guardar/Exportar/Importar/Salir ---
     const handleSave = useCallback(() => {
         if (!level) return;
+        // Solo pedir nombre si está vacío o es "Untitled Level" y no hay nombre ya editado
         if (!level.name || level.name === 'Untitled Level' || levelId === 'new') {
             setLevelName(level.name === 'Untitled Level' ? '' : level.name || '');
             setSaveDialogOpen(true);
             return;
         }
-        const levelToSave = { ...level, name: levelName || level.name };
+        const levelToSave = { ...level, name: level.name };
         const savedLevelId = saveUserLevel(levelToSave, levelId);
         if (savedLevelId) {
             setHasUnsavedChanges(false);
         } else {
             alert("Error al guardar el nivel existente.");
-        } }, [level, levelId, levelName]);
+        }
+    }, [level, levelId]);
 
     const handleSaveConfirm = useCallback(() => {
         if (!level || !levelName.trim()) { alert("Por favor, introduce un nombre válido para el nivel."); return; }
@@ -576,18 +605,46 @@ const LevelEditor = () => {
     return (
         <EditorContainer isInverted={isInverted}>
             {/* Mostrar el nombre del nivel arriba del toolbar */}
-            <div style={{
-                width: '100%',
-                textAlign: 'center',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: getActiveColor(isInverted),
-                background: 'rgba(0,0,0,0.04)',
-                padding: '10px 0',
-                letterSpacing: '1px',
-                borderBottom: `1px solid ${getActiveColor(isInverted)}22`
-            }}>
-                {levelName?.trim() ? levelName : 'untitled'}
+            <div
+                style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    color: getActiveColor(isInverted),
+                    background: 'rgba(0,0,0,0.04)',
+                    padding: '10px 0',
+                    letterSpacing: '1px',
+                    borderBottom: `1px solid ${getActiveColor(isInverted)}22`,
+                    cursor: 'pointer',
+                    minHeight: '40px',
+                }}
+                onClick={() => setIsEditingName(true)}
+            >
+                {isEditingName ? (
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={levelName}
+                        onChange={e => setLevelName(e.target.value)}
+                        onBlur={handleNameInputBlur}
+                        onKeyDown={handleNameInputKeyDown}
+                        style={{
+                            fontSize: '1.5rem',
+                            fontWeight: 'bold',
+                            color: getActiveColor(isInverted),
+                            background: 'rgba(0,0,0,0.04)',
+                            border: `1px solid ${getActiveColor(isInverted)}99`,
+                            borderRadius: '4px',
+                            padding: '2px 8px',
+                            width: '60%',
+                            textAlign: 'center',
+                        }}
+                        maxLength={40}
+                    />
+                ) : (
+                    levelName?.trim() ? levelName : 'untitled level'
+                )}
             </div>
             <EditorToolbar>
                 <ToolbarGroup className="left-group"><BackArrow onClick={handleGoBack} /></ToolbarGroup>
