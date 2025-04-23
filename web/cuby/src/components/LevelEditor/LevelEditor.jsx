@@ -373,7 +373,21 @@ const LevelEditor = () => {
 
 
     // --- Funciones Guardar/Exportar/Importar/Salir ---
-    const handleSave = useCallback(() => { if (!level) return; if (!level.name || level.name === 'Untitled Level' || levelId === 'new') { setLevelName(level.name === 'Untitled Level' ? '' : level.name || ''); setSaveDialogOpen(true); return; } const levelToSave = { ...level, name: levelName || level.name }; const savedLevelId = saveUserLevel(levelToSave, levelId); if (savedLevelId) { setHasUnsavedChanges(false); alert('Nivel guardado.'); } else { alert("Error al guardar el nivel existente."); } }, [level, levelId, levelName]);
+    const handleSave = useCallback(() => {
+        if (!level) return;
+        if (!level.name || level.name === 'Untitled Level' || levelId === 'new') {
+            setLevelName(level.name === 'Untitled Level' ? '' : level.name || '');
+            setSaveDialogOpen(true);
+            return;
+        }
+        const levelToSave = { ...level, name: levelName || level.name };
+        const savedLevelId = saveUserLevel(levelToSave, levelId);
+        if (savedLevelId) {
+            setHasUnsavedChanges(false);
+        } else {
+            alert("Error al guardar el nivel existente.");
+        } }, [level, levelId, levelName]);
+
     const handleSaveConfirm = useCallback(() => {
         if (!level || !levelName.trim()) { alert("Por favor, introduce un nombre válido para el nivel."); return; }
         const levelToSave = { ...level, name: levelName.trim() };
@@ -382,10 +396,9 @@ const LevelEditor = () => {
         if (savedLevelId) {
             setSaveDialogOpen(false);
             setHasUnsavedChanges(false);
-            alert('Nivel guardado.');
             if (levelId === 'new') {
                 // Navigate to the editor page with the new ID, replacing history
-                navigate(`/editor/${savedLevelId}`, { replace: true });
+                navigate(`/level-editor/${savedLevelId}`, { replace: true });
             } else {
                 // Update local level state if name changed
                  setLevel(levelToSave);
