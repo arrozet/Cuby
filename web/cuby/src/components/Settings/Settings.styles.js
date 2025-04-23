@@ -66,6 +66,8 @@ export const VolumeSlider = styled.input.attrs({ type: 'range' })`
   height: 12px;
   border-radius: 8px;
   background: ${props => getActiveColor(props.$isInverted)}50; // Fondo semi-transparente
+  // Añadimos un borde para que se vea bien incluso con colores invertidos
+  border: 2px solid ${props => getActiveColor(props.$isInverted)}; 
   outline: none;
   opacity: 0.8;
   transition: opacity 0.2s;
@@ -138,7 +140,7 @@ export const ControlLabel = styled.div`
 // Animación de parpadeo para el botón que se está cambiando
 const blink = keyframes`
   0%, 100% { border-color: ${props => getActiveColor(props.$isInverted)}; opacity: 1; }
-  50% { border-color: red; opacity: 0.5; } // Parpadea a rojo para más énfasis
+  50% { border-color: ${props => getActiveColor(props.$isInverted)}80; opacity: 0.7; } // Parpadea a gris semi-transparente para mantener coherencia monocromática
 `;
 
 // Botón de tecla (cuadrado)
@@ -150,7 +152,7 @@ export const KeyButton = styled.div`
   justify-content: center;
   align-items: center;
   font-size: clamp(1rem, 4vw, 1.4rem); // Fuente responsiva
-  border: 3px solid ${props => (props.$isChanging ? 'red' : getActiveColor(props.$isInverted))}; // Borde rojo si cambia
+  border: 3px solid ${props => (props.$isChanging ? getActiveColor(props.$isInverted) : getActiveColor(props.$isInverted))}; // Borde coherente siempre
   border-radius: 10px;
   color: ${props => getActiveColor(props.$isInverted)};
   background-color: ${props => getActiveColor(props.$isInverted)}1A; // Fondo muy sutil
@@ -213,13 +215,9 @@ export const JumpControlGroup = styled.div`
 
 // Mensaje de error o éxito
 export const ErrorMessage = styled.div`
-  background-color: ${props => props.$isInverted ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
-  color: ${props => props.$success
-    ? (props.$isInverted ? '#57cc5c' : '#4caf50') // Verde éxito (tonos ajustados)
-    : (props.$isInverted ? '#ff7070' : '#ff5252')}; // Rojo error (tonos ajustados)
-  border: 1px solid ${props => props.$success
-    ? (props.$isInverted ? '#57cc5c' : '#4caf50')
-    : (props.$isInverted ? '#ff7070' : '#ff5252')};
+  background-color: ${props => getInactiveColor(props.$isInverted)}33; // Fondo semi-transparente
+  color: ${props => getActiveColor(props.$isInverted)}; // Mismo color que texto normal
+  border: 2px solid ${props => getActiveColor(props.$isInverted)}; // Borde con el color activo
   border-radius: 8px;
   padding: clamp(10px, 1.5vh, 12px) clamp(15px, 3vw, 20px); // Padding responsivo
   margin: 15px auto; // Centrado horizontalmente, con margen vertical
@@ -237,9 +235,9 @@ export const ErrorMessage = styled.div`
 
 // Botón de resetear progreso
 export const ResetButton = styled.button`
-  background-color: ${props => props.$isInverted ? '#ff6666' : '#ff3333'}; // Rojo base
-  color: white;
-  border: none;
+  background-color: ${props => getInactiveColor(props.$isInverted)}; // Fondo en el color opuesto al texto
+  color: ${props => getActiveColor(props.$isInverted)}; // Texto en el color activo
+  border: 2px solid ${props => getActiveColor(props.$isInverted)}; // Borde del color activo
   border-radius: 8px;
   padding: clamp(10px, 1.8vh, 14px) clamp(18px, 4vw, 25px); // Padding responsivo
   font-size: clamp(1rem, 3vw, 1.1rem); // Fuente responsiva
@@ -250,9 +248,10 @@ export const ResetButton = styled.button`
   margin: 15px auto 0 auto; // Centrado
 
   &:hover {
-    background-color: ${props => props.$isInverted ? '#ff4d4d' : '#e53935'}; // Rojo más oscuro al pasar
+    background-color: ${props => getActiveColor(props.$isInverted)}; // Semi-transparente al pasar
+    color: ${props => getInactiveColor(props.$isInverted)};
     transform: translateY(-2px); // Ligero levantamiento
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // Sombra sutil
+     // Sombra sutil
   }
 
   &:active {
@@ -261,13 +260,11 @@ export const ResetButton = styled.button`
   }
 `;
 
-// Botón para resetear controles (similar a ResetButton pero quizás otro color)
+// Botón para resetear controles (mismo estilo pero ligeramente diferente)
 export const ResetControlsButton = styled(ResetButton)`
-  background-color: ${props => props.$isInverted ? '#66b3ff' : '#007bff'}; // Azul
-
-  &:hover {
-    background-color: ${props => props.$isInverted ? '#4da6ff' : '#0056b3'}; // Azul más oscuro
-  }
+  margin-top: 25px;
+  margin-bottom: 10px;
+  // Sin cambios de color ya que hereda el estilo monocromático del ResetButton
 `;
 
 // Texto informativo general (como "Niveles completados:")
