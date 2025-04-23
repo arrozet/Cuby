@@ -575,6 +575,20 @@ const LevelEditor = () => {
 
     return (
         <EditorContainer isInverted={isInverted}>
+            {/* Mostrar el nombre del nivel arriba del toolbar */}
+            <div style={{
+                width: '100%',
+                textAlign: 'center',
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                color: getActiveColor(isInverted),
+                background: 'rgba(0,0,0,0.04)',
+                padding: '10px 0',
+                letterSpacing: '1px',
+                borderBottom: `1px solid ${getActiveColor(isInverted)}22`
+            }}>
+                {levelName?.trim() ? levelName : 'untitled'}
+            </div>
             <EditorToolbar>
                 <ToolbarGroup className="left-group"><BackArrow onClick={handleGoBack} /></ToolbarGroup>
                 <ToolbarGroup className="center-group">
