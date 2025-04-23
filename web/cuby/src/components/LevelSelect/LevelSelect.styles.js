@@ -3,7 +3,7 @@ import { getInactiveColor, getActiveColor } from '../../utils/colors';
 
 const pulse = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 `;
 
@@ -83,24 +83,22 @@ export const LevelCard = styled.div`
   }
 `;
 
-// Common style for top buttons
 const TopButton = styled.button`
   position: absolute;
-  top: clamp(15px, 3vh, 25px); /* Responsive top */
+  top: clamp(15px, 3vh, 25px);
   background-color: ${props => getActiveColor(props.$isInverted)};
   color: ${props => getInactiveColor(props.$isInverted)};
   border: none;
-  border-radius: 10px;
-  padding: clamp(8px, 1.5vh, 12px) clamp(15px, 4vw, 25px); /* Responsive padding */
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem); /* Responsive font size */
+  padding: clamp(8px, 1.5vh, 12px) clamp(15px, 4vw, 25px);
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   font-family: 'Excalifont';
   cursor: pointer;
   transition: transform 0.2s, background-color 0.3s, color 0.3s;
   z-index: 10;
+  box-sizing: border-box;
 
   &:hover {
     transform: scale(1.05);
-    /* Re-apply colors on hover to prevent unexpected changes */
     background-color: ${props => getActiveColor(props.$isInverted)};
     color: ${props => getInactiveColor(props.$isInverted)};
   }
@@ -109,17 +107,18 @@ const TopButton = styled.button`
 export const UserLevelsButton = styled(TopButton)`
   position: absolute;
   right: 100px;
-  clip-path: none; /* Eliminamos el clip-path */
-  border-radius: 10px; /* Restauramos el border-radius */
-  padding: clamp(12px, 2vh, 16px) clamp(25px, 5vw, 35px);
+  animation: ${pulse} 1s infinite ease-in-out;
+  clip-path: polygon(0% 30%, 15% 20%, 20% 0%, 30% 20%, 45% 10%, 55% 25%, 70% 5%, 80% 25%, 85% 0%, 100% 20%, 95% 50%, 100% 80%, 85% 75%, 80% 100%, 65% 85%, 50% 95%, 35% 85%, 20% 100%, 15% 75%, 0% 70%, 5% 50%);
+  padding: clamp(15px, 2.2vh, 20px) clamp(30px, 5.5vw, 45px);
 
   &:hover {
     transform: scale(1.05);
+    animation-play-state: paused;
   }
 
   @media (max-width: 600px) {
     right: 90px;
-    padding: clamp(10px, 1.8vh, 14px) clamp(20px, 4vw, 30px);
+    padding: clamp(12px, 2vh, 18px) clamp(25px, 5vw, 40px);
   }
 `;
 
