@@ -402,23 +402,29 @@ const LevelEditor = () => {
     // --- Funciones Guardar/Exportar/Importar/Salir ---
     const handleSave = useCallback(() => {
         if (!level) return;
-        // Solo pedir nombre si está vacío o es "Untitled Level" y no hay nombre ya editado
-        if (!level.name || level.name === 'Untitled Level' || levelId === 'new') {
-            setLevelName(level.name === 'Untitled Level' ? '' : level.name || '');
+        const effectiveName = levelName.trim() || level.name;
+        if (!effectiveName || effectiveName === 'Untitled Level') {
+            setLevelName(effectiveName === 'Untitled Level' ? '' : effectiveName || '');
             setSaveDialogOpen(true);
             return;
         }
-        const levelToSave = { ...level, name: level.name };
-        const savedLevelId = saveUserLevel(levelToSave, levelId);
+        const levelToSave = { ...level, name: effectiveName };
+        const savedLevelId = saveUserLevel(levelToSave, levelId === 'new' ? null : levelId);
         if (savedLevelId) {
             setHasUnsavedChanges(false);
+            setLevel(levelToSave);
+            if (levelId === 'new') {
+                navigate(`/level-editor/${savedLevelId}`, { replace: true });
+            }
         } else {
             alert("Error al guardar el nivel existente.");
         }
-    }, [level, levelId]);
+    }, [level, levelId, levelName, navigate]);
 
     const handleSaveConfirm = useCallback(() => {
-        if (!level || !levelName.trim()) { alert("Por favor, introduce un nombre válido para el nivel."); return; }
+        if (!level || !levelName.trim()) { alert("Por favor, introduce un nombre válido para el nivel.");
+             return; 
+        }
         const levelToSave = { ...level, name: levelName.trim() };
         const idToSaveUnder = levelId === 'new' ? null : levelId;
         const savedLevelId = saveUserLevel(levelToSave, idToSaveUnder);
@@ -434,7 +440,9 @@ const LevelEditor = () => {
             }
         } else {
             alert("Error al guardar el nivel.");
-        } }, [level, levelName, levelId, navigate]);
+        } 
+    }, [level, levelName, levelId, navigate]);
+
     const handleExport = useCallback(() => {
         if (!level) return;
         
@@ -643,7 +651,7 @@ const LevelEditor = () => {
                         maxLength={40}
                     />
                 ) : (
-                    levelName?.trim() ? levelName : 'untitled level'
+                    levelName?.trim() ? levelName : 'Untitled Level'
                 )}
             </div>
             <EditorToolbar>
