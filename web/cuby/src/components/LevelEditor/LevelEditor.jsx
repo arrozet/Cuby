@@ -15,6 +15,11 @@ import { getUserLevelById, saveUserLevel, createEmptyLevel } from '../../utils/l
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 import { FaHandPaper } from 'react-icons/fa';
 import { LevelEncoder } from '../../utils/levelEncoder';
+import LevelNameDisplayEdit from './LevelNameDisplayEdit';
+import Toolbar from './Toolbar';
+import ElementsSidebar from './ElementsSidebar';
+import CanvasZoomControls from './CanvasZoomControls';
+import SaveLevelDialog from './SaveLevelDialog';
 
 // Constantes
 const LOGICAL_LEVEL_WIDTH = 1200;
@@ -57,7 +62,6 @@ const LevelEditor = () => {
 
     // Handler para guardar el nombre al salir del input o pulsar Enter
     const handleNameInputBlur = useCallback(() => {
-        setIsEditingName(false);
         if (levelName.trim() && levelName !== level?.name) {
             setLevel(prev => ({ ...prev, name: levelName.trim() }));
             setHasUnsavedChanges(true);
@@ -66,12 +70,12 @@ const LevelEditor = () => {
 
     const handleNameInputKeyDown = useCallback((e) => {
         if (e.key === 'Enter') {
-            handleNameInputBlur();
+            // handleNameInputBlur(); // Lógica ahora en LevelNameDisplayEdit y onLevelNameSave
         } else if (e.key === 'Escape') {
-            setIsEditingName(false);
-            setLevelName(level?.name || '');
+            // setIsEditingName(false); // Esto ahora lo maneja LevelNameDisplayEdit
+            // setLevelName(level?.name || ''); // Esto podría manejarse si Escape debe revertir
         }
-    }, [handleNameInputBlur, level]);
+    }, [level]); // Removido handleNameInputBlur de dependencias
 
     // --- Funciones de Zoom ---
     const handleZoomIn = useCallback(() => setZoomLevel(prev => Math.min(MAX_ZOOM, prev * ZOOM_STEP)), []);
@@ -182,8 +186,8 @@ const LevelEditor = () => {
 
     useEffect(() => {
         if (isEditingName && inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.select();
+            // inputRef.current.focus(); // Lógica ahora en LevelNameDisplayEdit
+            // inputRef.current.select(); // Lógica ahora en LevelNameDisplayEdit
         }
     }, [isEditingName]);
 
@@ -613,68 +617,26 @@ const LevelEditor = () => {
     return (
         <EditorContainer isInverted={isInverted}>
             {/* Mostrar el nombre del nivel arriba del toolbar */}
-            <div
-                style={{
-                    width: '100%',
-                    textAlign: 'center',
-                    fontSize: '1.5rem',
-                    fontWeight: 'bold',
-                    color: getActiveColor(isInverted),
-                    background: 'rgba(0,0,0,0.04)',
-                    padding: '10px 0',
-                    letterSpacing: '1px',
-                    borderBottom: `1px solid ${getActiveColor(isInverted)}22`,
-                    cursor: 'pointer',
-                    minHeight: '40px',
-                }}
-                onClick={() => setIsEditingName(true)}
-            >
-                {isEditingName ? (
-                    <input
-                        ref={inputRef}
-                        type="text"
-                        value={levelName}
-                        onChange={e => setLevelName(e.target.value)}
-                        onBlur={handleNameInputBlur}
-                        onKeyDown={handleNameInputKeyDown}
-                        style={{
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            color: getActiveColor(isInverted),
-                            background: 'rgba(0,0,0,0.04)',
-                            border: `1px solid ${getActiveColor(isInverted)}99`,
-                            borderRadius: '4px',
-                            padding: '2px 8px',
-                            width: '60%',
-                            textAlign: 'center',
-                        }}
-                        maxLength={40}
-                    />
-                ) : (
-                    levelName?.trim() ? levelName : 'Untitled Level'
-                )}
-            </div>
-            <EditorToolbar>
-                <ToolbarGroup className="left-group"><BackArrow onClick={handleGoBack} /></ToolbarGroup>
-                <ToolbarGroup className="center-group">
-                    <ToolbarItem
-                        isActive={editorMode === 'place'}
-                        onClick={() => setMode('place')}
-                        isInverted={isInverted}
-                    >Colocar</ToolbarItem>
-                    <ToolbarItem
-                        isActive={editorMode === 'erase'}
-                        onClick={() => setMode('erase')}
-                        isInverted={isInverted}
-                    >Borrar</ToolbarItem>
-                    <ToolbarItem onClick={toggleInversion} isInverted={isInverted}>Invertir (E)</ToolbarItem>
-                </ToolbarGroup>
-                <ToolbarGroup className="right-group">
-                    <ToolbarItem onClick={handleExport} isInverted={isInverted}>Exportar</ToolbarItem>
-                    <ToolbarItem onClick={handleImport} isInverted={isInverted}>Importar</ToolbarItem>
-                    <ToolbarItem onClick={handleSave} isInverted={isInverted} disabled={!level}>Guardar{hasUnsavedChanges ? '*' : ''}</ToolbarItem>
-                </ToolbarGroup>
-            </EditorToolbar>
+            <LevelNameDisplayEdit
+                levelName={levelName}
+                onLevelNameChange={(e) => setLevelName(e.target.value)}
+                onLevelNameSave={handleNameInputBlur} 
+                isEditing={isEditingName}
+                setIsEditing={setIsEditingName}
+                isInverted={isInverted}
+            />
+            <Toolbar
+                editorMode={editorMode}
+                onSetMode={setMode} // Pasamos la función setMode directamente
+                onToggleInversion={toggleInversion}
+                onExportLevel={handleExport}
+                onImportLevel={handleImport}
+                onSaveLevel={handleSave}
+                onGoBack={handleGoBack}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isLevelLoaded={!!level} // `level` no es null/undefined
+                isInverted={isInverted}
+            />
 
             <div style={{ display: 'flex', flex: 1, width: '100%', overflow: 'hidden', position: 'relative' }}> {/* Ensure relative positioning for children */}
                 <EditorCanvas
@@ -718,18 +680,13 @@ const LevelEditor = () => {
                     </LevelContentWrapper>
 
                     {/* UI Elements outside the scaled container */}
-                    <ZoomControls>
-                        {/* Stop propagation to prevent placing elements when clicking zoom buttons */}
-                        <ZoomButton onClick={(e) => { e.stopPropagation(); handleZoomIn(); }} isInverted={isInverted} title="Acercar (+)">+</ZoomButton>
-                        <ZoomButton onClick={(e) => { e.stopPropagation(); handleZoomOut(); }} isInverted={isInverted} title="Alejar (-)">-</ZoomButton>
-                        <ZoomButton
-                            onClick={(e) => { e.stopPropagation(); handlePanModeToggle(); }}
-                            isInverted={isInverted}
-                            isActive={editorMode === 'pan'}
-                            title="Mover Vista (Espacio)"
-                        >
-                            <FaHandPaper /> </ZoomButton>
-                    </ZoomControls>
+                    <CanvasZoomControls 
+                        onZoomIn={handleZoomIn}
+                        onZoomOut={handleZoomOut}
+                        onTogglePanMode={handlePanModeToggle}
+                        isPanModeActive={editorMode === 'pan'}
+                        isInverted={isInverted}
+                    />
 
                     {isSelectingPortalDestination && (
                         <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', backgroundColor: getActiveColor(isInverted), color: getInactiveColor(isInverted), padding: '8px 15px', borderRadius: '5px', textAlign: 'center', zIndex: 50, opacity: 0.9, fontSize: '14px', pointerEvents: 'none' }}>
@@ -738,37 +695,25 @@ const LevelEditor = () => {
                     )}
                 </EditorCanvas>
 
-                <EditorSidebar isInverted={isInverted}>
-                    <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
-                    <ElementsContainer>
-                        {/* Disable buttons when in pan mode, check isSelected only against 'place' mode */}
-                        <ElementButton onClick={() => handleSelectElement('platform')} isSelected={selectedElement === 'platform' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '30px', height: '10px', backgroundColor: oppositeColor, border: `1px solid ${currentColor}` }}></div></div>Plataforma </ElementButton>
-                        <ElementButton onClick={() => handleSelectElement('spike')} isSelected={selectedElement === 'spike' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '30px', height: '20px', position: 'relative' }}> <div style={{ position: 'absolute', width: 0, height: 0, left: 0, bottom: 0, borderLeft: '15px solid transparent', borderRight: '15px solid transparent', borderBottom: `20px solid ${oppositeColor}`, filter: `drop-shadow(0px 0px 1px ${currentColor})` }}></div> </div></div>Pico </ElementButton>
-                        <ElementButton onClick={() => handleSelectElement('trampoline')} isSelected={selectedElement === 'trampoline' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '30px', height: '15px', backgroundColor: oppositeColor, borderRadius: '15px 15px 0 0', border: `1px solid ${currentColor}` }}></div></div>Trampolín </ElementButton>
-                        <ElementButton onClick={() => handleSelectElement('portal')} isSelected={selectedElement === 'portal' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '30px', height: '30px', backgroundColor: 'purple', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.8, border: '1px solid white' }}><span style={{ color: 'white', fontSize: '16px' }}>◊</span></div></div>Portal </ElementButton>
-                        <ElementButton onClick={() => handleSelectElement('goal')} isSelected={selectedElement === 'goal' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '20px', height: '20px', border: `2px dashed ${currentColor}`, borderRadius: '50%' }}></div></div>Meta </ElementButton>
-                        <ElementButton onClick={() => handleSelectElement('player-start')} isSelected={selectedElement === 'player-start' && editorMode === 'place'} isInverted={isInverted} disabled={editorMode === 'pan'}> <div><div style={{ width: '20px', height: '20px', backgroundColor: currentColor, opacity: 0.7 }}></div></div>Inicio Jugador </ElementButton>
-                    </ElementsContainer>
-                    {selectedElement === 'platform' && editorMode === 'place' && ( // Show only in place mode
-                        <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${currentColor}50`, borderRadius: '5px' }}>
-                            <h3 style={{ color: currentColor, marginBottom: '10px', fontSize: '16px' }}>Tamaño Plataforma</h3>
-                            <div style={{ marginBottom: '10px' }}> <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>Ancho: {platformSize.width}px</label> <input type="range" min="20" max="500" value={platformSize.width} onChange={(e) => setPlatformSize(prev => ({ ...prev, width: Number(e.target.value) }))} style={{ width: '100%' }} /> </div>
-                            <div> <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>Alto: {platformSize.height}px</label> <input type="range" min="10" max="100" value={platformSize.height} onChange={(e) => setPlatformSize(prev => ({ ...prev, height: Number(e.target.value) }))} style={{ width: '100%' }} /> </div>
-                        </div>
-                    )}
-                </EditorSidebar>
+                <ElementsSidebar 
+                    selectedElement={selectedElement}
+                    editorMode={editorMode}
+                    onSelectElement={handleSelectElement}
+                    platformSize={platformSize}
+                    onPlatformSizeChange={setPlatformSize}
+                    isInverted={isInverted}
+                />
             </div>
 
             {/* Modales */}
-            {saveDialogOpen && (
-                <SaveDialog onClick={() => setSaveDialogOpen(false)}> {/* Close on backdrop click */}
-                    <SaveDialogContent isInverted={isInverted} onClick={(e) => e.stopPropagation()} > {/* Prevent closing when clicking inside */}
-                        <h2>Guardar Nivel</h2> <p>Introduce un nombre para tu nivel:</p>
-                        <Input type="text" value={levelName} onChange={(e) => setLevelName(e.target.value)} placeholder="Nombre del nivel" isInverted={isInverted} autoFocus onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter' && levelName.trim()) { handleSaveConfirm(); } if (e.key === 'Escape') { setSaveDialogOpen(false); } }} />
-                        <SaveDialogButtons isInverted={isInverted}> <button onClick={() => setSaveDialogOpen(false)}>Cancelar</button> <button onClick={handleSaveConfirm} disabled={!levelName.trim()} > Guardar </button> </SaveDialogButtons>
-                    </SaveDialogContent>
-                </SaveDialog>
-            )}
+            <SaveLevelDialog 
+                isOpen={saveDialogOpen}
+                onClose={() => setSaveDialogOpen(false)}
+                onConfirm={handleSaveConfirm}
+                levelName={levelName}
+                onLevelNameChange={(e) => setLevelName(e.target.value)}
+                isInverted={isInverted}
+            />
             <ConfirmationModal isOpen={isExitConfirmModalOpen} onClose={handleCancelExit} onConfirm={handleConfirmExit} message="¿Estás seguro de que quieres salir? Se perderán los cambios no guardados." isInverted={isInverted} />
 
         </EditorContainer>
