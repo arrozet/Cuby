@@ -1,11 +1,19 @@
 import React from 'react';
 import {
-    EditorSidebar, // Reutilizamos el styled-component
-    SidebarTitle,    // Reutilizamos el styled-component
-    ElementsContainer, // Reutilizamos el styled-component
-    ElementButton,   // Reutilizamos el styled-component
+    EditorSidebar,
+    SidebarTitle,
+    ElementsContainer,
+    ElementButton,
+    PlatformIcon,
+    SpikeIconContainer,
+    SpikeIconShape,
+    TrampolineIcon,
+    PortalIconVisual,
+    PortalSymbol,
+    GoalIcon,
+    PlayerStartIcon,
 } from './LevelEditor.styles';
-import { getActiveColor, getInactiveColor } from '../../utils/colors'; // Necesario para colores en botones
+import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 const ElementsSidebar = ({
     selectedElement,
@@ -14,10 +22,9 @@ const ElementsSidebar = ({
     platformSize,
     onPlatformSizeChange,
     isInverted,
-    // No necesitamos pasar currentColor y oppositeColor, los podemos derivar de isInverted
 }) => {
-    const currentColor = getActiveColor(isInverted);
-    const oppositeColor = getInactiveColor(isInverted);
+    const activeColor = getActiveColor(isInverted);
+    const inactiveColor = getInactiveColor(isInverted);
 
     return (
         <EditorSidebar isInverted={isInverted}>
@@ -29,16 +36,7 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div
-                            style={{
-                                width: '30px',
-                                height: '10px',
-                                backgroundColor: oppositeColor,
-                                border: `1px solid ${currentColor}`,
-                            }}
-                        ></div>
-                    </div>
+                    <PlatformIcon color={activeColor} borderColor={activeColor} />
                     Plataforma
                 </ElementButton>
                 <ElementButton
@@ -47,23 +45,9 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div style={{ width: '30px', height: '20px', position: 'relative' }}>
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    width: 0,
-                                    height: 0,
-                                    left: 0,
-                                    bottom: 0,
-                                    borderLeft: '15px solid transparent',
-                                    borderRight: '15px solid transparent',
-                                    borderBottom: `20px solid ${oppositeColor}`,
-                                    filter: `drop-shadow(0px 0px 1px ${currentColor})`,
-                                }}
-                            ></div>
-                        </div>
-                    </div>
+                    <SpikeIconContainer>
+                        <SpikeIconShape fillColor={activeColor} outlineColor={activeColor} />
+                    </SpikeIconContainer>
                     Pico
                 </ElementButton>
                 <ElementButton
@@ -72,17 +56,7 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div
-                            style={{
-                                width: '30px',
-                                height: '15px',
-                                backgroundColor: oppositeColor,
-                                borderRadius: '15px 15px 0 0',
-                                border: `1px solid ${currentColor}`,
-                            }}
-                        ></div>
-                    </div>
+                    <TrampolineIcon color={activeColor} borderColor={activeColor} />
                     Trampolín
                 </ElementButton>
                 <ElementButton
@@ -91,23 +65,9 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div
-                            style={{
-                                width: '30px',
-                                height: '30px',
-                                backgroundColor: 'purple',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                opacity: 0.8,
-                                border: '1px solid white',
-                            }}
-                        >
-                            <span style={{ color: 'white', fontSize: '16px' }}>◊</span>
-                        </div>
-                    </div>
+                    <PortalIconVisual color={activeColor} borderColor={activeColor}>
+                        <PortalSymbol color={inactiveColor}>◊</PortalSymbol>
+                    </PortalIconVisual>
                     Portal
                 </ElementButton>
                 <ElementButton
@@ -116,16 +76,7 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div
-                            style={{
-                                width: '20px',
-                                height: '20px',
-                                border: `2px dashed ${currentColor}`,
-                                borderRadius: '50%',
-                            }}
-                        ></div>
-                    </div>
+                    <GoalIcon color={activeColor} />
                     Meta
                 </ElementButton>
                 <ElementButton
@@ -134,26 +85,17 @@ const ElementsSidebar = ({
                     isInverted={isInverted}
                     disabled={editorMode === 'pan'}
                 >
-                    <div>
-                        <div
-                            style={{
-                                width: '20px',
-                                height: '20px',
-                                backgroundColor: currentColor,
-                                opacity: 0.7,
-                            }}
-                        ></div>
-                    </div>
+                    <PlayerStartIcon color={activeColor} />
                     Inicio Jugador
                 </ElementButton>
             </ElementsContainer>
             {selectedElement === 'platform' && editorMode === 'place' && (
-                <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${currentColor}50`, borderRadius: '5px' }}>
-                    <h3 style={{ color: currentColor, marginBottom: '10px', fontSize: '16px' }}>
+                <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
+                    <h3 style={{ color: activeColor, marginBottom: '10px', fontSize: '16px' }}>
                         Tamaño Plataforma
                     </h3>
                     <div style={{ marginBottom: '10px' }}>
-                        <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        <label style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                             Ancho: {platformSize.width}px
                         </label>
                         <input
@@ -166,7 +108,7 @@ const ElementsSidebar = ({
                         />
                     </div>
                     <div>
-                        <label style={{ color: currentColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        <label style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                             Alto: {platformSize.height}px
                         </label>
                         <input
@@ -184,4 +126,4 @@ const ElementsSidebar = ({
     );
 };
 
-export default ElementsSidebar; 
+export default ElementsSidebar;

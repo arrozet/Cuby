@@ -237,6 +237,82 @@ export const ElementButton = styled.button`
   }
 `;
 
+// Icon Styles for ElementsSidebar
+export const IconWrapper = styled.div`
+  /* This is the div that ElementButton styles via & > div:first-child */
+  /* It provides alignment and min-width for the icon within the button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const PlatformIcon = styled.div`
+  width: 30px;
+  height: 10px;
+  background-color: ${props => props.color};
+  border: 1px solid ${props => props.borderColor};
+`;
+
+export const SpikeIconContainer = styled.div`
+  width: 30px;
+  height: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const SpikeIconShape = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 20px solid ${props => props.fillColor};
+  filter: drop-shadow(0px 0px 1px ${props => props.outlineColor});
+`;
+
+export const TrampolineIcon = styled.div`
+  width: 30px;
+  height: 15px;
+  background-color: ${props => props.color};
+  border-radius: 15px 15px 0 0;
+  border: 1px solid ${props => props.borderColor};
+`;
+
+export const PortalIconVisual = styled.div`
+  width: 30px;
+  height: 30px;
+  background-color: ${props => props.color};
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.8;
+  border: 1px solid ${props => props.borderColor};
+`;
+
+export const PortalSymbol = styled.span`
+  color: ${props => props.color};
+  font-size: 16px;
+`;
+
+export const GoalIcon = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 2px dashed ${props => props.color};
+  border-radius: 50%;
+`;
+
+export const PlayerStartIcon = styled.div`
+  width: 20px;
+  height: 20px;
+  background-color: ${props => props.color};
+  opacity: 0.7;
+`;
+
 // --- SaveDialog, SaveDialogContent, Input, SaveDialogButtons sin cambios ---
 export const SaveDialog = styled.div`
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
