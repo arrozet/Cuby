@@ -83,8 +83,8 @@ const LevelSelect = () => {
         onClick={handleUserLevelsClick}
         $isInverted={isInverted}
       >
-        NIVELES DE <br/>
-        LA COMUNIDAD
+        EDITOR DE <br/>
+        NIVELES
       </UserLevelsButton>
       
       <LevelsGrid>

@@ -138,7 +138,6 @@ export const ZoomButton = styled(ToolbarItem)`
   align-items: center;
 `;
 
-
 // EditorSidebar sin cambios
 export const EditorSidebar = styled.div`
   width: 250px;
@@ -192,7 +191,7 @@ export const ElementButton = styled.button`
   /* Base State */
   background-color: transparent;
   color: ${props => getActiveColor(props.isInverted)};
-  border: 1px solid ${props => getActiveColor(props.isInverted)}80; /* Slightly less prominent border */
+  border: 1px solid ${props => getActiveColor(props.isInverted)}; /* Ensure border is always visible */
   padding: 12px 10px;
 
   /* Selected State */

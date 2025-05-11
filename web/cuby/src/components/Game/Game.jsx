@@ -393,6 +393,7 @@ const Game = () => {
 
   return (
     <GameWrapper $isInverted={isInverted}>
+      <BackArrow onClick={handleBackToLevels} />
       <GameContainer
         baseWidth={BASE_GAME_WIDTH}
         baseHeight={BASE_GAME_HEIGHT}
@@ -404,8 +405,6 @@ const Game = () => {
           position: 'absolute', // Position relative to the wrapper
         }}
       >
-        {/* Position BackArrow relative to the scaled container */}
-        <BackArrow onClick={handleBackToLevels} />
         <Level
           // Level uses base dimensions internally for element placement
           width={BASE_GAME_WIDTH}
@@ -419,9 +418,6 @@ const Game = () => {
           size={PLAYER_SIZE}
           // Context handles inversion within Player
         />
-        {/* Controls might need style adjustments for responsiveness */}
-        <Controls />
-
         {hasWon && (
           // Pass inversion state to WinMessage for styling
           <WinMessage $isInverted={isInverted}>
@@ -431,6 +427,7 @@ const Game = () => {
           </WinMessage>
         )}
       </GameContainer>
+      <Controls />
     </GameWrapper>
   );
 };
