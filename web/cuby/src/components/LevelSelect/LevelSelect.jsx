@@ -4,12 +4,15 @@ import {
   LevelSelectContainer, 
   LevelsGrid, 
   LevelCard,
-  UserLevelsButton
+  UserLevelsButton,
+  CustomLockIcon
 } from './LevelSelect.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
 import BackArrow from '../common/BackArrow/BackArrow';
 import SettingsButton from '../common/SettingsButton/SettingsButton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLock } from '@fortawesome/free-solid-svg-icons';
 
 // Importa todos los niveles disponibles
 import { level1 } from '../../levels/level1';
@@ -96,7 +99,12 @@ const LevelSelect = () => {
             $isInverted={isInverted}
           >
             <div className="level-number">{level.id}</div>
-            {level.locked && <div className="lock-icon">🔒</div>}
+            {level.locked && (
+              <div className="lock-icon">
+                {/* Replace CustomLockIcon with FontAwesomeIcon */}
+                <FontAwesomeIcon icon={faLock} />
+              </div>
+            )}
           </LevelCard>
         ))}
       </LevelsGrid>

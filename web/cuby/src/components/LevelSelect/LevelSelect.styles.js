@@ -77,9 +77,12 @@ export const LevelCard = styled.div`
     position: absolute;
     top: clamp(5px, 1.5vw, 10px); /* Responsive position */
     right: clamp(5px, 1.5vw, 10px); /* Responsive position */
-    font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Reduced size */
-    color: #ff9800;
-    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    font-size: clamp(1rem, 3vw, 1.5rem); /* Adjust size as needed for the FontAwesome icon */
+    color: ${props => getActiveColor(props.$isInverted)}; /* This will set the icon color */
+    /* Ensure the icon is vertically centered if its height differs from line-height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
