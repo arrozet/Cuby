@@ -94,11 +94,11 @@ const UserLevels = () => {
   return (
     <UserLevelsContainer $isInverted={isInverted}>
       <BackArrow onClick={() => navigate('/levels')} />
-      <Title $isInverted={isInverted}>Mis Niveles</Title>
+      <Title $isInverted={isInverted}>Editor de niveles</Title>
 
       <ButtonContainer>
         <ActionButton onClick={handleCreateLevel} $isInverted={isInverted}>
-          Crear Nuevo Nivel
+          Crear un nuevo nivel
         </ActionButton>
       </ButtonContainer>
 
