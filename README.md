@@ -14,3 +14,5 @@ Cuby is a minimalistic 2D platform game starring a black and white cube. The gam
 | Artur Vargas Carrion | arturvargas797@uma.es | COO | Responsible for planning and milestone tracking. |
 | Eduardo González Bautista | edugb@uma.es | CXO | Oversees usability aspects. |
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/arrozet/Cuby)
+
