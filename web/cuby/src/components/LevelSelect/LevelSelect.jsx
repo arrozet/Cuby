@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LevelSelectContainer, 
@@ -36,6 +36,15 @@ const LevelSelect = () => {
     setLevels(availableLevels);
   }, [completedLevels, isLevelUnlocked]); // Recargar cuando cambien los niveles completados
   
+  const lastAvailableLevelId = useMemo(() => {
+    const unlockedLevels = levels.filter(level => !level.locked);
+    if (unlockedLevels.length === 0) {
+      return null; // No hay niveles desbloqueados
+    }
+    // Encuentra el ID más alto entre los niveles desbloqueados
+    return Math.max(...unlockedLevels.map(level => level.id));
+  }, [levels]);
+
   const startLevel = (levelId) => {
     // Por ahora solo navega a una ruta con el ID, pero podrías pasar datos del nivel también
     navigate(`/game/${levelId}`);
@@ -96,6 +105,7 @@ const LevelSelect = () => {
             onClick={() => !level.locked && startLevel(level.id)}
             $locked={level.locked}
             $isInverted={isInverted}
+            $isLastAvailable={!level.locked && level.id === lastAvailableLevelId}
           >
             <div className="level-number">{level.id}</div>
             {level.locked && (
