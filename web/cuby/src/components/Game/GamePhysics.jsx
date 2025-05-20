@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   checkPlatformCollisions, 
   processTrampolineCollisions, 
@@ -12,7 +11,9 @@ import {
   JUMP_FORCE, 
   BASE_GAME_WIDTH, 
   BASE_GAME_HEIGHT, 
-  GRAVITY 
+  GRAVITY,
+  COYOTE_TIME_DURATION,
+  JUMP_BUFFER_DURATION
 } from '../../constants/gameConstants';
 
 /**
@@ -41,12 +42,7 @@ export const useGamePhysics = (
   markLevelAsCompleted,
   levelId,
   isLoading
-) => {
-  // Constants for jump timing tolerance
-  const COYOTE_TIME_DURATION = 0.05; // seconds (Reduced from 0.12)
-  const JUMP_BUFFER_DURATION = 0.1; // seconds
-
-  // Game physics tick function to be used in the game loop
+) => {  // Game physics tick function to be used in the game loop
   const gamePhysicsTick = (deltaTime) => {
     if (!currentLevel || hasWon || isLoading) return;
 

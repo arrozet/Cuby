@@ -36,3 +36,11 @@ export const BASE_GAME_HEIGHT = 600;
 
 // Add other constants as needed
 export const TRAMPOLINE_BOUNCE_FORCE = 800;
+
+/**
+ * Constantes para tolerancia de tiempo de salto
+ */
+// Tiempo durante el cual el jugador puede saltar después de dejar una plataforma
+export const COYOTE_TIME_DURATION = 0.05; // seconds (Reduced from 0.12)
+// Tiempo durante el cual se almacena en búfer una solicitud de salto
+export const JUMP_BUFFER_DURATION = 0.1; // seconds
