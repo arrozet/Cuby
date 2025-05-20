@@ -140,7 +140,7 @@ export const ControlLabel = styled.div`
 // Animación de parpadeo para el botón que se está cambiando
 const blink = keyframes`
   0%, 100% { border-color: ${props => getActiveColor(props.$isInverted)}; opacity: 1; }
-  50% { border-color: ${props => getActiveColor(props.$isInverted)}80; opacity: 0.7; } // Parpadea a gris semi-transparente para mantener coherencia monocromática
+  50% { border-color: ${props => getActiveColor(props.$isInverted)}80; opacity: 0.5; } // Parpadea a gris semi-transparente para mantener coherencia monocromática
 `;
 
 // Botón de tecla (cuadrado)

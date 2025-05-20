@@ -54,10 +54,13 @@ export const useGamePhysics = (
     player.jumpBufferCounter = Math.max(0, player.jumpBufferCounter - deltaTime);
 
     // --- Input Processing ---
-    // Horizontal Movement
-    player.vx = 0;
-    if (keysPressed.left) player.vx -= MOVEMENT_SPEED;
-    if (keysPressed.right) player.vx += MOVEMENT_SPEED;
+    // Horizontal Movement - Consider both keyboard and mobile input
+    if (keysPressed.left || keysPressed.right) {
+      // Si hay input de teclado, usar ese input
+      player.vx = keysPressed.left ? -MOVEMENT_SPEED : MOVEMENT_SPEED;
+    }
+    // Si no hay input de teclado, mantener la velocidad actual (para controles móviles)
+    // La velocidad se resetea a 0 cuando se suelta el botón móvil
 
     // Jump Buffering
     if (keysPressed.jump) {

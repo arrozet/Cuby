@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GameWrapper } from './Game.styles';
 import Controls from '../UI/Control';
+import MobileControls from '../MobileControls/MobileControls';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useKeyPress } from '../../hooks/useKeyPress';
 import { useSettings } from '../../context/SettingsContext';
 import { useInversion } from '../../context/InversionContext';
+import { MOVEMENT_SPEED, JUMP_BUFFER_DURATION } from '../../constants/gameConstants';
 // Import our new components
 import useGamePhysics from './GamePhysics';
 import useGameState from './GameState';
@@ -63,6 +65,77 @@ const Game = () => {
     prevInvertKeyPressed.current = keysPressed.invertColors;
   }, [keysPressed.invertColors, toggleInversion]);
 
+  // --- Mobile Controls Handlers ---
+  const handleLeftPress = () => {
+    if (!hasWon && !isLoading) {
+      // Actualizar tanto el ref como el estado de renderizado
+      playerStateRef.current.vx = -MOVEMENT_SPEED;
+      setPlayerRenderState(prevState => ({
+        ...prevState,
+        vx: -MOVEMENT_SPEED
+      }));
+    }
+  };
+
+  const handleRightPress = () => {
+    if (!hasWon && !isLoading) {
+      // Actualizar tanto el ref como el estado de renderizado
+      playerStateRef.current.vx = MOVEMENT_SPEED;
+      setPlayerRenderState(prevState => ({
+        ...prevState,
+        vx: MOVEMENT_SPEED
+      }));
+    }
+  };
+
+  const handleJumpPress = () => {
+    if (!hasWon && !isLoading) {
+      playerStateRef.current.jumpBufferCounter = JUMP_BUFFER_DURATION;
+      setPlayerRenderState(prevState => ({
+        ...prevState,
+        jumpBufferCounter: JUMP_BUFFER_DURATION
+      }));
+    }
+  };
+
+  const handleColorPress = () => {
+    if (!hasWon && !isLoading) {
+      toggleInversion();
+    }
+  };
+
+  // --- Reset Movement on Touch End ---
+  const handleTouchEnd = () => {
+    if (!hasWon && !isLoading) {
+      // Resetear la velocidad horizontal en ambos estados
+      playerStateRef.current.vx = 0;
+      setPlayerRenderState(prevState => ({
+        ...prevState,
+        vx: 0
+      }));
+    }
+  };
+
+  // --- Handle Key Release ---
+  useEffect(() => {
+    const handleKeyUp = (e) => {
+      if (!hasWon && !isLoading) {
+        if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'd' ||
+            e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          // Resetear la velocidad horizontal cuando se suelta una tecla de movimiento
+          playerStateRef.current.vx = 0;
+          setPlayerRenderState(prevState => ({
+            ...prevState,
+            vx: 0
+          }));
+        }
+      }
+    };
+
+    window.addEventListener('keyup', handleKeyUp);
+    return () => window.removeEventListener('keyup', handleKeyUp);
+  }, [hasWon, isLoading]);
+
   // --- Game Physics ---
   // Use GamePhysics hook to handle all game physics and collisions
   const gamePhysicsTick = useGamePhysics(
@@ -98,7 +171,8 @@ const Game = () => {
           <GameRenderer
             isInverted={isInverted}
             currentLevel={currentLevel}
-            isLoading={isLoading}            playerRenderState={playerRenderState}
+            isLoading={isLoading}
+            playerRenderState={playerRenderState}
             hasWon={hasWon}
             handleBackToLevels={handleBackToLevels}
             navigateToNextLevel={navigateToNextLevel}
@@ -106,6 +180,14 @@ const Game = () => {
             restartGame={restartGame}
           />
           <Controls />
+          <MobileControls
+            onLeftPress={handleLeftPress}
+            onRightPress={handleRightPress}
+            onJumpPress={handleJumpPress}
+            onColorPress={handleColorPress}
+            onTouchEnd={handleTouchEnd}
+            isInverted={isInverted}
+          />
         </>
       )}
     </GameWrapper>

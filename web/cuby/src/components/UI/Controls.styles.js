@@ -20,4 +20,9 @@ export const ControlsContainer = styled.div`
     margin: 5px 0; /* Añade un pequeño espacio entre las líneas de control */
     white-space: nowrap; /* Evita que las líneas largas se dividan */
   }
+
+  /* Ocultar en dispositivos móviles */
+  @media (max-width: 1024px) {
+    display: none;
+  }
 `;
