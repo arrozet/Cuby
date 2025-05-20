@@ -4,6 +4,8 @@ import Player from '../Player/Player';
 import Level from '../Level/Level';
 import BackArrow from '../common/BackArrow/BackArrow';
 import { BASE_GAME_WIDTH, BASE_GAME_HEIGHT, PLAYER_SIZE } from '../../constants/gameConstants';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Componente para manejar la representación visual del juego
@@ -18,7 +20,8 @@ const GameRenderer = ({
   playerRenderState, 
   hasWon, 
   handleBackToLevels, 
-  navigateToLevels,
+  navigateToNextLevel,
+  isLastLevel,
   restartGame
 }) => {
   const [scale, setScale] = useState(1); // State for scale factor
@@ -80,13 +83,23 @@ const GameRenderer = ({
           y={playerRenderState.y} // Use render state
           size={PLAYER_SIZE}
           // Context handles inversion within Player
-        />
-        {hasWon && (
+        />        {hasWon && (
           // Pass inversion state to WinMessage for styling
           <WinMessage $isInverted={isInverted}>
             <h2>¡Nivel completado!</h2>
-            <button onClick={navigateToLevels}>Seleccionar nivel</button>
-            <button onClick={restartGame}>Jugar de nuevo</button>
+            <div className="buttons-container">
+              <button onClick={restartGame}>
+                <FontAwesomeIcon icon={faRotateRight} />
+                Jugar de nuevo
+              </button>
+              {/* Solo mostrar el botón de siguiente nivel si NO es el último nivel */}
+              {!isLastLevel && (
+                <button onClick={navigateToNextLevel}>
+                  <FontAwesomeIcon icon={faArrowRight} />
+                  Siguiente nivel
+                </button>
+              )}
+            </div>
           </WinMessage>
         )}
       </GameContainer>

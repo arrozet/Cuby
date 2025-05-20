@@ -44,3 +44,9 @@ export const TRAMPOLINE_BOUNCE_FORCE = 800;
 export const COYOTE_TIME_DURATION = 0.05; // seconds (Reduced from 0.12)
 // Tiempo durante el cual se almacena en búfer una solicitud de salto
 export const JUMP_BUFFER_DURATION = 0.1; // seconds
+
+/**
+ * Constantes de niveles
+ */
+// Número máximo de niveles disponibles en el juego
+export const MAX_LEVEL_NUMBER = 2; // Actualizar este valor cuando se añadan nuevos niveles

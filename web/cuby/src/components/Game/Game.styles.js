@@ -35,7 +35,7 @@ export const WinMessage = styled.div`
   font-size: clamp(1.5rem, 5vw, 2.25rem);
   font-family: 'Excalifont', sans-serif; /* Ensure correct font */
   padding: clamp(15px, 3vw, 25px);
-  background-color: ${props => getInactiveColor(props.$isInverted)}e6; /* Use dynamic bg with opacity */
+  background-color: ${props => getInactiveColor(props.$isInverted)}; /* Use dynamic bg with opacity */
   border: 3px solid ${props => getActiveColor(props.$isInverted)}; /* Use dynamic border */
   color: ${props => getActiveColor(props.$isInverted)}; /* Use dynamic text color */
   border-radius: 10px;
@@ -44,13 +44,21 @@ export const WinMessage = styled.div`
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 
   h2 {
-    margin-bottom: 15px;
+    margin-bottom: clamp(20px, 4vh, 30px); /* Adjusted margin */
     font-size: inherit; /* Inherit clamped size */
   }
 
+  .buttons-container {
+    display: flex;
+    justify-content: center; /* Center buttons */
+    align-items: center;
+    gap: clamp(10px, 2vw, 20px); /* Space between buttons */
+    margin-top: 10px;
+  }
+
   button {
-    margin: 10px 5px 0;
-    padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2.5vw, 20px);
+    margin: 0; /* Remove default margins if any, rely on gap */
+    padding: clamp(8px, 1.5vw, 12px) clamp(15px, 3vw, 25px); /* Adjusted horizontal padding */
     font-size: clamp(0.9rem, 2vw, 1.1rem);
     /* Add dynamic button styling */
     background-color: ${props => getActiveColor(props.$isInverted)};
@@ -60,6 +68,10 @@ export const WinMessage = styled.div`
     cursor: pointer;
     font-family: 'Excalifont';
     transition: all 0.2s ease;
+    display: flex; /* For icon alignment */
+    align-items: center; /* For icon alignment */
+    justify-content: center; /* For icon alignment */
+    gap: 8px; /* Space between icon and text */
 
     &:hover {
        opacity: 0.85;

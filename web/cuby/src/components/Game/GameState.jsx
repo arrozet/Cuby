@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Platform, Spike, Trampoline, Portal, Goal } from '../GameElements/GameElements';
+import { MAX_LEVEL_NUMBER } from '../../constants/gameConstants';
 
 /**
  * Hook para manejar el estado del juego como niveles, carga, victoria, y reinicio
@@ -108,12 +109,42 @@ export const useGameState = (levelId, navigate, playerStateRef, setPlayerRenderS
     setPlayerRenderState(playerStateRef.current);
     setHasWon(false);
   }, [currentLevel, playerStateRef, setPlayerRenderState]);
-
   // --- Navigation ---
   const handleBackToLevels = useCallback(() => {
     const backPath = window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels';
     navigate(backPath);
   }, [navigate]);
+
+  // --- Navigate to next level ---
+  const navigateToNextLevel = useCallback(() => {
+    // Si es un nivel de usuario, volvemos a la lista de niveles de usuario
+    if (window.location.hash.includes('/game/user/')) {
+      navigate('/user-levels');
+      return;
+    }
+    
+    // Convertimos levelId a número para poder incrementarlo
+    const currentLevelNum = Number(levelId);
+    // Si es un número válido, intentamos ir al siguiente nivel
+    if (!isNaN(currentLevelNum)) {
+      const nextLevelNum = currentLevelNum + 1;
+      // Intentamos navegar al siguiente nivel (asumimos que existe)
+      navigate(`/game/${nextLevelNum}`);
+    } else {
+      // Si no es un número válido, volvemos a la selección de niveles
+      navigate('/levels');
+    }
+  }, [navigate, levelId]);
+    // Comprobar si el nivel actual es el último
+  const isLastLevel = useCallback(() => {
+    // Si es un nivel de usuario, siempre devolvemos false (no hay "último nivel")
+    if (window.location.hash.includes('/game/user/')) {
+      return false;
+    }
+    
+    // Comprobamos si el nivel actual es el último usando la constante global
+    return Number(levelId) >= MAX_LEVEL_NUMBER;
+  }, [levelId]);
 
   return {
     currentLevel,
@@ -121,7 +152,9 @@ export const useGameState = (levelId, navigate, playerStateRef, setPlayerRenderS
     hasWon,
     setHasWon,
     restartGame,
-    handleBackToLevels
+    handleBackToLevels,
+    navigateToNextLevel,
+    isLastLevel
   };
 };
 

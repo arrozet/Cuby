@@ -37,7 +37,6 @@ const Game = () => {
   });
   // State for React rendering
   const [playerRenderState, setPlayerRenderState] = useState(playerStateRef.current);
-
   // --- Game State Management ---
   // Use GameState hook to manage loading levels, winning, and restarting
   const {
@@ -46,7 +45,9 @@ const Game = () => {
     hasWon,
     setHasWon,
     restartGame,
-    handleBackToLevels
+    handleBackToLevels,
+    navigateToNextLevel,
+    isLastLevel
   } = useGameState(levelId, navigate, playerStateRef, setPlayerRenderState, markLevelAsCompleted);
 
   // --- Input Handling ---
@@ -97,11 +98,11 @@ const Game = () => {
           <GameRenderer
             isInverted={isInverted}
             currentLevel={currentLevel}
-            isLoading={isLoading}
-            playerRenderState={playerRenderState}
+            isLoading={isLoading}            playerRenderState={playerRenderState}
             hasWon={hasWon}
             handleBackToLevels={handleBackToLevels}
-            navigateToLevels={() => navigate(window.location.hash.includes('/game/user/') ? '/user-levels' : '/levels')}
+            navigateToNextLevel={navigateToNextLevel}
+            isLastLevel={isLastLevel()}
             restartGame={restartGame}
           />
           <Controls />
