@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 /**
  * Contexto para almacenar y gestionar las configuraciones del juego
@@ -92,9 +92,22 @@ export const SettingsProvider = ({ children }) => {
     
     setChangingControl(controlKey);
   };
-  
-  // Verificar si una tecla ya está asignada a otro control
-  const isKeyAlreadyAssigned = (key, currentControlKey) => {
+      // Obtener la descripción de un control para mostrar mensajes de error
+  const getControlDescription = useCallback((controlKey) => {
+    const descriptions = {
+      jump: 'Saltar',
+      jumpAlt: 'Saltar (alternativo)',
+      left: 'Izquierda',
+      right: 'Derecha',
+      crouch: 'Agacharse',
+      interact: 'Interactuar',
+      invertColors: 'Invertir colores',
+      restart: 'Reiniciar'
+    };
+    return descriptions[controlKey] || controlKey;
+  }, []);
+    // Verificar si una tecla ya está asignada a otro control
+  const isKeyAlreadyAssigned = useCallback((key, currentControlKey) => {
     const lowerKey = key.toLowerCase();
     
     // Verificar cada asignación de tecla
@@ -110,10 +123,9 @@ export const SettingsProvider = ({ children }) => {
     
     // La tecla no está asignada a ningún otro control
     return null;
-  };
-  
-  // Función para asignar una nueva tecla a un control
-  const assignNewKey = (key) => {
+  }, [keyMapping]);
+    // Función para asignar una nueva tecla a un control
+  const assignNewKey = useCallback((key) => {
     if (!changingControl) return;
     
     // Evitar asignar la tecla ESC o E (invertir colores)
@@ -147,28 +159,13 @@ export const SettingsProvider = ({ children }) => {
     setKeyMapping(updatedKeyMapping);
     localStorage.setItem('gameKeyMapping', JSON.stringify(updatedKeyMapping));
     setChangingControl(null);
-  };
-  
-  // Obtener la descripción de un control para mostrar mensajes de error
-  const getControlDescription = (controlKey) => {
-    const descriptions = {
-      jump: 'Saltar',
-      jumpAlt: 'Saltar (alternativo)',
-      left: 'Izquierda',
-      right: 'Derecha',
-      crouch: 'Agacharse',
-      interact: 'Interactuar',
-      invertColors: 'Invertir colores',
-      restart: 'Reiniciar'
-    };
-    return descriptions[controlKey] || controlKey;
-  };
-  
-  // Cancelar el cambio de control con ESC
-  const cancelChangingControl = () => {
+  }, [changingControl, keyMapping, isKeyAlreadyAssigned, getControlDescription]);
+
+    // Cancelar el cambio de control con ESC
+  const cancelChangingControl = useCallback(() => {
     setChangingControl(null);
     setErrorMessage(null);
-  };
+  }, []);
   
   // Eliminar el mensaje de error después de un tiempo
   const clearErrorMessage = () => {
@@ -238,7 +235,7 @@ export const SettingsProvider = ({ children }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [changingControl]);
+  }, [changingControl, assignNewKey, cancelChangingControl]);
   
   return (
     <SettingsContext.Provider 

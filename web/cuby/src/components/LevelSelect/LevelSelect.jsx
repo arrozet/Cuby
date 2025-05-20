@@ -4,8 +4,7 @@ import {
   LevelSelectContainer, 
   LevelsGrid, 
   LevelCard,
-  UserLevelsButton,
-  CustomLockIcon
+  UserLevelsButton
 } from './LevelSelect.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
