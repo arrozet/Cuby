@@ -69,38 +69,47 @@ export const Portal = styled.div.attrs(props => ({
     width: `${props.width}px`,
     height: `${props.height}px`,
     backgroundColor: props.color === getActiveColor(props.$isInverted) ? 
-      getActiveColor(props.$isInverted) : 'transparent'
+      getActiveColor(props.$isInverted) : 'transparent',
+    border: props.color === getActiveColor(props.$isInverted) ? 
+      'none' : `2px dashed ${getActiveColor(props.$isInverted)}50`
   }
 }))`
   position: absolute;
   display: block;
   border-radius: 8px;
-  opacity: 0.8;
-  animation: pulse 1.5s infinite;
-  
-  &::after {
-    content: '◊';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: ${props => props.width * 0.5}px;
-    color: ${props => getActiveColor(props.$isInverted) ? 
-      getActiveColor(props.$isInverted) : 'transparent'};
-    opacity: 0.6;
-    animation: float 2s ease-in-out infinite;
-  }
+  opacity: ${props => props.color === getActiveColor(props.$isInverted) ? 0.8 : 0.5};
+  animation: ${props => props.color === getActiveColor(props.$isInverted) ? 'pulse 1.5s infinite' : 'none'};
 
   @keyframes pulse {
     0% { transform: scaleY(1); }
     50% { transform: scaleY(1.1); }
     100% { transform: scaleY(1); }
   }
+`;
 
-  @keyframes float {
-    0% { transform: translate(-50%, -50%) translateY(0); }
-    50% { transform: translate(-50%, -50%) translateY(-5px); }
-    100% { transform: translate(-50%, -50%) translateY(0); }
+export const DiamondShape = styled.div.attrs(props => ({
+  style: {
+    left: `${props.x}px`,
+    top: `${props.y}px`,
+    width: `${props.width}px`,
+    height: `${props.height}px`,
+  }
+}))`
+  position: absolute;
+  display: block;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: ${props => props.color === getActiveColor(props.$isInverted) ? 
+      getActiveColor(props.$isInverted) : 'transparent'};
+    border: ${props => props.color === getActiveColor(props.$isInverted) ? 
+      'none' : `2px dashed ${getActiveColor(props.$isInverted)}50`};
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    opacity: ${props => props.color === getActiveColor(props.$isInverted) ? 0.8 : 0.5};
   }
 `;
 
