@@ -68,7 +68,6 @@ const Game = () => {
   // --- Mobile Controls Handlers ---
   const handleLeftPress = () => {
     if (!hasWon && !isLoading) {
-      // Actualizar tanto el ref como el estado de renderizado
       playerStateRef.current.vx = -MOVEMENT_SPEED;
       setPlayerRenderState(prevState => ({
         ...prevState,
@@ -79,7 +78,6 @@ const Game = () => {
 
   const handleRightPress = () => {
     if (!hasWon && !isLoading) {
-      // Actualizar tanto el ref como el estado de renderizado
       playerStateRef.current.vx = MOVEMENT_SPEED;
       setPlayerRenderState(prevState => ({
         ...prevState,
@@ -105,14 +103,29 @@ const Game = () => {
   };
 
   // --- Reset Movement on Touch End ---
-  const handleTouchEnd = () => {
+  const handleLeftTouchEnd = () => {
     if (!hasWon && !isLoading) {
-      // Resetear la velocidad horizontal en ambos estados
-      playerStateRef.current.vx = 0;
-      setPlayerRenderState(prevState => ({
-        ...prevState,
-        vx: 0
-      }));
+      // Solo resetear la velocidad si no hay otro botón de movimiento presionado
+      if (playerStateRef.current.vx === -MOVEMENT_SPEED) {
+        playerStateRef.current.vx = 0;
+        setPlayerRenderState(prevState => ({
+          ...prevState,
+          vx: 0
+        }));
+      }
+    }
+  };
+
+  const handleRightTouchEnd = () => {
+    if (!hasWon && !isLoading) {
+      // Solo resetear la velocidad si no hay otro botón de movimiento presionado
+      if (playerStateRef.current.vx === MOVEMENT_SPEED) {
+        playerStateRef.current.vx = 0;
+        setPlayerRenderState(prevState => ({
+          ...prevState,
+          vx: 0
+        }));
+      }
     }
   };
 
@@ -122,12 +135,18 @@ const Game = () => {
       if (!hasWon && !isLoading) {
         if (e.key.toLowerCase() === 'a' || e.key.toLowerCase() === 'd' ||
             e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-          // Resetear la velocidad horizontal cuando se suelta una tecla de movimiento
-          playerStateRef.current.vx = 0;
-          setPlayerRenderState(prevState => ({
-            ...prevState,
-            vx: 0
-          }));
+          // Solo resetear la velocidad si no hay otra tecla de movimiento presionada
+          const isLeftKey = e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft';
+          const isRightKey = e.key.toLowerCase() === 'd' || e.key === 'ArrowRight';
+          
+          if ((isLeftKey && playerStateRef.current.vx === -MOVEMENT_SPEED) ||
+              (isRightKey && playerStateRef.current.vx === MOVEMENT_SPEED)) {
+            playerStateRef.current.vx = 0;
+            setPlayerRenderState(prevState => ({
+              ...prevState,
+              vx: 0
+            }));
+          }
         }
       }
     };
@@ -185,7 +204,8 @@ const Game = () => {
             onRightPress={handleRightPress}
             onJumpPress={handleJumpPress}
             onColorPress={handleColorPress}
-            onTouchEnd={handleTouchEnd}
+            onLeftTouchEnd={handleLeftTouchEnd}
+            onRightTouchEnd={handleRightTouchEnd}
             isInverted={isInverted}
           />
         </>

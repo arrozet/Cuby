@@ -15,7 +15,8 @@ const MobileControls = ({
   onRightPress, 
   onJumpPress, 
   onColorPress,
-  onTouchEnd,
+  onLeftTouchEnd,
+  onRightTouchEnd,
   isInverted 
 }) => {
   // Función para manejar el inicio de los eventos táctiles
@@ -24,25 +25,19 @@ const MobileControls = ({
     handler();
   };
 
-  // Función para manejar el fin de los eventos táctiles
-  const handleTouchEnd = (e) => {
-    e.stopPropagation();
-    onTouchEnd();
-  };
-
   return (
     <MobileControlsContainer>
       <MovementControls>
         <LeftButton 
           onTouchStart={handleTouchStart(onLeftPress)}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={onLeftTouchEnd}
           $isInverted={isInverted}
         >
           <FaArrowLeft />
         </LeftButton>
         <RightButton 
           onTouchStart={handleTouchStart(onRightPress)}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={onRightTouchEnd}
           $isInverted={isInverted}
         >
           <FaArrowRight />
@@ -52,14 +47,12 @@ const MobileControls = ({
       <ActionControls>
         <JumpButton 
           onTouchStart={handleTouchStart(onJumpPress)}
-          onTouchEnd={handleTouchEnd}
           $isInverted={isInverted}
         >
           <FaArrowUp />
         </JumpButton>
         <ColorButton 
           onTouchStart={handleTouchStart(onColorPress)}
-          onTouchEnd={handleTouchEnd}
           $isInverted={isInverted}
         >
           <FaPalette />
