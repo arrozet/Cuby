@@ -12,6 +12,9 @@ import Toolbar from './Toolbar';
 import ElementsSidebar from './ElementsSidebar';
 import CanvasZoomControls from './CanvasZoomControls';
 import SaveLevelDialog from './SaveLevelDialog';
+import ImportLevelDialog from './ImportLevelDialog';
+import ExportLevelDialog from './ExportLevelDialog';
+import ImportSuccessDialog from './ImportSuccessDialog';
 import { useCanvasTransform } from './hooks/useCanvasTransform';
 import { useLevelManager } from './hooks/useLevelManager';
 import { useEditorModeManager } from './hooks/useEditorModeManager';
@@ -27,9 +30,7 @@ const ZOOM_STEP = 1.2;
 const LevelEditor = () => {
     const { levelId } = useParams();
     const navigate = useNavigate();
-    const { isInverted, toggleInversion } = useInversion();
-
-    const {
+    const { isInverted, toggleInversion } = useInversion();    const {
         level,
         setLevel,
         levelName,
@@ -38,12 +39,20 @@ const LevelEditor = () => {
         setHasUnsavedChanges,
         saveDialogOpen,
         setSaveDialogOpen,
+        importDialogOpen,
+        setImportDialogOpen,
+        exportDialogOpen,
+        setExportDialogOpen,
+        importSuccessDialogOpen,
+        setImportSuccessDialogOpen,
+        exportedCode,
         portalCounter,
         setPortalCounter,
         handleSave,
         handleSaveConfirm,
         handleExport,
         handleImport,
+        handleImportConfirm,
     } = useLevelManager(levelId);
 
     const {
@@ -151,11 +160,11 @@ const LevelEditor = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-        };
-    }, [
+        };    }, [
         toggleInversion, eKeyPressed, saveDialogOpen, isExitConfirmModalOpen,
         isSelectingPortalDestination, editorMode, zoomIn, zoomOut, handlePanModeToggle,
         setIsSelectingPortalDestination, setPendingPortal, setPreviewElement, setSelectedElement,
+        setSaveDialogOpen,
     ]);
 
     useEffect(() => {
@@ -386,12 +395,11 @@ const LevelEditor = () => {
 
     const handleCancelExit = useCallback(() => {
         setIsExitConfirmModalOpen(false);
-    }, []);
-
-    if (!level) {
+    }, []);    if (!level) {
         return <div>Cargando editor...</div>;
     }
 
+    // eslint-disable-next-line no-unused-vars
     const oppositeColor = getInactiveColor(isInverted);
     const currentColor = getActiveColor(isInverted);
 
@@ -679,22 +687,38 @@ const LevelEditor = () => {
                     onPlatformSizeChange={setPlatformSize}
                     $isInverted={isInverted}
                 />
-            </div>
-
-            <SaveLevelDialog
+            </div>            <SaveLevelDialog
                 isOpen={saveDialogOpen}
                 onClose={() => setSaveDialogOpen(false)}
                 onConfirm={handleSaveConfirm}
                 levelName={levelName}
                 onLevelNameChange={(e) => setLevelName(e.target.value)}
-                $isInverted={isInverted}
+                isInverted={isInverted}
             />
             <ConfirmationModal
                 isOpen={isExitConfirmModalOpen}
                 onClose={handleCancelExit}
                 onConfirm={handleConfirmExit}
                 message="¿Estás seguro de que quieres salir? Se perderán los cambios no guardados."
-                $isInverted={isInverted}
+                isInverted={isInverted}
+            />
+            {/* Nuevo componente de diálogo para importar */}            <ImportLevelDialog
+                isOpen={importDialogOpen}
+                onClose={() => setImportDialogOpen(false)}
+                onConfirm={handleImportConfirm}
+                isInverted={isInverted}
+            />
+            {/* Nuevo componente de diálogo para exportar */}            <ExportLevelDialog
+                isOpen={exportDialogOpen}
+                onClose={() => setExportDialogOpen(false)}
+                exportCode={exportedCode}
+                isInverted={isInverted}
+            />
+            {/* Nuevo componente de diálogo para éxito de importación */}
+            <ImportSuccessDialog
+                isOpen={importSuccessDialogOpen}
+                onClose={() => setImportSuccessDialogOpen(false)}
+                isInverted={isInverted}
             />
         </EditorContainer>
     );

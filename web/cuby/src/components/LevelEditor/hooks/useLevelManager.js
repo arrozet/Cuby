@@ -19,6 +19,8 @@ const LOGICAL_LEVEL_HEIGHT = 800;
  * @returns {Function} object.setHasUnsavedChanges - Función para actualizar el estado de cambios sin guardar.
  * @returns {boolean} object.saveDialogOpen - Indica si el diálogo de guardar está abierto.
  * @returns {Function} object.setSaveDialogOpen - Función para abrir/cerrar el diálogo de guardar.
+ * @returns {boolean} object.importDialogOpen - Indica si el diálogo de importación está abierto.
+ * @returns {Function} object.setImportDialogOpen - Función para abrir/cerrar el diálogo de importación.
  * @returns {number} object.portalCounter - Contador para asignar IDs únicos a los portales.
  * @returns {Function} object.setPortalCounter - Función para actualizar el contador de portales.
  * @returns {Function} object.handleSave - Manejador para iniciar el proceso de guardado del nivel.
@@ -32,6 +34,10 @@ export const useLevelManager = (levelIdParam) => {
     const [levelName, setLevelName] = useState('');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [exportDialogOpen, setExportDialogOpen] = useState(false);
+    const [importSuccessDialogOpen, setImportSuccessDialogOpen] = useState(false);
+    const [exportedCode, setExportedCode] = useState('');
     const [portalCounter, setPortalCounter] = useState(1);
 
     /**
@@ -116,11 +122,9 @@ export const useLevelManager = (levelIdParam) => {
         } else {
             alert("Error al guardar el nivel.");
         }
-    }, [level, levelName, levelIdParam, navigate, setLevel, setHasUnsavedChanges, setSaveDialogOpen]);
-
-    /**
+    }, [level, levelName, levelIdParam, navigate, setLevel, setHasUnsavedChanges, setSaveDialogOpen]);    /**
      * Exporta el nivel actual a un formato de código.
-     * El código se copia al portapapeles.
+     * El código se copia al portapapeles y se muestra en un diálogo.
      */
     const handleExport = useCallback(() => {
         if (!level) return;
@@ -140,22 +144,27 @@ export const useLevelManager = (levelIdParam) => {
             return;
         }
         navigator.clipboard.writeText(encodedLevel).then(() => {
-            alert('Código del nivel copiado al portapapeles:\n\n' + encodedLevel);
+            setExportedCode(encodedLevel);
+            setExportDialogOpen(true);
         }).catch(err => {
             console.error('Error al copiar al portapapeles: ', err);
             alert('Error al copiar el código. Revisa la consola.');
         });
-    }, [level, levelName]);
-
-    /**
-     * Importa un nivel a partir de un código proporcionado por el usuario.
-     * Muestra un prompt para pegar el código.
-     * Si el código es válido, reconstruye el nivel y lo carga en el editor.
+    }, [level, levelName, setExportedCode, setExportDialogOpen]);/**
+     * Inicia el proceso de importación de un nivel mostrando el diálogo.
      */
     const handleImport = useCallback(() => {
-        const code = prompt('Pega el código del nivel:');
-        if (!code) return;
+        setImportDialogOpen(true);
+    }, [setImportDialogOpen]);
 
+    /**
+     * Procesa el código de nivel importado una vez que el usuario confirma.
+     * Si el código es válido, reconstruye el nivel y lo carga en el editor.
+     * @param {string} code - El código del nivel a importar.
+     */
+    const handleImportConfirm = useCallback((code) => {
+        if (!code) return;
+        
         try {
             const importedLevel = LevelEncoder.decode(code);
             if (!importedLevel || typeof importedLevel.playerStart !== 'object' || typeof importedLevel.goal !== 'object') {
@@ -174,17 +183,15 @@ export const useLevelManager = (levelIdParam) => {
             };
             setLevel(reconstructedLevel);
             setHasUnsavedChanges(true);
-            setLevelName(reconstructedLevel.name);
-            const maxPortalId = Math.max(0, ...(reconstructedLevel.portals || []).map(p => p.portalId || 0));
+            setLevelName(reconstructedLevel.name);            const maxPortalId = Math.max(0, ...(reconstructedLevel.portals || []).map(p => p.portalId || 0));
             setPortalCounter(maxPortalId + 1);
-            alert('Nivel importado con éxito. Recuerda guardarlo.');
+            setImportDialogOpen(false);
+            setImportSuccessDialogOpen(true);
         } catch (error) {
             console.error('Error al importar el nivel:', error);
             alert('Error al importar el nivel: El código no es válido.');
         }
-    }, [levelIdParam, setLevel, setHasUnsavedChanges, setLevelName, setPortalCounter]);
-
-    return {
+    }, [levelIdParam, setLevel, setHasUnsavedChanges, setLevelName, setPortalCounter, setImportDialogOpen]);    return {
         level,
         setLevel,
         levelName,
@@ -193,11 +200,19 @@ export const useLevelManager = (levelIdParam) => {
         setHasUnsavedChanges,
         saveDialogOpen,
         setSaveDialogOpen,
+        importDialogOpen,
+        setImportDialogOpen,
+        exportDialogOpen,
+        setExportDialogOpen,
+        importSuccessDialogOpen,
+        setImportSuccessDialogOpen,
+        exportedCode,
         portalCounter,
         setPortalCounter,
         handleSave,
         handleSaveConfirm,
         handleExport,
         handleImport,
+        handleImportConfirm,
     };
 };
