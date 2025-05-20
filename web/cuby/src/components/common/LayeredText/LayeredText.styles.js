@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const LayeredTextContainer = styled.div`
   position: relative;
-  margin-bottom: ${props => props.marginBottom};
+  margin-bottom: ${props => props.$marginBottom};
 `;
 
 export const TextLayer = styled.div`
@@ -19,16 +19,16 @@ export const TextLayer = styled.div`
   user-select: none;
 
   &.back {
-    color: ${props => props.$isInverted ? props.backInversedColor : props.backDefaultColor};
+    color: ${props => props.$isInverted ? props.$backInversedColor : props.$backDefaultColor};
     transform: translate(calc(-50% - ${props => props.offset * 2}px), calc(-50% + ${props => props.offset}px));
   }
 
   &.middle {
-    color: ${props => props.$isInverted ? props.middleInversedColor : props.middleDefaultColor};
+    color: ${props => props.$isInverted ? props.$middleInversedColor : props.$middleDefaultColor};
     transform: translate(calc(-50% - ${props => props.offset * 1.25}px), calc(-50% + ${props => props.offset/2}px));
   }
 
   &.front {
-    color: ${props => props.$isInverted ? props.frontInversedColor : props.frontDefaultColor};
+    color: ${props => props.$isInverted ? props.$frontInversedColor : props.$frontDefaultColor};
   }
 `;

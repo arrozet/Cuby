@@ -48,29 +48,29 @@ export const LevelsGrid = styled.div`
 
 export const LevelCard = styled.div`
   aspect-ratio: 1 / 1; /* Maintain square shape */
-  border: 3px solid ${props => props.locked ? '#555' : getActiveColor(props.$isInverted)};
+  border: 3px solid ${props => props.$locked ? '#555' : getActiveColor(props.$isInverted)};
   border-radius: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
-  background-color: ${props => props.locked ? 'rgba(50, 50, 50, 0.7)' : getActiveColor(props.$isInverted)};
+  background-color: ${props => props.$locked ? 'rgba(50, 50, 50, 0.7)' : getActiveColor(props.$isInverted)};
   color: ${props => getInactiveColor(props.$isInverted)};
-  cursor: ${props => props.locked ? 'not-allowed' : 'pointer'};
-  filter: ${props => props.locked ? 'grayscale(50%)' : 'none'};
-  opacity: ${props => props.locked ? 0.7 : 1}; /* Slightly more faded when locked */
+  cursor: ${props => props.$locked ? 'not-allowed' : 'pointer'};
+  filter: ${props => props.$locked ? 'grayscale(50%)' : 'none'};
+  opacity: ${props => props.$locked ? 0.7 : 1}; /* Slightly more faded when locked */
 
   &:hover {
-    animation: ${props => !props.locked && css`${pulse} 1.5s infinite ease-in-out`};
-    transform: ${props => !props.locked ? 'scale(1.05)' : 'none'};
+    animation: ${props => !props.$locked && css`${pulse} 1.5s infinite ease-in-out`};
+    transform: ${props => !props.$locked ? 'scale(1.05)' : 'none'};
   }
 
   .level-number {
     /* Responsive font size - reduced max size */
     font-size: clamp(1.5rem, 6vw, 2.5rem); /* Reduced font size */
     font-weight: normal;
-    opacity: ${props => props.locked ? 0.5 : 1};
+    opacity: ${props => props.$locked ? 0.5 : 1};
   }
 
   .lock-icon {

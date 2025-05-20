@@ -95,7 +95,7 @@ const LevelSelect = () => {
           <LevelCard 
             key={level.id} 
             onClick={() => !level.locked && startLevel(level.id)}
-            locked={level.locked}
+            $locked={level.locked}
             $isInverted={isInverted}
           >
             <div className="level-number">{level.id}</div>

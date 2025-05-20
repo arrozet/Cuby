@@ -22,9 +22,9 @@ export const StartContainer = styled.div`
   transition: background-color 0.3s ease;
 `;
 
-export const GameTitle = styled(LayeredText)`
-  margin-bottom: 50px;
-`;
+export const GameTitle = styled(LayeredText).attrs(props => ({
+  $marginBottom: '50px'
+}))``;
 
 export const StartButtonContainer = styled.div`
   padding: 15px 30px;

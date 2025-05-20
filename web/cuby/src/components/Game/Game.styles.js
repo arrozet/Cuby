@@ -16,8 +16,8 @@ export const GameWrapper = styled.div`
 export const GameContainer = styled.div`
   position: relative;
   /* Base dimensions - these will be scaled via transform */
-  width: ${props => props.baseWidth}px;
-  height: ${props => props.baseHeight}px;
+  width: ${props => props.$baseWidth}px;
+  height: ${props => props.$baseHeight}px;
   border: 2px solid ${props => getActiveColor(props.$isInverted)}; /* Use dynamic border color */
   overflow: hidden;
   transform-origin: top left; /* Scale from the top-left corner */

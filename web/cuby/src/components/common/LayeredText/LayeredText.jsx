@@ -17,7 +17,7 @@ const LayeredText = ({
   marginBottom = '30px'
 }) => {
   return (
-    <LayeredTextContainer marginBottom={marginBottom}>
+    <LayeredTextContainer $marginBottom={marginBottom}>
       <TextLayer 
         className="back"
         fontSize={fontSize}
@@ -25,8 +25,8 @@ const LayeredText = ({
         letterSpacing={letterSpacing}
         $isInverted={isInverted}
         offset={offset}
-        backDefaultColor={backDefaultColor}
-        backInversedColor={backInversedColor}
+        $backDefaultColor={backDefaultColor}
+        $backInversedColor={backInversedColor}
       >
         {text}
       </TextLayer>
@@ -37,8 +37,8 @@ const LayeredText = ({
         letterSpacing={letterSpacing}
         $isInverted={isInverted}
         offset={offset}
-        middleDefaultColor={middleDefaultColor}
-        middleInversedColor={middleInversedColor}
+        $middleDefaultColor={middleDefaultColor}
+        $middleInversedColor={middleInversedColor}
         style={{ userSelect: 'text' }}
       >
         {text}
@@ -49,8 +49,8 @@ const LayeredText = ({
         fontWeight={fontWeight}
         letterSpacing={letterSpacing}
         $isInverted={isInverted}
-        frontDefaultColor={frontDefaultColor}
-        frontInversedColor={frontInversedColor}
+        $frontDefaultColor={frontDefaultColor}
+        $frontInversedColor={frontInversedColor}
       >
         {text}
       </TextLayer>
