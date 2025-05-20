@@ -446,14 +446,14 @@ const LevelEditor = () => {
     };
 
     return (
-        <EditorContainer isInverted={isInverted}>
+        <EditorContainer $isInverted={isInverted}>
             <LevelNameDisplayEdit
                 levelName={levelName}
                 onLevelNameChange={(e) => setLevelName(e.target.value)}
                 onLevelNameSave={handleNameInputBlur}
                 isEditing={isEditingName}
                 setIsEditing={setIsEditingName}
-                isInverted={isInverted}
+                $isInverted={isInverted}
             />
             <Toolbar
                 editorMode={editorMode}
@@ -480,15 +480,14 @@ const LevelEditor = () => {
                     onTouchStart={(e) => panStart(e.touches[0].clientX, e.touches[0].clientY)}
                     onTouchMove={handlePointerMove}
                     onTouchEnd={panEnd}
-                    isInverted={isInverted}
-                    editorMode={editorMode}
-                    isDragging={isPanning}
+                    $isInverted={isInverted}
+                    $isDragging={isPanning}
                 >
                     <LevelContentWrapper
                         ref={contentWrapperRef}
-                        logicalWidth={LOGICAL_LEVEL_WIDTH}
-                        logicalHeight={LOGICAL_LEVEL_HEIGHT}
-                        isInverted={isInverted}
+                        $logicalWidth={LOGICAL_LEVEL_WIDTH}
+                        $logicalHeight={LOGICAL_LEVEL_HEIGHT}
+                        $isInverted={isInverted}
                         style={{
                             transform: `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${zoomLevel})`,
                             transformOrigin: 'top left'
@@ -647,7 +646,7 @@ const LevelEditor = () => {
                         onZoomOut={zoomOut}
                         onTogglePanMode={handlePanModeToggle}
                         isPanModeActive={editorMode === 'pan'}
-                        isInverted={isInverted}
+                        $isInverted={isInverted}
                     />
 
                     {isSelectingPortalDestination && (
@@ -675,11 +674,10 @@ const LevelEditor = () => {
 
                 <ElementsSidebar
                     selectedElement={selectedElement}
-                    editorMode={editorMode}
                     onSelectElement={handleSelectElement}
                     platformSize={platformSize}
                     onPlatformSizeChange={setPlatformSize}
-                    isInverted={isInverted}
+                    $isInverted={isInverted}
                 />
             </div>
 
@@ -689,14 +687,14 @@ const LevelEditor = () => {
                 onConfirm={handleSaveConfirm}
                 levelName={levelName}
                 onLevelNameChange={(e) => setLevelName(e.target.value)}
-                isInverted={isInverted}
+                $isInverted={isInverted}
             />
             <ConfirmationModal
                 isOpen={isExitConfirmModalOpen}
                 onClose={handleCancelExit}
                 onConfirm={handleConfirmExit}
                 message="¿Estás seguro de que quieres salir? Se perderán los cambios no guardados."
-                isInverted={isInverted}
+                $isInverted={isInverted}
             />
         </EditorContainer>
     );

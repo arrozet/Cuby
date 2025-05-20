@@ -9,7 +9,7 @@ export const EditorContainer = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: ${props => getInactiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
   font-family: 'Excalifont';
   position: relative;
   overflow: hidden;
@@ -51,9 +51,9 @@ export const ToolbarGroup = styled.div`
 
 // ToolbarItem sin cambios
 export const ToolbarItem = styled.button`
-  background-color: ${props => props.isActive ? (props.isInverted ? 'black' : 'white') : 'transparent'};
-  color: ${props => props.isActive ? (props.isInverted ? 'white' : 'black') : getActiveColor(props.isInverted)};
-  border: 1px solid ${props => getActiveColor(props.isInverted)};
+  background-color: ${props => props.$isActive ? (props.$isInverted ? 'black' : 'white') : 'transparent'};
+  color: ${props => props.$isActive ? (props.$isInverted ? 'white' : 'black') : getActiveColor(props.$isInverted)};
+  border: 1px solid ${props => getActiveColor(props.$isInverted)};
   border-radius: 5px;
   padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 15px);
   cursor: pointer;
@@ -63,28 +63,28 @@ export const ToolbarItem = styled.button`
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    ${props => !props.isActive && css`
-      background-color: ${props.isInverted ? 'white' : 'black'};
-      color: ${props.isInverted ? 'black' : 'white'};
+    ${props => !props.$isActive && css`
+      background-color: ${props.$isInverted ? 'white' : 'black'};
+      color: ${props.$isInverted ? 'black' : 'white'};
     `}
-     ${props => props.isActive && css`
+     ${props => props.$isActive && css`
       opacity: 0.85;
     `}
   }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
-  ${({ isActive }) => isActive && css` /* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3); */ `}
+  ${({ $isActive }) => $isActive && css` /* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3); */ `}
 `;
 
 // EditorCanvas con lógica de cursor actualizada
 export const EditorCanvas = styled.div`
   flex: 1;
-  background-color: ${props => getInactiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
   position: relative; /* Needed for absolute positioning of children like LevelContentWrapper */
   overflow: hidden;
   /* Cursor logic driven by editorMode and isDragging state */
   cursor: ${props => {
     if (props.editorMode === 'pan') {
-      return props.isDragging ? 'grabbing' : 'grab'; // Hand cursor for pan
+      return props.$isDragging ? 'grabbing' : 'grab'; // Hand cursor for pan
     } else if (props.editorMode === 'erase') {
       return 'cell'; // Or 'not-allowed' or custom cursor for erase
     } else {
@@ -102,15 +102,13 @@ export const EditorCanvas = styled.div`
 
 // LevelContentWrapper sin cambios
 export const LevelContentWrapper = styled.div`
-  position: absolute; /* Use absolute for precise positioning relative to scaled canvas */
-  width: ${props => props.logicalWidth || 1200}px;
-  height: ${props => props.logicalHeight || 800}px;
-  background-color: ${props => getInactiveColor(props.isInverted)}EE;
-  border: 1px dashed ${props => getActiveColor(props.isInverted)}50;
-  /* transform-origin is set inline now */
-  will-change: transform; /* Hint for performance */
-  pointer-events: none; /* Allow clicks to pass through to the canvas */
-  /* Contained elements should have pointer-events: auto if they need interaction, but these are just visuals */
+  position: absolute;
+  width: ${props => props.$logicalWidth || 1200}px;
+  height: ${props => props.$logicalHeight || 800}px;
+  background-color: ${props => getInactiveColor(props.$isInverted)}EE;
+  border: 1px dashed ${props => getActiveColor(props.$isInverted)}50;
+  will-change: transform;
+  pointer-events: none;
 `;
 
 // ZoomControls sin cambios
@@ -136,6 +134,20 @@ export const ZoomButton = styled(ToolbarItem)`
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: ${props => props.$isActive ? (props.$isInverted ? 'black' : 'white') : 'transparent'};
+  color: ${props => props.$isActive ? (props.$isInverted ? 'white' : 'black') : getActiveColor(props.$isInverted)};
+  border: 1px solid ${props => getActiveColor(props.$isInverted)};
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${props => props.$isInverted ? 'white' : 'black'};
+    color: ${props => props.$isInverted ? 'black' : 'white'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 // EditorSidebar sin cambios
@@ -143,10 +155,10 @@ export const EditorSidebar = styled.div`
   width: 250px;
   height: 100%;
   background: linear-gradient(to bottom,
-    ${props => getInactiveColor(props.isInverted)}E9,
-    ${props => getInactiveColor(props.isInverted)}CC
+    ${props => getInactiveColor(props.$isInverted)}E9,
+    ${props => getInactiveColor(props.$isInverted)}CC
   );
-  border-left: 1px solid ${props => getActiveColor(props.isInverted)}40;
+  border-left: 1px solid ${props => getActiveColor(props.$isInverted)}40;
   padding: 20px 15px;
   overflow-y: auto;
   flex-shrink: 0;
@@ -160,11 +172,11 @@ export const EditorSidebar = styled.div`
 
 // SidebarTitle sin cambios
 export const SidebarTitle = styled.h2`
-  color: ${props => getActiveColor(props.isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
   font-size: clamp(1.3rem, 4vw, 1.5rem);
   margin-bottom: 25px;
   text-align: center;
-  border-bottom: 1px solid ${props => getActiveColor(props.isInverted)}40;
+  border-bottom: 1px solid ${props => getActiveColor(props.$isInverted)}40;
   padding-bottom: 10px;
 `;
 
@@ -190,30 +202,30 @@ export const ElementButton = styled.button`
 
   /* Base State */
   background-color: transparent;
-  color: ${props => getActiveColor(props.isInverted)};
-  border: 1px solid ${props => getActiveColor(props.isInverted)}; /* Ensure border is always visible */
+  color: ${props => getActiveColor(props.$isInverted)};
+  border: 1px solid ${props => getActiveColor(props.$isInverted)}; /* Ensure border is always visible */
   padding: 12px 10px;
 
   /* Selected State */
-  ${({ isSelected, isInverted }) => isSelected && css`
+  ${({ $isSelected, $isInverted }) => $isSelected && css`
     border-width: 2px; /* Thicker border */
-    border-color: ${getActiveColor(isInverted)}; /* Prominent border color */
+    border-color: ${getActiveColor($isInverted)}; /* Prominent border color */
     /* Subtle background: light greyish overlay, works in both modes */
-    background-color: ${isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
+    background-color: ${$isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
     padding: 11px 9px; /* Adjust padding for border */
   `}
 
   /* Hover State */
   &:hover:not(:disabled) {
-    border-color: ${props => getActiveColor(props.isInverted)}; /* Full color border on hover */
+    border-color: ${props => getActiveColor(props.$isInverted)}; /* Full color border on hover */
     /* Background Inversion (only if not selected) */
-    ${props => !props.isSelected && css`
-      background-color: ${props.isInverted ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)'};
-      color: ${getActiveColor(props.isInverted)}; /* Keep text color active */
+    ${props => !props.$isSelected && css`
+      background-color: ${props.$isInverted ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)'};
+      color: ${getActiveColor(props.$isInverted)}; /* Keep text color active */
     `}
      /* Hovering over a selected button: Make background slightly more prominent */
-     ${props => props.isSelected && css`
-       background-color: ${props.isInverted ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.1)'};
+     ${props => props.$isSelected && css`
+       background-color: ${props.$isInverted ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.1)'};
      `}
   }
 
@@ -222,8 +234,8 @@ export const ElementButton = styled.button`
     opacity: 0.4;
     cursor: not-allowed;
     background-color: transparent;
-    border-color: ${props => getActiveColor(props.isInverted)}30;
-    color: ${props => getActiveColor(props.isInverted)}70;
+    border-color: ${props => getActiveColor(props.$isInverted)}70;
+    color: ${props => getActiveColor(props.$isInverted)}70;
   }
 
   /* Icon Container */
@@ -249,7 +261,7 @@ export const PlatformIcon = styled.div`
   width: 30px;
   height: 10px;
   background-color: ${props => props.color};
-  border: 1px solid ${props => props.borderColor};
+  border: 1px solid ${props => props.$borderColor};
 `;
 
 export const SpikeIconContainer = styled.div`
@@ -262,15 +274,24 @@ export const SpikeIconContainer = styled.div`
 `;
 
 export const SpikeIconShape = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 20px solid ${props => props.fillColor};
-  filter: drop-shadow(0px 0px 1px ${props => props.outlineColor});
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 20px solid ${props => props.$fillColor};
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid ${props => props.$outlineColor};
+    z-index: -1;
+  }
 `;
 
 export const TrampolineIcon = styled.div`
@@ -278,7 +299,7 @@ export const TrampolineIcon = styled.div`
   height: 15px;
   background-color: ${props => props.color};
   border-radius: 15px 15px 0 0;
-  border: 1px solid ${props => props.borderColor};
+  border: 1px solid ${props => props.$borderColor};
 `;
 
 export const PortalIconVisual = styled.div`
@@ -290,7 +311,7 @@ export const PortalIconVisual = styled.div`
   justify-content: center;
   align-items: center;
   opacity: 0.8;
-  border: 1px solid ${props => props.borderColor};
+  border: 1px solid ${props => props.$borderColor};
 `;
 
 export const PortalSymbol = styled.span`
@@ -320,10 +341,10 @@ export const SaveDialog = styled.div`
   z-index: 1000;
 `;
 export const SaveDialogContent = styled.div`
-  background-color: ${props => getInactiveColor(props.isInverted)};
-  color: ${props => getActiveColor(props.isInverted)};
+  background-color: ${props => getInactiveColor(props.$isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
   padding: 25px 30px; border-radius: 8px;
-  border: 1px solid ${props => getActiveColor(props.isInverted)}80;
+  border: 1px solid ${props => getActiveColor(props.$isInverted)}80;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%; max-width: 400px; box-sizing: border-box;
   text-align: center;
@@ -332,14 +353,14 @@ export const SaveDialogContent = styled.div`
 `;
 export const Input = styled.input`
   width: 100%; padding: 10px 12px; margin-bottom: 25px;
-  border: 1px solid ${props => getActiveColor(props.isInverted)}60;
-  background-color: ${props => getInactiveColor(props.isInverted)};
-  color: ${props => getActiveColor(props.isInverted)};
+  border: 1px solid ${props => getActiveColor(props.$isInverted)}60;
+  background-color: ${props => getInactiveColor(props.$isInverted)};
+  color: ${props => getActiveColor(props.$isInverted)};
   border-radius: 5px; font-family: 'Excalifont'; font-size: 1rem;
   box-sizing: border-box; outline: none;
   &:focus {
-    border-color: ${props => getActiveColor(props.isInverted)};
-    box-shadow: 0 0 5px ${props => getActiveColor(props.isInverted)}40;
+    border-color: ${props => getActiveColor(props.$isInverted)};
+    box-shadow: 0 0 5px ${props => getActiveColor(props.$isInverted)}40;
   }
 `;
 export const SaveDialogButtons = styled.div`
@@ -348,14 +369,14 @@ export const SaveDialogButtons = styled.div`
     padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;
     font-family: 'Excalifont'; font-size: 0.9rem; transition: background-color 0.2s, opacity 0.2s;
     &:first-child { /* Cancelar */
-      background-color: transparent; color: ${props => getActiveColor(props.isInverted)};
-      border: 1px solid ${props => getActiveColor(props.isInverted)}80;
-      &:hover { background-color: ${props => getActiveColor(props.isInverted)}1A; }
+      background-color: transparent; color: ${props => getActiveColor(props.$isInverted)};
+      border: 1px solid ${props => getActiveColor(props.$isInverted)}80;
+      &:hover { background-color: ${props => getActiveColor(props.$isInverted)}1A; }
     }
     &:last-child { /* Guardar */
-      background-color: ${props => getActiveColor(props.isInverted)};
-      color: ${props => getInactiveColor(props.isInverted)};
-      border: 1px solid ${props => getActiveColor(props.isInverted)};
+      background-color: ${props => getActiveColor(props.$isInverted)};
+      color: ${props => getInactiveColor(props.$isInverted)};
+      border: 1px solid ${props => getActiveColor(props.$isInverted)};
       &:hover:not(:disabled) { opacity: 0.85; }
       &:disabled { opacity: 0.5; cursor: not-allowed; }
     }

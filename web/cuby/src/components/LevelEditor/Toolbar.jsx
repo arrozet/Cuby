@@ -25,33 +25,40 @@ const Toolbar = ({
             </ToolbarGroup>
             <ToolbarGroup className="center-group">
                 <ToolbarItem
-                    isActive={editorMode === 'place'}
+                    $isActive={editorMode === 'place'}
                     onClick={() => onSetMode('place')}
-                    isInverted={isInverted}
+                    $isInverted={isInverted}
                 >
                     Colocar
                 </ToolbarItem>
                 <ToolbarItem
-                    isActive={editorMode === 'erase'}
+                    $isActive={editorMode === 'erase'}
                     onClick={() => onSetMode('erase')}
-                    isInverted={isInverted}
+                    $isInverted={isInverted}
                 >
                     Borrar
                 </ToolbarItem>
-                <ToolbarItem onClick={onToggleInversion} isInverted={isInverted}>
-                    Invertir (E)
+                <ToolbarItem
+                    $isActive={editorMode === 'pan'}
+                    onClick={() => onSetMode('pan')}
+                    $isInverted={isInverted}
+                >
+                    Mover
                 </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup className="right-group">
-                <ToolbarItem onClick={onExportLevel} isInverted={isInverted}>
+                <ToolbarItem onClick={onToggleInversion} $isInverted={isInverted}>
+                    Invertir
+                </ToolbarItem>
+                <ToolbarItem onClick={onExportLevel} $isInverted={isInverted}>
                     Exportar
                 </ToolbarItem>
-                <ToolbarItem onClick={onImportLevel} isInverted={isInverted}>
+                <ToolbarItem onClick={onImportLevel} $isInverted={isInverted}>
                     Importar
                 </ToolbarItem>
                 <ToolbarItem
                     onClick={onSaveLevel}
-                    isInverted={isInverted}
+                    $isInverted={isInverted}
                     disabled={!isLevelLoaded}
                 >
                     Guardar{hasUnsavedChanges ? '*' : ''}

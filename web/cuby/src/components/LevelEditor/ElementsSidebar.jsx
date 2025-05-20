@@ -17,79 +17,72 @@ import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 const ElementsSidebar = ({
     selectedElement,
-    editorMode,
     onSelectElement,
     platformSize,
     onPlatformSizeChange,
-    isInverted,
+    $isInverted,
 }) => {
-    const activeColor = getActiveColor(isInverted);
-    const inactiveColor = getInactiveColor(isInverted);
+    const activeColor = getActiveColor($isInverted);
+    const inactiveColor = getInactiveColor($isInverted);
 
     return (
-        <EditorSidebar isInverted={isInverted}>
-            <SidebarTitle isInverted={isInverted}>Elementos</SidebarTitle>
+        <EditorSidebar $isInverted={$isInverted}>
+            <SidebarTitle $isInverted={$isInverted}>Elementos</SidebarTitle>
             <ElementsContainer>
                 <ElementButton
+                    $isSelected={selectedElement === 'platform'}
                     onClick={() => onSelectElement('platform')}
-                    isSelected={selectedElement === 'platform' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
-                    <PlatformIcon color={activeColor} borderColor={activeColor} />
+                    <PlatformIcon color={activeColor} $borderColor={inactiveColor} />
                     Plataforma
                 </ElementButton>
                 <ElementButton
+                    $isSelected={selectedElement === 'spike'}
                     onClick={() => onSelectElement('spike')}
-                    isSelected={selectedElement === 'spike' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
                     <SpikeIconContainer>
-                        <SpikeIconShape fillColor={activeColor} outlineColor={activeColor} />
+                        <SpikeIconShape $fillColor={activeColor} $outlineColor={inactiveColor} />
                     </SpikeIconContainer>
                     Pico
                 </ElementButton>
                 <ElementButton
+                    $isSelected={selectedElement === 'trampoline'}
                     onClick={() => onSelectElement('trampoline')}
-                    isSelected={selectedElement === 'trampoline' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
-                    <TrampolineIcon color={activeColor} borderColor={activeColor} />
+                    <TrampolineIcon color={activeColor} $borderColor={inactiveColor} />
                     Trampolín
                 </ElementButton>
                 <ElementButton
+                    $isSelected={selectedElement === 'portal'}
                     onClick={() => onSelectElement('portal')}
-                    isSelected={selectedElement === 'portal' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
-                    <PortalIconVisual color={activeColor} borderColor={activeColor}>
+                    <PortalIconVisual color={activeColor} $borderColor={inactiveColor}>
                         <PortalSymbol color={inactiveColor}>◊</PortalSymbol>
                     </PortalIconVisual>
                     Portal
                 </ElementButton>
                 <ElementButton
+                    $isSelected={selectedElement === 'goal'}
                     onClick={() => onSelectElement('goal')}
-                    isSelected={selectedElement === 'goal' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
                     <GoalIcon color={activeColor} />
                     Meta
                 </ElementButton>
                 <ElementButton
+                    $isSelected={selectedElement === 'player-start'}
                     onClick={() => onSelectElement('player-start')}
-                    isSelected={selectedElement === 'player-start' && editorMode === 'place'}
-                    isInverted={isInverted}
-                    disabled={editorMode === 'pan'}
+                    $isInverted={$isInverted}
                 >
                     <PlayerStartIcon color={activeColor} />
                     Inicio Jugador
                 </ElementButton>
             </ElementsContainer>
-            {selectedElement === 'platform' && editorMode === 'place' && (
+            {selectedElement === 'platform' && (
                 <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
                     <h3 style={{ color: activeColor, marginBottom: '10px', fontSize: '16px' }}>
                         Tamaño Plataforma
@@ -103,8 +96,12 @@ const ElementsSidebar = ({
                             min="20"
                             max="500"
                             value={platformSize.width}
-                            onChange={(e) => onPlatformSizeChange(prev => ({ ...prev, width: Number(e.target.value) }))}
-                            style={{ width: '100%' }}
+                            onChange={(e) => onPlatformSizeChange({ ...platformSize, width: Number(e.target.value) })}
+                            style={{
+                                width: '100%',
+                                accentColor: activeColor,
+                                backgroundColor: 'transparent'
+                            }}
                         />
                     </div>
                     <div>
@@ -116,8 +113,12 @@ const ElementsSidebar = ({
                             min="10"
                             max="100"
                             value={platformSize.height}
-                            onChange={(e) => onPlatformSizeChange(prev => ({ ...prev, height: Number(e.target.value) }))}
-                            style={{ width: '100%' }}
+                            onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
+                            style={{
+                                width: '100%',
+                                accentColor: activeColor,
+                                backgroundColor: 'transparent'
+                            }}
                         />
                     </div>
                 </div>
