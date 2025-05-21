@@ -49,6 +49,7 @@ const LevelNameDisplayEdit = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         verticalAlign: 'middle',
+        marginLeft: '80px',
     };
 
     const inputStyle = {
