@@ -2,7 +2,7 @@ import React from 'react';
 import { Trampoline as StyledTrampoline } from './GameElements.styles';
 import { Trampoline } from './GameElements'; // Para defaults
 
-const TrampolineDisplay = ({ x, y, width = Trampoline.defaultWidth, height = Trampoline.defaultHeight, color, $isInverted }) => {
+const TrampolineDisplay = ({ x, y, width = Trampoline.defaultWidth, height = Trampoline.defaultHeight, color, $isInverted, style, $showSilhouette }) => {
   return (
     <StyledTrampoline
       x={x}
@@ -11,6 +11,8 @@ const TrampolineDisplay = ({ x, y, width = Trampoline.defaultWidth, height = Tra
       height={height}
       color={color}
       $isInverted={$isInverted}
+      style={style}
+      $showSilhouette={$showSilhouette}
     />
   );
 };

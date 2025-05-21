@@ -214,6 +214,58 @@ const CanvasRenderer = React.forwardRef(({
                         }
                     </div>
                 )}
+
+                {/* Renderiza siluetas de los elementos del color de fondo (solo en el editor) */}
+                {level.platforms.map((platform, index) => (
+                    platform.color !== getActiveColor(isInverted) && (
+                        <PlatformDisplay
+                            key={`platform-silhouette-${index}`}
+                            {...platform}
+                            $isInverted={isInverted}
+                            style={{ opacity: 0.25, pointerEvents: 'none' }}
+                            $showSilhouette={true}
+                        />
+                    )
+                ))}
+                {level.obstacles.map((obstacle, index) => (
+                    obstacle.color !== getActiveColor(isInverted) && (
+                        <SpikeDisplay
+                            key={`obstacle-silhouette-${index}`}
+                            {...obstacle}
+                            width={obstacle.width || Spike.defaultWidth}
+                            height={obstacle.height || Spike.defaultHeight}
+                            $isInverted={isInverted}
+                            style={{ opacity: 0.25, pointerEvents: 'none' }}
+                            $showSilhouette={true}
+                        />
+                    )
+                ))}
+                {level.trampolines.map((trampoline, index) => (
+                    trampoline.color !== getActiveColor(isInverted) && (
+                        <TrampolineDisplay
+                            key={`trampoline-silhouette-${index}`}
+                            {...trampoline}
+                            width={trampoline.width || Trampoline.defaultWidth}
+                            height={trampoline.height || Trampoline.defaultHeight}
+                            $isInverted={isInverted}
+                            style={{ opacity: 0.25, pointerEvents: 'none' }}
+                            $showSilhouette={true}
+                        />
+                    )
+                ))}
+                {level.portals.map((portal, index) => (
+                    portal.color !== getActiveColor(isInverted) && (
+                        <PortalDisplay
+                            key={`portal-silhouette-${index}`}
+                            {...portal}
+                            width={portal.width || Portal.defaultWidth}
+                            height={portal.height || Portal.defaultHeight}
+                            $isInverted={isInverted}
+                            style={{ opacity: 0.25, pointerEvents: 'none' }}
+                            $showSilhouette={true}
+                        />
+                    )
+                ))}
             </LevelContentWrapper>
 
             {/* Mensaje de ayuda al usuario cuando está seleccionando el destino de un portal */}
