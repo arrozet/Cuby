@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getActiveColor } from '../../../utils/colors';
+import { getActiveColor, getInactiveColor } from '../../../utils/colors';
 import { Platform, Spike, Trampoline, Portal, Goal } from '../../GameElements/GameElements';
 
 // Constantes para las dimensiones lógicas del nivel, si son necesarias aquí
@@ -347,20 +347,40 @@ export const useCanvasInteraction = ({
             let changeMade = false;
             let nextLevelState = { ...level };
             const { x, y, width, height, color, portalId } = previewElement;
+            const elementColor = getActiveColor(isInverted);
+            const inactiveColor = getInactiveColor(isInverted);
             switch (previewElement.type) {
                 case 'platform':
-                    newElement = new Platform({ x, y, color, width, height });
-                    nextLevelState.platforms = [...nextLevelState.platforms, newElement];
+                    if (platformSize.dualColor) {
+                        const activePlatform = new Platform({ x, y, color: elementColor, width, height });
+                        const inactivePlatform = new Platform({ x, y, color: inactiveColor, width, height });
+                        nextLevelState.platforms = [...nextLevelState.platforms, activePlatform, inactivePlatform];
+                    } else {
+                        newElement = new Platform({ x, y, color: elementColor, width, height });
+                        nextLevelState.platforms = [...nextLevelState.platforms, newElement];
+                    }
                     changeMade = true;
                     break;
                 case 'spike':
-                    newElement = new Spike({ x, y, color });
-                    nextLevelState.obstacles = [...nextLevelState.obstacles, newElement];
+                    if (platformSize.dualColor) {
+                        const activeSpike = new Spike({ x, y, color: elementColor });
+                        const inactiveSpike = new Spike({ x, y, color: inactiveColor });
+                        nextLevelState.obstacles = [...nextLevelState.obstacles, activeSpike, inactiveSpike];
+                    } else {
+                        newElement = new Spike({ x, y, color: elementColor });
+                        nextLevelState.obstacles = [...nextLevelState.obstacles, newElement];
+                    }
                     changeMade = true;
                     break;
                 case 'trampoline':
-                    newElement = new Trampoline({ x, y, color });
-                    nextLevelState.trampolines = [...nextLevelState.trampolines, newElement];
+                    if (platformSize.dualColor) {
+                        const activeTrampoline = new Trampoline({ x, y, color: elementColor });
+                        const inactiveTrampoline = new Trampoline({ x, y, color: inactiveColor });
+                        nextLevelState.trampolines = [...nextLevelState.trampolines, activeTrampoline, inactiveTrampoline];
+                    } else {
+                        newElement = new Trampoline({ x, y, color: elementColor });
+                        nextLevelState.trampolines = [...nextLevelState.trampolines, newElement];
+                    }
                     changeMade = true;
                     break;
                 case 'portal':
