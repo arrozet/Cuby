@@ -79,25 +79,23 @@ export const ToolbarItem = styled.button`
 export const EditorCanvas = styled.div`
   flex: 1;
   background-color: ${props => getInactiveColor(props.$isInverted)};
-  position: relative; /* Needed for absolute positioning of children like LevelContentWrapper */
+  position: relative;
   overflow: hidden;
-  /* Cursor logic driven by editorMode and isDragging state */
+  touch-action: none;
   cursor: ${props => {
-    if (props.editorMode === 'pan') {
-      return props.$isDragging ? 'grabbing' : 'grab'; // Hand cursor for pan
-    } else if (props.editorMode === 'erase') {
-      return 'cell'; // Or 'not-allowed' or custom cursor for erase
+    if (props.$editorMode === 'pan') {
+      return props.$isDragging ? 'grabbing' : 'grab';
+    } else if (props.$editorMode === 'erase') {
+      return 'cell';
     } else {
-      return 'crosshair'; // Default place mode
+      return 'crosshair';
     }
   }};
-  display: flex; /* Using flex might affect LevelContentWrapper positioning, ensure it's absolute */
-  /* Remove justify/align center if LevelContentWrapper handles its own position */
-  /* justify-content: center; */
-  /* align-items: center; */
+  display: flex;
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 `;
 
 // LevelContentWrapper sin cambios
@@ -334,23 +332,30 @@ export const PlayerStartIcon = styled.div`
 `;
 
 // --- SaveDialog, SaveDialogContent, Input, SaveDialogButtons sin cambios ---
-export const SaveDialog = styled.div`
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex; justify-content: center; align-items: center;
+export const SaveDialog = styled.div.attrs(props => ({
+    onClick: props.onClick
+}))`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
 `;
+
 export const SaveDialogContent = styled.div`
-  background-color: ${props => getInactiveColor(props.$isInverted)};
-  color: ${props => getActiveColor(props.$isInverted)};
-  padding: 25px 30px; border-radius: 8px;
-  border: 1px solid ${props => getActiveColor(props.$isInverted)}80;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 90%; max-width: 400px; box-sizing: border-box;
-  text-align: center;
-  h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.5rem; }
-  p { margin-bottom: 20px; font-size: 1rem; opacity: 0.9; }
+  background-color: ${props => props.$isInverted ? '#222' : '#fff'};
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 `;
+
 export const Input = styled.input`
   width: 100%; padding: 10px 12px; margin-bottom: 25px;
   border: 1px solid ${props => getActiveColor(props.$isInverted)}60;
@@ -363,22 +368,23 @@ export const Input = styled.input`
     box-shadow: 0 0 5px ${props => getActiveColor(props.$isInverted)}40;
   }
 `;
+
 export const SaveDialogButtons = styled.div`
-  display: flex; justify-content: flex-end; gap: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+
   button {
-    padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer;
-    font-family: 'Excalifont'; font-size: 0.9rem; transition: background-color 0.2s, opacity 0.2s;
-    &:first-child { /* Cancelar */
-      background-color: transparent; color: ${props => getActiveColor(props.$isInverted)};
-      border: 1px solid ${props => getActiveColor(props.$isInverted)}80;
-      &:hover { background-color: ${props => getActiveColor(props.$isInverted)}1A; }
-    }
-    &:last-child { /* Guardar */
-      background-color: ${props => getActiveColor(props.$isInverted)};
-      color: ${props => getInactiveColor(props.$isInverted)};
-      border: 1px solid ${props => getActiveColor(props.$isInverted)};
-      &:hover:not(:disabled) { opacity: 0.85; }
-      &:disabled { opacity: 0.5; cursor: not-allowed; }
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background-color: ${props => props.$isInverted ? '#444' : '#f0f0f0'};
+    color: ${props => props.$isInverted ? '#fff' : '#333'};
+    
+    &:hover {
+      background-color: ${props => props.$isInverted ? '#555' : '#e0e0e0'};
     }
   }
 `;
