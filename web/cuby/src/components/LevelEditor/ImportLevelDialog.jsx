@@ -23,9 +23,15 @@ const ImportLevelDialog = ({
         }
     };
 
+    const handleBackdropClick = (e) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <SaveDialog onClick={onClose}> {/* Cerrar al hacer clic en el fondo */}
-            <SaveDialogContent isInverted={isInverted} onClick={(e) => e.stopPropagation()}> {/* Evitar cierre al hacer clic dentro */}
+        <SaveDialog onClick={handleBackdropClick}>
+            <SaveDialogContent $isInverted={isInverted} onClick={(e) => e.stopPropagation()}>
                 <h2>Importar nivel</h2>
                 <p>Pega el código del nivel:</p>
                 <Input
@@ -33,7 +39,7 @@ const ImportLevelDialog = ({
                     value={codeInput}
                     onChange={(e) => setCodeInput(e.target.value)}
                     placeholder="Código del nivel"
-                    isInverted={isInverted}
+                    $isInverted={isInverted}
                     autoFocus
                     onKeyDown={(e) => {
                         e.stopPropagation();
@@ -45,7 +51,7 @@ const ImportLevelDialog = ({
                         }
                     }}
                 />
-                <SaveDialogButtons isInverted={isInverted}>
+                <SaveDialogButtons $isInverted={isInverted}>
                     <button onClick={onClose}>Cancelar</button>
                     <button onClick={handleConfirm} disabled={!codeInput.trim()}>
                         Importar

@@ -90,16 +90,15 @@ export const useCanvasTransform = ({
      */
     const panMove = useCallback((clientX, clientY, event) => {
         if (currentEditorMode !== 'pan' || !isPanning) return;
-        if (event && event.type === 'touchmove') {
-            event.preventDefault();
-        }
+        
         const deltaX = clientX - dragStartCoords.current.x;
         const deltaY = clientY - dragStartCoords.current.y;
+        
         setViewOffset({
             x: initialPanViewOffset.current.x + deltaX,
             y: initialPanViewOffset.current.y + deltaY,
         });
-    }, [currentEditorMode, isPanning, setViewOffset]);
+    }, [currentEditorMode, isPanning]);
 
     /**
      * Finaliza el proceso de paneo.

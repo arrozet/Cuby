@@ -500,15 +500,25 @@ const LevelEditor = () => {
                     onClick={handleCanvasClick}
                     onContextMenu={handleCanvasContextMenu}
                     onMouseMove={handlePointerMove}
-                    onMouseDown={(e) => { if (e.button === 0) panStart(e.clientX, e.clientY); }} // Solo pan con click izquierdo
+                    onMouseDown={(e) => { if (e.button === 0) panStart(e.clientX, e.clientY); }}
                     onMouseUp={panEnd}
                     onMouseLeave={handleCanvasMouseLeave}
-                    onTouchStart={(e) => panStart(e.touches[0].clientX, e.touches[0].clientY)}
-                    onTouchMove={handlePointerMove}
+                    onTouchStart={(e) => {
+                        const touch = e.touches[0];
+                        panStart(touch.clientX, touch.clientY);
+                    }}
+                    onTouchMove={(e) => {
+                        const touch = e.touches[0];
+                        handlePointerMove({
+                            ...e,
+                            clientX: touch.clientX,
+                            clientY: touch.clientY
+                        });
+                    }}
                     onTouchEnd={panEnd}
                     $isInverted={isInverted}
-                    $isDragging={isPanning} // Pasar isPanning
-                    editorMode={editorMode} // Pasar editorMode para el cursor
+                    $isDragging={isPanning}
+                    $editorMode={editorMode}
                 >
                     <LevelContentWrapper
                         ref={contentWrapperRef}
