@@ -15,38 +15,43 @@ export const EditorContainer = styled.div`
   overflow: hidden;
 `;
 
-// Toolbar y ToolbarGroup sin cambios
+// Toolbar y ToolbarGroup actualizados
 export const EditorToolbar = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 10px 15px;
+  padding: 0 15px;
   background-color: rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
   position: relative;
   box-sizing: border-box;
+  min-height: 60px;
 `;
+
 export const ToolbarGroup = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
-  flex-shrink: 1;
   min-width: 0;
 
   &.center-group {
-    flex-grow: 0; justify-content: center;
+    flex-grow: 0; 
+    justify-content: center;
     @media (max-width: 700px) { flex-wrap: wrap; }
   }
-  &.left-group, &.right-group {
-     flex-grow: 0;
-     @media (max-width: 450px) { flex-wrap: wrap; }
+  
+  &.left-group {
+    flex-grow: 1;
+    max-width: 40%;
   }
-  &.left-group {}
+  
+  &.right-group {
+    flex-grow: 0;
+    @media (max-width: 450px) { flex-wrap: wrap; }
+  }
 `;
 
 // ToolbarItem sin cambios

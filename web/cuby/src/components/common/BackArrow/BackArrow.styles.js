@@ -1,19 +1,15 @@
 import styled from 'styled-components';
 
 export const BackArrowContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 30px;
   cursor: pointer;
-  z-index: 10;
-  width: 50px;
-  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 40px;
+  width: 40px;
   
   svg {
-    width: 50px;
+    width: 30px;
     height: auto;
   }
   

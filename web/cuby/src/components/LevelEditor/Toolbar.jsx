@@ -17,11 +17,13 @@ const Toolbar = ({
     hasUnsavedChanges,
     isLevelLoaded, // Para deshabilitar "Guardar"
     isInverted,
+    levelNameComponent, // Nuevo prop para recibir el componente de título
 }) => {
     return (
         <EditorToolbar>
             <ToolbarGroup className="left-group">
                 <BackArrow onClick={onGoBack} />
+                {levelNameComponent}
             </ToolbarGroup>
             <ToolbarGroup className="center-group">
                 <ToolbarItem
