@@ -236,23 +236,22 @@ export const ElementButton = styled.button`
   ${({ $isSelected, $isInverted }) => $isSelected && css`
     border-width: 2px; /* Thicker border */
     border-color: ${getActiveColor($isInverted)}; /* Prominent border color */
-    /* Subtle background: light greyish overlay, works in both modes */
     background-color: ${$isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
     padding: 11px 9px; /* Adjust padding for border */
+    color: ${getActiveColor($isInverted)}; /* Mantener el color del texto siempre igual */
   `}
 
   /* Hover State */
   &:hover:not(:disabled) {
-    border-color: ${props => getActiveColor(props.$isInverted)}; /* Full color border on hover */
-    /* Background Inversion (only if not selected) */
+    border-color: ${props => getActiveColor(props.$isInverted)};
     ${props => !props.$isSelected && css`
       background-color: ${props.$isInverted ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)'};
-      color: ${getActiveColor(props.$isInverted)}; /* Keep text color active */
+      color: ${getActiveColor(props.$isInverted)};
     `}
-     /* Hovering over a selected button: Make background slightly more prominent */
-     ${props => props.$isSelected && css`
-       background-color: ${props.$isInverted ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.1)'};
-     `}
+    ${props => props.$isSelected && css`
+      background-color: ${props.$isInverted ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.1)'};
+      color: ${getActiveColor(props.$isInverted)};
+    `}
   }
 
   /* Disabled State */
