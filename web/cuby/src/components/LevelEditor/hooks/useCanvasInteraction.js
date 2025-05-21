@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getActiveColor } from '../../../utils/colors';
+import { getActiveColor, getInactiveColor } from '../../../utils/colors';
 import { Platform, Spike, Trampoline, Portal, Goal } from '../../GameElements/GameElements';
 
 // Constantes para las dimensiones lógicas del nivel, si son necesarias aquí
@@ -323,17 +323,108 @@ export const useCanvasInteraction = ({
     // Manejador unificado para movimiento de puntero (ratón y táctil).
     const handlePointerMove = useCallback((e) => {
         const isTouchEvent = e.type.startsWith('touch');
-        // Obtiene clientX/clientY de forma compatible con eventos de ratón y táctiles.
-        // const clientX = isTouchEvent ? e.touches[0].clientX : e.clientX;
-        // const clientY = isTouchEvent ? e.touches[0].clientY : e.clientY;
-
-        // La previsualización solo se actualiza con el ratón, no con eventos táctiles por ahora.
-        // Esto podría cambiar si se implementa una lógica de "arrastrar y soltar" para táctil.
-        if (!isTouchEvent) {
+        if (isTouchEvent) {
+            const touch = e.touches && e.touches[0];
+            if (touch) {
+                // Simula un evento de ratón para la previsualización
+                handleCanvasMouseMoveForPreview({
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    type: 'touchmove',
+                    preventDefault: () => e.preventDefault(),
+                });
+            }
+        } else {
             handleCanvasMouseMoveForPreview(e);
         }
-        // Lógica de paneo (arrastrar el canvas) iría aquí si estuviera implementada.
     }, [handleCanvasMouseMoveForPreview]);
+
+    // Manejador para touchend: coloca el elemento donde está la previsualización
+    const handlePointerUp = useCallback((e) => {
+        const isTouchEvent = e.type && e.type.startsWith('touch');
+        if (isTouchEvent && previewElement && editorMode === 'place' && selectedElement && level) {
+            let newElement;
+            let changeMade = false;
+            let nextLevelState = { ...level };
+            const { x, y, width, height, color, portalId } = previewElement;
+            const elementColor = getActiveColor(isInverted);
+            const inactiveColor = getInactiveColor(isInverted);
+            switch (previewElement.type) {
+                case 'platform':
+                    if (platformSize.dualColor) {
+                        const activePlatform = new Platform({ x, y, color: elementColor, width, height });
+                        const inactivePlatform = new Platform({ x, y, color: inactiveColor, width, height });
+                        nextLevelState.platforms = [...nextLevelState.platforms, activePlatform, inactivePlatform];
+                    } else {
+                        newElement = new Platform({ x, y, color: elementColor, width, height });
+                        nextLevelState.platforms = [...nextLevelState.platforms, newElement];
+                    }
+                    changeMade = true;
+                    break;
+                case 'spike':
+                    if (platformSize.dualColor) {
+                        const activeSpike = new Spike({ x, y, color: elementColor });
+                        const inactiveSpike = new Spike({ x, y, color: inactiveColor });
+                        nextLevelState.obstacles = [...nextLevelState.obstacles, activeSpike, inactiveSpike];
+                    } else {
+                        newElement = new Spike({ x, y, color: elementColor });
+                        nextLevelState.obstacles = [...nextLevelState.obstacles, newElement];
+                    }
+                    changeMade = true;
+                    break;
+                case 'trampoline':
+                    if (platformSize.dualColor) {
+                        const activeTrampoline = new Trampoline({ x, y, color: elementColor });
+                        const inactiveTrampoline = new Trampoline({ x, y, color: inactiveColor });
+                        nextLevelState.trampolines = [...nextLevelState.trampolines, activeTrampoline, inactiveTrampoline];
+                    } else {
+                        newElement = new Trampoline({ x, y, color: elementColor });
+                        nextLevelState.trampolines = [...nextLevelState.trampolines, newElement];
+                    }
+                    changeMade = true;
+                    break;
+                case 'portal':
+                    if (isSelectingPortalDestination && pendingPortal) {
+                        const finalPortal = new Portal({
+                            ...pendingPortal,
+                            destination: { x, y }
+                        });
+                        nextLevelState.portals = [...nextLevelState.portals, finalPortal];
+                        setIsSelectingPortalDestination(false);
+                        setPendingPortal(null);
+                        changeMade = true;
+                    } else {
+                        const newPortalBase = {
+                            x,
+                            y,
+                            color,
+                            width,
+                            height,
+                            portalId
+                        };
+                        setPendingPortal(newPortalBase);
+                        setIsSelectingPortalDestination(true);
+                        setPortalCounter(prev => prev + 1);
+                    }
+                    break;
+                case 'goal':
+                    newElement = new Goal({ x, y });
+                    nextLevelState.goal = newElement;
+                    changeMade = true;
+                    break;
+                case 'player-start':
+                    nextLevelState.playerStart = { x, y };
+                    changeMade = true;
+                    break;
+                default: break;
+            }
+            if (changeMade) {
+                setLevel(nextLevelState);
+                setHasUnsavedChanges(true);
+            }
+            setPreviewElement(null);
+        }
+    }, [previewElement, editorMode, selectedElement, level, setLevel, setHasUnsavedChanges, setPreviewElement, isSelectingPortalDestination, pendingPortal, setIsSelectingPortalDestination, setPendingPortal, setPortalCounter]);
 
     // Devuelve los manejadores para que el componente LevelEditor los pueda usar en el EditorCanvas.
     return {
@@ -341,7 +432,6 @@ export const useCanvasInteraction = ({
         handleCanvasContextMenu,
         handleCanvasMouseLeave,
         handlePointerMove,
-        // getLogicalCoords no se devuelve porque es usado internamente por otros manejadores.
-        // eraseElementAt tampoco se devuelve directamente, se invoca a través de handleCanvasClick en modo 'erase'.
+        handlePointerUp
     };
 }; 

@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 export const BackArrowContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 30px;
+   position: absolute; 
+   top: 7px; 
+   left: 30px; 
   cursor: pointer;
   z-index: 10;
   width: 50px;

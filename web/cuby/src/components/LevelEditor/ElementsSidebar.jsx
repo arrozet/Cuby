@@ -111,7 +111,7 @@ const ElementsSidebar = ({
                         <input
                             type="range"
                             min="10"
-                            max="100"
+                            max="500"
                             value={platformSize.height}
                             onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
                             style={{
@@ -121,6 +121,20 @@ const ElementsSidebar = ({
                             }}
                         />
                     </div>
+                </div>
+            )}
+            {['platform', 'trampoline', 'spike'].includes(selectedElement) && (
+                <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center' }}>
+                    <input
+                        type="checkbox"
+                        id="dualColor"
+                        checked={!!platformSize.dualColor}
+                        onChange={e => onPlatformSizeChange({ ...platformSize, dualColor: e.target.checked })}
+                        style={{ marginRight: '8px' }}
+                    />
+                    <label htmlFor="dualColor" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
+                        Colocar en ambos colores
+                    </label>
                 </div>
             )}
         </EditorSidebar>
