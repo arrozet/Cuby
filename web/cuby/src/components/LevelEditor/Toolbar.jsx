@@ -38,13 +38,6 @@ const Toolbar = ({
                 >
                     Borrar
                 </ToolbarItem>
-                <ToolbarItem
-                    $isActive={editorMode === 'pan'}
-                    onClick={() => onSetMode('pan')}
-                    $isInverted={isInverted}
-                >
-                    Mover
-                </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup className="right-group">
                 <ToolbarItem onClick={onToggleInversion} $isInverted={isInverted}>

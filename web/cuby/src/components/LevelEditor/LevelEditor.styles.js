@@ -75,32 +75,38 @@ export const ToolbarItem = styled.button`
   ${({ $isActive }) => $isActive && css` /* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3); */ `}
 `;
 
-// EditorCanvas con lógica de cursor actualizada
+// EditorCanvas mejorado para responsividad
 export const EditorCanvas = styled.div`
   flex: 1;
   background-color: ${props => getInactiveColor(props.$isInverted)};
-  position: relative; /* Needed for absolute positioning of children like LevelContentWrapper */
+  position: relative; 
   overflow: hidden;
-  /* Cursor logic driven by editorMode and isDragging state */
   cursor: ${props => {
     if (props.editorMode === 'pan') {
-      return props.$isDragging ? 'grabbing' : 'grab'; // Hand cursor for pan
+      return props.$isDragging ? 'grabbing' : 'grab'; 
     } else if (props.editorMode === 'erase') {
-      return 'cell'; // Or 'not-allowed' or custom cursor for erase
+      return 'cell'; 
     } else {
-      return 'crosshair'; // Default place mode
+      return 'crosshair'; 
     }
   }};
-  display: flex; /* Using flex might affect LevelContentWrapper positioning, ensure it's absolute */
-  /* Remove justify/align center if LevelContentWrapper handles its own position */
-  /* justify-content: center; */
-  /* align-items: center; */
+  display: flex; 
+  justify-content: center; /* Centrar el contenido horizontalmente */
+  align-items: center; /* Centrar el contenido verticalmente */
   user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  min-width: 0; /* Permite que el contenedor se encoja según sea necesario */
+  
+  /* Asegura que en móviles el contenido sea visible */
+  @media (max-width: 768px) {
+    justify-content: center;
+    align-items: center;
+    padding: 5px; /* Pequeño padding en móviles */
+  }
 `;
 
-// LevelContentWrapper sin cambios
+// LevelContentWrapper mejorado con escalado adaptativo
 export const LevelContentWrapper = styled.div`
   position: absolute;
   width: ${props => props.$logicalWidth || 1200}px;
@@ -109,6 +115,18 @@ export const LevelContentWrapper = styled.div`
   border: 1px dashed ${props => getActiveColor(props.$isInverted)}50;
   will-change: transform;
   pointer-events: none;
+  
+  /* Escalado responsivo automático para adaptarse a diferentes pantallas */
+  transform-origin: center center;
+  /* El escalado se hará dinámicamente a través de JavaScript en LevelEditor.jsx */
+  
+  /* Asegura que el contenido siempre tenga un tamaño mínimo visible */
+  min-width: 50px; 
+  min-height: 50px;
+  
+  /* Mantiene proporciones del nivel */
+  max-width: 100%;
+  max-height: 100%;
 `;
 
 // ZoomControls sin cambios
@@ -150,7 +168,7 @@ export const ZoomButton = styled(ToolbarItem)`
   }
 `;
 
-// EditorSidebar sin cambios
+// EditorSidebar adaptado para ser más compacto en móviles
 export const EditorSidebar = styled.div`
   width: 250px;
   height: 100%;
@@ -167,7 +185,10 @@ export const EditorSidebar = styled.div`
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 850px) { width: 200px; }
-  @media (max-width: 600px) { width: 180px; padding: 15px 10px; }
+  @media (max-width: 600px) { 
+    width: 160px; 
+    padding: 15px 10px;
+  }
 `;
 
 // SidebarTitle sin cambios
