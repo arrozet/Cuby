@@ -3,7 +3,7 @@ import { Obstacle as StyledSpike } from './GameElements.styles'; // Usamos el Ob
 // Importamos la clase Spike original para los valores por defecto
 import { Spike } from './GameElements';
 
-const SpikeDisplay = ({ x, y, width = Spike.defaultWidth, height = Spike.defaultHeight, color, $isInverted }) => {
+const SpikeDisplay = ({ x, y, width = Spike.defaultWidth, height = Spike.defaultHeight, color, $isInverted, style, $showSilhouette }) => {
   return (
     <StyledSpike
       x={x}
@@ -12,6 +12,8 @@ const SpikeDisplay = ({ x, y, width = Spike.defaultWidth, height = Spike.default
       height={height}
       color={color}
       $isInverted={$isInverted}
+      style={style}
+      $showSilhouette={$showSilhouette}
     />
   );
 };

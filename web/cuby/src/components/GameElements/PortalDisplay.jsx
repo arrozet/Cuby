@@ -4,7 +4,7 @@ import { getActiveColor } from '../../utils/colors';
 import { Portal } from './GameElements'; // Para defaults
 
 // Componente funcional para el Rectángulo Animado (Entrada Activa / Salida Inactiva)
-const AnimatedRectangle = ({ x, y, width, height, elementColor, $isInverted, portalId }) => {
+const AnimatedRectangle = ({ x, y, width, height, elementColor, $isInverted, portalId, style, $showSilhouette }) => {
   const isActive = elementColor === getActiveColor($isInverted);
   const textColor = getActiveColor($isInverted);
 
@@ -16,6 +16,8 @@ const AnimatedRectangle = ({ x, y, width, height, elementColor, $isInverted, por
       height={height}
       color={elementColor} // Color lógico ('white' o 'black') para que StyledPortal decida
       $isInverted={$isInverted}
+      style={style}
+      $showSilhouette={$showSilhouette}
     >
       {portalId !== undefined && (
         <div style={{
@@ -32,7 +34,7 @@ const AnimatedRectangle = ({ x, y, width, height, elementColor, $isInverted, por
 };
 
 // Componente funcional para el Diamante (Salida Activa / Entrada Inactiva)
-const DiamondMarker = ({ x, y, width, height, elementColor, $isInverted, portalId }) => {
+const DiamondMarker = ({ x, y, width, height, elementColor, $isInverted, portalId, style, $showSilhouette }) => {
   const isActive = elementColor === getActiveColor($isInverted);
   const displayColor = isActive ? getActiveColor($isInverted) : 'transparent';
   const borderColor = isActive ? 'none' : `2px dashed ${getActiveColor($isInverted)}50`;
@@ -41,7 +43,7 @@ const DiamondMarker = ({ x, y, width, height, elementColor, $isInverted, portalI
   return (
     <div style={{
       position: 'absolute', left: x, top: y, width, height,
-      pointerEvents: 'none',
+      pointerEvents: 'none', ...style
     }}>
       <div style={{
         width: '100%', height: '100%',
@@ -75,7 +77,9 @@ const PortalDisplay = ({
   color, // Este es el color lógico del portal ('white' o 'black')
   destination, 
   portalId, 
-  $isInverted 
+  $isInverted,
+  style,
+  $showSilhouette
 }) => {
 
   const diamondScaleFactor = 0.4; // Factor de escala para el diamante
@@ -124,14 +128,14 @@ const PortalDisplay = ({
       {isBaseActive ? (
         // Portal activo: Entrada es Rectángulo, Salida es Diamante
         <>
-          <AnimatedRectangle x={x} y={y} {...rectangleProps} />
-          {destination && <DiamondMarker x={destination.x} y={destination.y} {...diamondDestProps} />}
+          <AnimatedRectangle x={x} y={y} {...rectangleProps} style={style} $showSilhouette={$showSilhouette} />
+          {destination && <DiamondMarker x={destination.x} y={destination.y} {...diamondDestProps} style={style} $showSilhouette={$showSilhouette} />}
         </>
       ) : (
         // Portal inactivo: Entrada es Diamante, Salida es Rectángulo
         <>
-          <DiamondMarker x={x} y={y} {...diamondProps} />
-          {destination && <AnimatedRectangle x={destination.x} y={destination.y} {...rectangleDestProps} />}
+          <DiamondMarker x={x} y={y} {...diamondProps} style={style} $showSilhouette={$showSilhouette} />
+          {destination && <AnimatedRectangle x={destination.x} y={destination.y} {...rectangleDestProps} style={style} $showSilhouette={$showSilhouette} />}
         </>
       )}
     </>

@@ -176,18 +176,36 @@ export const useCanvasInteraction = ({
         // Crea y añade el nuevo elemento según el tipo seleccionado.
         switch (selectedElement) {
             case 'platform':
-                newElement = new Platform({ x: logicalX, y: logicalY, color: elementColor, width: platformSize.width, height: platformSize.height });
-                nextLevelState.platforms = [...nextLevelState.platforms, newElement];
+                if (platformSize.dualColor) {
+                    const activePlatform = new Platform({ x: logicalX, y: logicalY, color: elementColor, width: platformSize.width, height: platformSize.height });
+                    const inactivePlatform = new Platform({ x: logicalX, y: logicalY, color: getInactiveColor(isInverted), width: platformSize.width, height: platformSize.height });
+                    nextLevelState.platforms = [...nextLevelState.platforms, activePlatform, inactivePlatform];
+                } else {
+                    newElement = new Platform({ x: logicalX, y: logicalY, color: elementColor, width: platformSize.width, height: platformSize.height });
+                    nextLevelState.platforms = [...nextLevelState.platforms, newElement];
+                }
                 changeMade = true;
                 break;
             case 'spike':
-                newElement = new Spike({ x: logicalX, y: logicalY, color: elementColor });
-                nextLevelState.obstacles = [...nextLevelState.obstacles, newElement];
+                if (platformSize.dualColor) {
+                    const activeSpike = new Spike({ x: logicalX, y: logicalY, color: elementColor });
+                    const inactiveSpike = new Spike({ x: logicalX, y: logicalY, color: getInactiveColor(isInverted) });
+                    nextLevelState.obstacles = [...nextLevelState.obstacles, activeSpike, inactiveSpike];
+                } else {
+                    newElement = new Spike({ x: logicalX, y: logicalY, color: elementColor });
+                    nextLevelState.obstacles = [...nextLevelState.obstacles, newElement];
+                }
                 changeMade = true;
                 break;
             case 'trampoline':
-                newElement = new Trampoline({ x: logicalX, y: logicalY, color: elementColor });
-                nextLevelState.trampolines = [...nextLevelState.trampolines, newElement];
+                if (platformSize.dualColor) {
+                    const activeTrampoline = new Trampoline({ x: logicalX, y: logicalY, color: elementColor });
+                    const inactiveTrampoline = new Trampoline({ x: logicalX, y: logicalY, color: getInactiveColor(isInverted) });
+                    nextLevelState.trampolines = [...nextLevelState.trampolines, activeTrampoline, inactiveTrampoline];
+                } else {
+                    newElement = new Trampoline({ x: logicalX, y: logicalY, color: elementColor });
+                    nextLevelState.trampolines = [...nextLevelState.trampolines, newElement];
+                }
                 changeMade = true;
                 break;
             case 'portal':
