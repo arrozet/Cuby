@@ -99,7 +99,7 @@ const LevelSelect = () => {
         NIVELES
       </UserLevelsButton>
 
-      <h1>Selección de Nivel</h1> {/* Título añadido */}
+      <h1>Selección de nivel</h1> {/* Título añadido */}
 
       <LevelsGrid>
         {levels.map(level => (

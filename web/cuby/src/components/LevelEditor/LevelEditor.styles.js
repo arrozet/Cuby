@@ -382,6 +382,17 @@ export const SaveDialogContent = styled.div`
   min-width: 300px;
   max-width: 90%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: ${props => props.$isInverted ? '#fff' : '#333'};
+
+  h2 {
+    color: ${props => props.$isInverted ? '#fff' : '#333'};
+    margin-top: 0;
+  }
+
+  p {
+    color: ${props => props.$isInverted ? '#fff' : '#333'};
+    margin: 10px 0;
+  }
 `;
 
 export const Input = styled.input`

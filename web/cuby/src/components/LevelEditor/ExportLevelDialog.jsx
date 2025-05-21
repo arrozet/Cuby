@@ -36,7 +36,7 @@ const ExportLevelDialog = ({
     return (
         <SaveDialog onClick={handleBackdropClick}>
             <SaveDialogContent $isInverted={isInverted} onClick={(e) => e.stopPropagation()}>
-                <h2>Exportar Nivel</h2>
+                <h2>Exportar nivel</h2>
                 <p>Código del nivel copiado al portapapeles:</p>
                 <CodeContainer $isInverted={isInverted}>
                     {exportCode}
