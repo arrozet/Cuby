@@ -17,7 +17,7 @@ export const BackArrowContainer = styled.div`
     height: auto;
   }
   
-  .arrow-icon {
+   .arrow-icon {
     path:nth-child(2) {
       d: path('M1.5 4H12.5H4');
     }

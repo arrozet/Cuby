@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { getActiveColor, getInactiveColor } from '../../utils/colors';
+import { getActiveColor } from '../../utils/colors';
 
 const LevelNameDisplayEdit = ({
     levelName,
@@ -11,7 +11,6 @@ const LevelNameDisplayEdit = ({
 }) => {
     const inputRef = useRef(null);
     const activeColor = getActiveColor($isInverted);
-    const inactiveColor = getInactiveColor($isInverted);
 
     useEffect(() => {
         if (isEditing && inputRef.current) {
@@ -35,35 +34,39 @@ const LevelNameDisplayEdit = ({
     };
 
     const containerStyle = {
-        width: '100%',
-        textAlign: 'center',
-        fontSize: '1.5rem',
+        display: 'inline-block',
+        maxWidth: '40%',
+        textAlign: 'left',
+        fontSize: '1.3rem',
         fontWeight: 'bold',
         color: activeColor,
-        background: `${inactiveColor}08`,
-        padding: '10px 0',
+        background: 'transparent',
+        padding: '10px',
         letterSpacing: '1px',
-        borderBottom: `1px solid ${activeColor}22`,
         cursor: 'pointer',
         minHeight: '40px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        verticalAlign: 'middle',
     };
 
     const inputStyle = {
-        fontSize: '1.5rem',
+        fontSize: '1.3rem',
         fontWeight: 'bold',
         color: activeColor,
-        background: `${inactiveColor}08`,
+        background: 'transparent',
         border: `1px solid ${activeColor}99`,
         borderRadius: '4px',
         padding: '2px 8px',
-        width: '60%',
-        textAlign: 'center',
+        width: '100%',
     };
 
     return (
         <div
             style={containerStyle}
             onClick={() => !isEditing && setIsEditing(true)}
+            title={levelName?.trim() ? levelName : 'Nivel sin título'}
         >
             {isEditing ? (
                 <input
@@ -78,7 +81,9 @@ const LevelNameDisplayEdit = ({
                     onClick={(e) => e.stopPropagation()}
                 />
             ) : (
-                levelName?.trim() ? levelName : 'Nivel sin título'
+                <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {levelName?.trim() ? levelName : 'Nivel sin título'}
+                </span>
             )}
         </div>
     );

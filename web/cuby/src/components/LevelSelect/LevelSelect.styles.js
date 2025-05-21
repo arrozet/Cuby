@@ -29,6 +29,13 @@ export const LevelSelectContainer = styled.div`
   padding: 20px; /* Add base padding */
   padding-top: 80px; /* Extra padding top for buttons */
   overflow-y: auto; /* Allow scroll if content overflows */
+
+  h1 {
+    color: ${props => getActiveColor(props.$isInverted)};
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    margin: 20px 0;
+    text-align: center;
+  }
 `;
 
 // Title removed as it wasn't in the original LevelSelect.jsx, add if needed

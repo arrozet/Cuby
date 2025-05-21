@@ -278,14 +278,6 @@ const LevelEditor = () => {
     // --------- Fin de la sección de Renderizado del Componente (JSX) --------
     return (
         <EditorContainer $isInverted={isInverted}>
-            <LevelNameDisplayEdit
-                levelName={levelName}
-                onLevelNameChange={(e) => setLevelName(e.target.value)}
-                onLevelNameSave={handleNameInputBlur}
-                isEditing={isEditingName}
-                setIsEditing={setIsEditingName}
-                $isInverted={isInverted}
-            />
             <Toolbar
                 editorMode={editorMode}
                 onSetMode={setEditorMode}
@@ -297,6 +289,16 @@ const LevelEditor = () => {
                 hasUnsavedChanges={hasUnsavedChanges}
                 isLevelLoaded={!!level}
                 isInverted={isInverted}
+                levelNameComponent={
+                    <LevelNameDisplayEdit
+                        levelName={levelName}
+                        onLevelNameChange={(e) => setLevelName(e.target.value)}
+                        onLevelNameSave={handleNameInputBlur}
+                        isEditing={isEditingName}
+                        setIsEditing={setIsEditingName}
+                        $isInverted={isInverted}
+                    />
+                }
             />
 
             <div style={{ display: 'flex', flex: 1, width: '100%', overflow: 'hidden', position: 'relative' }}>
