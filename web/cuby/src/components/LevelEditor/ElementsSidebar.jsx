@@ -111,7 +111,7 @@ const ElementsSidebar = ({
                         <input
                             type="range"
                             min="10"
-                            max="100"
+                            max="500"
                             value={platformSize.height}
                             onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
                             style={{
