@@ -112,12 +112,6 @@ const LevelSelect = () => {
             title={level.locked ? "Nivel bloqueado" : level.name} // Tooltip con el nombre
           >
             <div className="level-number">{level.id}</div>
-            {/* Mostrar nombre del nivel si no está bloqueado y es corto, o como tooltip */}
-            {!level.locked && level.name && (
-              <div className="level-name" style={{ fontSize: '0.8em', marginTop: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {level.name}
-              </div>
-            )}
             {level.locked && (
               <div className="lock-icon">
                 <FontAwesomeIcon icon={faLock} />
