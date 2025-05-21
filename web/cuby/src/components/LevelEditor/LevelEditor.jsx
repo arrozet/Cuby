@@ -203,7 +203,8 @@ const LevelEditor = () => {
         handleCanvasClick,
         handleCanvasContextMenu,
         handleCanvasMouseLeave,
-        handlePointerMove
+        handlePointerMove,
+        handlePointerUp
     } = useCanvasInteraction({
         canvasRef,
         contentWrapperRef,
@@ -312,7 +313,7 @@ const LevelEditor = () => {
                     onMouseUp={() => { /* Podría terminar paneo */ }}
                     onTouchStart={(e) => { /* Podría iniciar interacción táctil, e.preventDefault() si es necesario */ }}
                     onTouchMove={handlePointerMove}
-                    onTouchEnd={() => { /* Podría terminar interacción táctil */ }}
+                    onTouchEnd={handlePointerUp}
                     $isInverted={isInverted}
                     editorMode={editorMode}
                 >
