@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   SettingsContainer, 
@@ -7,50 +7,17 @@ import {
   Section,
   SectionTitle,
   VolumeSlider,
-  ControlsSection,
-  ControlsRow,
-  ControlGroup,
-  ControlLabel,
-  KeyButton, // Base button component
-  SpacebarButton, // Larger button component
-  JumpControlGroup,
-  ErrorMessage,
-  ResetButton,
-  ResetControlsButton
 } from './Settings.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
 import BackArrow from '../common/BackArrow/BackArrow';
+import ControlsSection from './components/ControlsSection';
+import ProgressSection from './components/ProgressSection';
 
-/**
- * Componente Settings - Pantalla de configuración del juego
- * 
- * Permite configurar:
- * - Volumen del juego
- * - Controles personalizables
- * - Inversión de colores (con tecla E)
- * 
- * @component
- */
 const Settings = () => {
   const navigate = useNavigate();
-  const { isInverted, toggleInversion } = useInversion();
-  const { 
-    volume, 
-    changeVolume, 
-    keyMapping, 
-    changingControl, 
-    startChangingControl,
-    errorMessage,
-    completedLevels,
-    resetCompletedLevels,
-    resetKeyMapping
-  } = useSettings();
-
-  // Estado para controlar si la tecla E ya fue procesada
-  const [eKeyPressed, setEKeyPressed] = useState(false);
-  // Estado para mostrar un mensaje de confirmación después de resetear niveles
-  const [resetMessage, setResetMessage] = useState('');
+  const { isInverted } = useInversion();
+  const { volume, changeVolume } = useSettings();
 
   const handleBack = () => {
     navigate('/levels');
@@ -60,92 +27,6 @@ const Settings = () => {
     const newVolume = parseFloat(e.target.value);
     changeVolume(newVolume);
   };
-
-  // Cambiado: Ahora solo inicia el proceso de cambiar una tecla cuando se hace clic en un botón
-  const handleKeyClick = (controlKey) => {
-    // No permitir cambiar la tecla "E" de invertir colores
-    if (controlKey === 'invertColors') return;
-    
-    // Iniciar el proceso de cambio de tecla
-    startChangingControl(controlKey);
-  };
-
-  // Función para resetear el progreso de los niveles
-  const handleResetProgress = () => {
-    resetCompletedLevels();
-    setResetMessage('Progreso de niveles reseteado. Ahora solo el nivel 1 está desbloqueado.');
-    setTimeout(() => {
-      setResetMessage('');
-    }, 3000);
-  };
-
-  /**
-   * Maneja la detección de la tecla E para invertir colores
-   * No se activa cuando se está cambiando un control
-   */
-  const handleKeyDown = useCallback((e) => {
-    // Solo procesamos la tecla E cuando no estamos cambiando un control
-    if (e.key.toLowerCase() === 'e' && !changingControl && !eKeyPressed) {
-      setEKeyPressed(true);
-      toggleInversion();
-    }
-  }, [toggleInversion, changingControl, eKeyPressed]);
-
-  const handleKeyUp = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e') {
-      setEKeyPressed(false);
-    }
-  }, []);
-
-  // Efecto para detectar la pulsación de la tecla E
-  useEffect(() => {
-    // No configuramos los event listeners si estamos cambiando un control
-    if (!changingControl) {
-      window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
-    }
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [handleKeyDown, handleKeyUp, changingControl]);
-
-  // Mapeo de las teclas a sus descripciones en pantalla
-  const controlDescriptions = {
-    jump: 'Saltar',
-    jumpAlt: 'Saltar',
-    left: 'Izquierda',
-    right: 'Derecha',
-    crouch: 'Agacharse',
-    interact: 'Interactuar',
-    invertColors: 'Invertir colores',
-    restart: 'Reiniciar'
-  };
-
-  // Helper function to get the correct button component based on the assigned key
-  const getButtonComponent = (controlKey) => {
-    // Check if keyMapping and the specific controlKey exist before accessing key
-    // FIX: Check the 'name' property instead of 'key'
-    return keyMapping?.[controlKey]?.name === ' ' 
-      ? SpacebarButton 
-      : KeyButton;
-  };
-
-  // Dynamically determine button components only if keyMapping is loaded
-  const JumpButton = keyMapping ? getButtonComponent('jump') : KeyButton;
-  const JumpAltButton = keyMapping ? getButtonComponent('jumpAlt') : KeyButton;
-  const InvertColorsButton = keyMapping ? getButtonComponent('invertColors') : KeyButton;
-  const RestartButton = keyMapping ? getButtonComponent('restart') : KeyButton;
-  const LeftButton = keyMapping ? getButtonComponent('left') : KeyButton;
-  const CrouchButton = keyMapping ? getButtonComponent('crouch') : KeyButton;
-  const RightButton = keyMapping ? getButtonComponent('right') : KeyButton;
-  const InteractButton = keyMapping ? getButtonComponent('interact') : KeyButton;
-
-  // Render null or a loading indicator if keyMapping is not yet available
-  if (!keyMapping) {
-    return <div>Loading settings...</div>; // Or return null, or a spinner
-  }
 
   return (
     <SettingsContainer $isInverted={isInverted}>
@@ -170,160 +51,11 @@ const Settings = () => {
         {/* Sección de controles */}
         <Section>
           <SectionTitle $isInverted={isInverted}>Controles</SectionTitle>
-          
-          {/* Mostrar mensaje de error si existe */}
-          {errorMessage && (
-            <ErrorMessage $isInverted={isInverted}>
-              {errorMessage}
-            </ErrorMessage>
-          )}
-          
-          <ControlsSection>
-            {/* Primera fila: Saltar (W + Barra espaciadora), Invertir colores (E), Reiniciar (R) */}
-            <ControlsRow>
-              {/* Grupo de W y Barra espaciadora para saltar */}
-              <JumpControlGroup $isInverted={isInverted}>
-                <ControlLabel $isInverted={isInverted}>Saltar</ControlLabel>
-                {/* Use dynamic component for jump */}
-                <JumpButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'jump'}
-                  onClick={() => handleKeyClick('jump')}
-                >
-                  {keyMapping.jump.display}
-                </JumpButton>
-                {/* Use dynamic component for jumpAlt */}
-                <JumpAltButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'jumpAlt'}
-                  onClick={() => handleKeyClick('jumpAlt')}
-                >
-                  {keyMapping.jumpAlt.display}
-                </JumpAltButton>
-              </JumpControlGroup>
-              
-              {/* Invertir colores (E) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Invertir colores</ControlLabel>
-                {/* Use dynamic component for invertColors */}
-                <InvertColorsButton 
-                  $isInverted={isInverted} 
-                  // $isChanging={changingControl === 'invertColors'} // Este control no se puede cambiar
-                  onClick={() => toggleInversion()} // La E siempre invertirá colores
-                >
-                  {keyMapping.invertColors.display}
-                </InvertColorsButton>
-              </ControlGroup>
-              
-              {/* Reiniciar (R) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Reiniciar</ControlLabel>
-                {/* Use dynamic component for restart */}
-                <RestartButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'restart'}
-                  onClick={() => handleKeyClick('restart')}
-                >
-                  {keyMapping.restart.display}
-                </RestartButton>
-              </ControlGroup>
-            </ControlsRow>
-            
-            {/* Segunda fila: Izquierda (A), Agacharse (S), Derecha (D), Interactuar (F) */}
-            <ControlsRow>
-              {/* Izquierda (A) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Izquierda</ControlLabel>
-                {/* Use dynamic component for left */}
-                <LeftButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'left'}
-                  onClick={() => handleKeyClick('left')}
-                >
-                  {keyMapping.left.display}
-                </LeftButton>
-              </ControlGroup>
-              
-              {/* Agacharse (S) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Agacharse</ControlLabel>
-                {/* Use dynamic component for crouch */}
-                <CrouchButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'crouch'}
-                  onClick={() => handleKeyClick('crouch')}
-                >
-                  {keyMapping.crouch.display}
-                </CrouchButton>
-              </ControlGroup>
-              
-              {/* Derecha (D) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Derecha</ControlLabel>
-                {/* Use dynamic component for right */}
-                <RightButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'right'}
-                  onClick={() => handleKeyClick('right')}
-                >
-                  {keyMapping.right.display}
-                </RightButton>
-              </ControlGroup>
-              
-              {/* Interactuar (F) */}
-              <ControlGroup>
-                <ControlLabel $isInverted={isInverted}>Interactuar</ControlLabel>
-                {/* Use dynamic component for interact */}
-                <InteractButton 
-                  $isInverted={isInverted} 
-                  $isChanging={changingControl === 'interact'}
-                  onClick={() => handleKeyClick('interact')}
-                >
-                  {keyMapping.interact.display}
-                </InteractButton>
-              </ControlGroup>
-            </ControlsRow>
-          </ControlsSection>
-
-          {/* Botón para resetear controles */}
-          <ResetControlsButton
-            onClick={resetKeyMapping}
-            $isInverted={isInverted}
-          >
-            Restablecer controles predeterminados
-          </ResetControlsButton>
-          
-          {changingControl && !errorMessage && (
-            <div style={{ textAlign: 'center', marginTop: '20px', color: isInverted ? 'black' : 'white' }}>
-              Presiona una tecla para asignarla a "{controlDescriptions[changingControl]}" o ESC para cancelar
-            </div>
-          )}
+          <ControlsSection />
         </Section>
         
-        {/* Sección de progreso del juego */}
-        <Section>
-          <SectionTitle $isInverted={isInverted}>Progreso del Juego</SectionTitle>
-          
-          <div style={{ marginBottom: '15px', color: isInverted ? 'black' : 'white' }}>
-            Niveles completados: {completedLevels.length === 1
-              ? 'Nivel 1' 
-              : completedLevels.filter(id => id !== 1).map(id => `Nivel ${id}`).join(', ')
-            }
-          </div>
-          
-          <ResetButton 
-            onClick={handleResetProgress}
-            $isInverted={isInverted}
-          >
-            Resetear progreso de niveles
-          </ResetButton>
-          
-          {resetMessage && (
-            <ErrorMessage $isInverted={isInverted} $success>
-              {resetMessage}
-            </ErrorMessage>
-          )}
-        </Section>
+        {/* Sección de progreso */}
+        <ProgressSection isInverted={isInverted} />
       </SettingsContent>
     </SettingsContainer>
   );

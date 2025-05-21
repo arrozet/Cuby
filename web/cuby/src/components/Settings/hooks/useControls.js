@@ -16,37 +16,27 @@ export const useControls = () => {
     resetKeyMapping
   } = useSettings();
 
-  const [eKeyPressed, setEKeyPressed] = useState(false);
-
-  const handleKeyClick = useCallback((controlKey) => {
-    if (controlKey === 'invertColors') return;
+  // Ahora cualquier control puede ser cambiado, incluido invertColors
+  const handleKeyClick = (controlKey) => {
     startChangingControl(controlKey);
-  }, [startChangingControl]);
+  };
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e' && !changingControl && !eKeyPressed) {
-      setEKeyPressed(true);
-      toggleInversion();
-    }
-  }, [toggleInversion, changingControl, eKeyPressed]);
-
-  const handleKeyUp = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e') {
-      setEKeyPressed(false);
-    }
-  }, []);
-
+  // Permitir seleccionar un control pulsando la tecla física
   useEffect(() => {
-    if (!changingControl) {
+    if (!changingControl && keyMapping) {
+      const handleKeyDown = (e) => {
+        // Busca el control que tiene asignada la tecla pulsada
+        const foundControl = Object.keys(keyMapping).find(
+          (control) => keyMapping[control]?.name?.toLowerCase() === e.key.toLowerCase()
+        );
+        if (foundControl) {
+          startChangingControl(foundControl);
+        }
+      };
       window.addEventListener('keydown', handleKeyDown);
-      window.addEventListener('keyup', handleKeyUp);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [handleKeyDown, handleKeyUp, changingControl]);
+  }, [changingControl, keyMapping, startChangingControl]);
 
   return {
     isInverted,

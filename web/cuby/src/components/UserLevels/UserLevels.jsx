@@ -13,6 +13,7 @@ import BackArrow from '../common/BackArrow/BackArrow';
 import ConfirmationModal from '../common/ConfirmationModal/ConfirmationModal'; // Importa el nuevo modal
 import { useInversion } from '../../context/InversionContext';
 import { getUserLevels, deleteUserLevel } from '../../utils/levelManager';
+import { useSettings } from '../../context/SettingsContext';
 
 const UserLevels = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const UserLevels = () => {
   const [keyPressed, setKeyPressed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar la visibilidad del modal
   const [levelToDeleteId, setLevelToDeleteId] = useState(null); // Estado para guardar el ID del nivel a eliminar
+  const { keyMapping } = useSettings();
 
   useEffect(() => {
     const userLevels = getUserLevels();
@@ -28,7 +30,7 @@ const UserLevels = () => {
   }, []);
 
   const handleKeyDown = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e' && !keyPressed) {
+    if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase() && !keyPressed) {
       setKeyPressed(true);
       toggleInversion();
     } else if (e.key === 'Escape') {
@@ -42,7 +44,7 @@ const UserLevels = () => {
   }, [navigate, toggleInversion, keyPressed, isModalOpen]); // Añade isModalOpen a las dependencias
 
   const handleKeyUp = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e') {
+    if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
       setKeyPressed(false);
     }
   }, []);

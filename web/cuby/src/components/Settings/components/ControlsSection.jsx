@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ControlsSection as StyledControlsSection,
   ControlsRow,
@@ -26,16 +26,34 @@ const ControlsSection = () => {
     resetKeyMapping
   } = useControls();
 
+  // Estado local para ocultar el mensaje de error tras unos segundos
+  const [localError, setLocalError] = useState(errorMessage);
+
+  useEffect(() => {
+    setLocalError(errorMessage);
+    if (errorMessage) {
+      const timer = setTimeout(() => setLocalError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  // Mostrar el mensaje de ayuda arriba, como el de error
+  const showHelp = changingControl && !localError;
+
   if (!keyMapping) return null;
 
   return (
     <StyledControlsSection>
-      {errorMessage && (
+      {localError && (
         <ErrorMessage $isInverted={isInverted}>
-          {errorMessage}
+          {localError}
         </ErrorMessage>
       )}
-      
+      {showHelp && (
+        <ErrorMessage $isInverted={isInverted} $success>
+          Presiona una tecla para asignarla a "{controlDescriptions[changingControl]}" o ESC para cancelar
+        </ErrorMessage>
+      )}
       <ControlsRow>
         <JumpControlGroup $isInverted={isInverted}>
           <ControlLabel $isInverted={isInverted}>Saltar</ControlLabel>
@@ -60,6 +78,8 @@ const ControlsSection = () => {
           <ControlButton
             controlKey="invertColors"
             isInverted={isInverted}
+            changingControl={changingControl}
+            onClick={handleKeyClick}
             display={keyMapping.invertColors.display}
           />
         </ControlGroup>
@@ -128,12 +148,6 @@ const ControlsSection = () => {
       >
         Restablecer controles predeterminados
       </ResetControlsButton>
-
-      {changingControl && !errorMessage && (
-        <div style={{ textAlign: 'center', marginTop: '20px', color: isInverted ? 'black' : 'white' }}>
-          Presiona una tecla para asignarla a "{controlDescriptions[changingControl]}" o ESC para cancelar
-        </div>
-      )}
     </StyledControlsSection>
   );
 };

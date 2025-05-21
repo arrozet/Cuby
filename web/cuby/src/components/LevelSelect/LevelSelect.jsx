@@ -22,7 +22,7 @@ const LevelSelect = () => {
   const navigate = useNavigate();
   const [levels, setLevels] = useState([]);
   const { isInverted, toggleInversion } = useInversion();
-  const { isLevelUnlocked, completedLevels } = useSettings();
+  const { isLevelUnlocked, completedLevels, keyMapping } = useSettings();
   const [keyPressed, setKeyPressed] = useState(false);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const LevelSelect = () => {
     if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         return; // No hacer nada si se está escribiendo en un input
     }
-    if (e.key.toLowerCase() === 'e' && !keyPressed) {
+    if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase() && !keyPressed) {
       setKeyPressed(true);
       toggleInversion();
     } else if (e.key === 'Escape') {
@@ -64,7 +64,7 @@ const LevelSelect = () => {
   }, [navigate, toggleInversion, keyPressed]);
 
   const handleKeyUp = useCallback((e) => {
-    if (e.key.toLowerCase() === 'e') {
+    if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
       setKeyPressed(false);
     }
   }, []);

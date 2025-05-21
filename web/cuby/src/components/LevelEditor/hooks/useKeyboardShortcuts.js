@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSettings } from '../../../context/SettingsContext';
 
 /**
  * Hook personalizado para manejar los atajos de teclado en el editor de niveles.
@@ -29,6 +30,7 @@ export const useKeyboardShortcuts = ({
     toggleInversion,
 }) => {
     const [eKeyPressed, setEKeyPressed] = useState(false);
+    const { keyMapping } = useSettings();
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -56,7 +58,7 @@ export const useKeyboardShortcuts = ({
             // Maneja la tecla 'E' para la inversión de colores
             // Solo funciona si no hay diálogos abiertos y ningún input está activo
             if (
-                e.key.toLowerCase() === 'e' &&
+                e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase() &&
                 !eKeyPressed &&
                 !saveDialogOpen &&
                 !isExitConfirmModalOpen &&
@@ -68,7 +70,7 @@ export const useKeyboardShortcuts = ({
         };
 
         const handleKeyUp = (e) => {
-            if (e.key.toLowerCase() === 'e') {
+            if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
                 setEKeyPressed(false);
             }
         };
@@ -94,6 +96,7 @@ export const useKeyboardShortcuts = ({
         setPendingPortal,
         setPreviewElement,
         setSelectedElement,
+        keyMapping,
     ]);
 
     // Este hook no necesita devolver ningún valor visible, solo gestiona efectos.

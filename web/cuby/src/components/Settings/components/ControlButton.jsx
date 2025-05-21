@@ -12,7 +12,13 @@ import { KeyButton, SpacebarButton } from '../Settings.styles';
  * @returns {JSX.Element} Control button component
  */
 const ControlButton = ({ controlKey, isInverted, changingControl, onClick, display }) => {
-  const ButtonComponent = display === ' ' ? SpacebarButton : KeyButton;
+  const isSpacebar =
+    controlKey === 'jumpAlt' ||
+    display === ' ' ||
+    display.toLowerCase().includes('espaciadora') ||
+    display.toLowerCase() === 'space';
+
+  const ButtonComponent = isSpacebar ? SpacebarButton : KeyButton;
   
   return (
     <ButtonComponent

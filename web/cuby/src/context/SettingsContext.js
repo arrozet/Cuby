@@ -85,11 +85,8 @@ export const SettingsProvider = ({ children }) => {
   // Función para iniciar el cambio de un control
   const startChangingControl = (controlKey) => {
     // ESC no se puede reasignar a ningún control
-    if (controlKey === 'invertColors') return; // E también es especial y no se puede cambiar
-    
-    // Limpiar cualquier mensaje de error previo
+    // (Ya no bloqueamos invertColors)
     setErrorMessage(null);
-    
     setChangingControl(controlKey);
   };
       // Obtener la descripción de un control para mostrar mensajes de error
@@ -128,15 +125,9 @@ export const SettingsProvider = ({ children }) => {
   const assignNewKey = useCallback((key) => {
     if (!changingControl) return;
     
-    // Evitar asignar la tecla ESC o E (invertir colores)
+    // Evitar asignar la tecla ESC
     if (key.toLowerCase() === 'escape') {
       setChangingControl(null);
-      return;
-    }
-    
-    if (key.toLowerCase() === 'e' && changingControl !== 'invertColors') {
-      setErrorMessage("La tecla 'E' está reservada para invertir colores y no se puede reasignar.");
-      setTimeout(() => setErrorMessage(null), 3000); // Limpiar el mensaje después de 3 segundos
       return;
     }
     
