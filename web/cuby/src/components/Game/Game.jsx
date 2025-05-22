@@ -13,7 +13,7 @@ import useGamePhysics from './GamePhysics';
 import useGameState from './GameState';
 import GameRenderer from './GameRenderer';
 
-/**
+/** 
  * Game Component - El componente principal del juego que maneja la lógica del gameplay
  *
  * Este componente coordina los subcomponentes:
