@@ -63,7 +63,7 @@ const ProgressSection = ({ isInverted }) => {
             <h2>¿Restablecer progreso?</h2>
             <p>¿Está seguro de que desea restablecer todo el progreso?<br/>Esta acción es irreversible.</p>
             <SaveDialogButtons $isInverted={isInverted}>
-              <button onClick={handleConfirm}>Sí, restablecer</button>
+              <button onClick={handleConfirm}>Restablecer</button>
               <button onClick={handleCancel}>Cancelar</button>
             </SaveDialogButtons>
           </SaveDialogContent>
