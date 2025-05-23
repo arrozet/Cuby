@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { controlDescriptions } from '../components/Settings/constants/controls';
 
 /**
  * Contexto para almacenar y gestionar las configuraciones del juego
@@ -17,8 +18,6 @@ const DEFAULT_KEY_MAPPING = {
   jumpAlt: { name: ' ', display: 'Barra espaciadora' },
   left: { name: 'A', display: 'A' },
   right: { name: 'D', display: 'D' },
-  crouch: { name: 'S', display: 'S' },
-  interact: { name: 'F', display: 'F' },
   invertColors: { name: 'E', display: 'E' },
   restart: { name: 'R', display: 'R' },
 };
@@ -91,17 +90,7 @@ export const SettingsProvider = ({ children }) => {
   };
       // Obtener la descripción de un control para mostrar mensajes de error
   const getControlDescription = useCallback((controlKey) => {
-    const descriptions = {
-      jump: 'Saltar',
-      jumpAlt: 'Saltar (alternativo)',
-      left: 'Izquierda',
-      right: 'Derecha',
-      crouch: 'Agacharse',
-      interact: 'Interactuar',
-      invertColors: 'Invertir colores',
-      restart: 'Reiniciar'
-    };
-    return descriptions[controlKey] || controlKey;
+    return controlDescriptions[controlKey] || controlKey;
   }, []);
     // Verificar si una tecla ya está asignada a otro control
   const isKeyAlreadyAssigned = useCallback((key, currentControlKey) => {

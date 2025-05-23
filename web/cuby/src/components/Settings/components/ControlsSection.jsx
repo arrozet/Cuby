@@ -109,17 +109,6 @@ const ControlsSection = () => {
         </ControlGroup>
 
         <ControlGroup>
-          <ControlLabel $isInverted={isInverted}>Agacharse</ControlLabel>
-          <ControlButton
-            controlKey="crouch"
-            isInverted={isInverted}
-            changingControl={changingControl}
-            onClick={handleKeyClick}
-            display={keyMapping.crouch.display}
-          />
-        </ControlGroup>
-
-        <ControlGroup>
           <ControlLabel $isInverted={isInverted}>Derecha</ControlLabel>
           <ControlButton
             controlKey="right"
@@ -127,17 +116,6 @@ const ControlsSection = () => {
             changingControl={changingControl}
             onClick={handleKeyClick}
             display={keyMapping.right.display}
-          />
-        </ControlGroup>
-
-        <ControlGroup>
-          <ControlLabel $isInverted={isInverted}>Interactuar</ControlLabel>
-          <ControlButton
-            controlKey="interact"
-            isInverted={isInverted}
-            changingControl={changingControl}
-            onClick={handleKeyClick}
-            display={keyMapping.interact.display}
           />
         </ControlGroup>
       </ControlsRow>

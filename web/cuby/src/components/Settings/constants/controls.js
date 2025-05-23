@@ -7,8 +7,6 @@ export const controlDescriptions = {
   jumpAlt: 'Saltar',
   left: 'Izquierda',
   right: 'Derecha',
-  crouch: 'Agacharse',
-  interact: 'Interactuar',
   invertColors: 'Invertir colores',
   restart: 'Reiniciar'
 }; 
