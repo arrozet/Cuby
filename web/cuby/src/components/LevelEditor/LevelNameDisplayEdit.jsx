@@ -64,7 +64,7 @@ const LevelNameDisplayEdit = ({
     };
 
     return (
-        <div
+        <h1
             style={containerStyle}
             onClick={() => !isEditing && setIsEditing(true)}
             title={
@@ -88,7 +88,7 @@ const LevelNameDisplayEdit = ({
                     {levelName?.trim() ? levelName : 'Nivel sin título'}
                 </span>
             )}
-        </div>
+        </h1>
     );
 };
 

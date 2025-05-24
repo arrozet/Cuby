@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Section, SectionTitle, ResetButton, ErrorMessage } from '../Settings.styles';
 import { useSettings } from '../../../context/SettingsContext';
-import { SaveDialog, SaveDialogContent, SaveDialogButtons } from '../../LevelEditor/LevelEditor.styles';
+import { SaveDialog, SaveDialogContent, SaveDialogButtons } from '../../LevelEditor/dialogs/dialogs.styles';
 
 /**
  * Component that renders the game progress section

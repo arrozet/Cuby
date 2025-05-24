@@ -21,10 +21,12 @@ import {
 import LevelNameDisplayEdit from './LevelNameDisplayEdit';
 import Toolbar from './Toolbar';
 import ElementsSidebar from './ElementsSidebar';
-import SaveLevelDialog from './SaveLevelDialog';
-import ImportLevelDialog from './ImportLevelDialog';
-import ExportLevelDialog from './ExportLevelDialog';
-import ImportSuccessDialog from './ImportSuccessDialog';
+import {
+    ExportLevelDialog,
+    ImportLevelDialog,
+    ImportSuccessDialog,
+    SaveLevelDialog
+} from './dialogs';
 import { useLevelManager } from './hooks/useLevelManager';
 import { useEditorModeManager } from './hooks/useEditorModeManager';
 
