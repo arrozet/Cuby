@@ -22,7 +22,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, message, isInverted }) 
   return (
     <ModalOverlay onClick={onClose} $isInverted={isInverted}>
       <ModalContainer onClick={handleModalContentClick} $isInverted={isInverted}>
-        <ModalMessage $isInverted={isInverted}>{message}</ModalMessage>
+        <ModalMessage as="h2" $isInverted={isInverted}>{message}</ModalMessage>
         <ModalButtonContainer>
           <CancelButton onClick={onClose} $isInverted={isInverted}>
             Cancelar

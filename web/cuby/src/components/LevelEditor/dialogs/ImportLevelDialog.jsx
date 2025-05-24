@@ -48,6 +48,7 @@ const ImportLevelDialog = ({ isOpen, onClose, onConfirm, isInverted }) => {
                 $isInverted={isInverted}
                 autoFocus
                 onKeyDown={handleKeyDown}
+                aria-label="Introducir código del nivel"
             />
         </BaseDialog>
     );

@@ -47,6 +47,7 @@ const SaveLevelDialog = ({
                 $isInverted={isInverted}
                 autoFocus
                 onKeyDown={handleKeyDown}
+                aria-label="Introducir nombre del nivel"
             />
         </BaseDialog>
     );

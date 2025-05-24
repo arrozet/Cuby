@@ -32,6 +32,7 @@ const MobileControls = ({
           onTouchStart={handleTouchStart(onLeftPress)}
           onTouchEnd={onLeftTouchEnd}
           $isInverted={isInverted}
+          aria-label="Mover a la izquierda"
         >
           <FaArrowLeft />
         </LeftButton>
@@ -39,6 +40,7 @@ const MobileControls = ({
           onTouchStart={handleTouchStart(onRightPress)}
           onTouchEnd={onRightTouchEnd}
           $isInverted={isInverted}
+          aria-label="Mover a la derecha"
         >
           <FaArrowRight />
         </RightButton>
@@ -48,12 +50,14 @@ const MobileControls = ({
         <JumpButton 
           onTouchStart={handleTouchStart(onJumpPress)}
           $isInverted={isInverted}
+          aria-label="Saltar"
         >
           <FaArrowUp />
         </JumpButton>
         <ColorButton 
           onTouchStart={handleTouchStart(onColorPress)}
           $isInverted={isInverted}
+          aria-label="Invertir colores"
         >
           <FaPalette />
         </ColorButton>
