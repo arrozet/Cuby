@@ -282,7 +282,7 @@ const LevelEditor = () => {
     return (
         <EditorContainer $isInverted={isInverted}>
             <Toolbar
-                editorMode={editorMode}
+                $editorMode={editorMode}
                 onSetMode={setEditorMode}
                 onToggleInversion={toggleInversion}
                 onExportLevel={handleExport}
@@ -317,7 +317,7 @@ const LevelEditor = () => {
                     onTouchMove={handlePointerMove}
                     onTouchEnd={handlePointerUp}
                     $isInverted={isInverted}
-                    editorMode={editorMode}
+                    $editorMode={editorMode}
                 >
                     <CanvasRenderer
                         ref={contentWrapperRef}

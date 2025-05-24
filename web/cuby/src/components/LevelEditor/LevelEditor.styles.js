@@ -87,9 +87,9 @@ export const EditorCanvas = styled.div`
   position: relative; 
   overflow: hidden;
   cursor: ${props => {
-    if (props.editorMode === 'pan') {
+    if (props.$editorMode === 'pan') {
       return props.$isDragging ? 'grabbing' : 'grab'; 
-    } else if (props.editorMode === 'erase') {
+    } else if (props.$editorMode === 'erase') {
       return 'cell'; 
     } else {
       return 'crosshair'; 
