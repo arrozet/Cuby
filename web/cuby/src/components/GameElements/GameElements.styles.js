@@ -91,10 +91,27 @@ export const Trampoline = styled.div.attrs(props => ({
         : props.color === getActiveColor(props.$isInverted)
           ? getActiveColor(props.$isInverted)
           : 'transparent',
-    borderBottom: `5px solid ${props.color === getActiveColor(props.$isInverted) ? getActiveColor(props.$isInverted) : 'transparent'}`,
-    border:
+    // CORREGIR: Usar solo borderTop, borderRight, borderLeft, borderBottom en lugar de border (conflicto entre propiedades CSS de borde)
+    borderTop:
       props.$showSilhouette && props.color !== getActiveColor(props.$isInverted)
-        ? `2px dashed #888` : 'none'
+        ? `2px dashed #888` :
+      props.color === getActiveColor(props.$isInverted)
+        ? '1px solid #333' : 'none',
+    borderRight:
+      props.$showSilhouette && props.color !== getActiveColor(props.$isInverted)
+        ? `2px dashed #888` :
+      props.color === getActiveColor(props.$isInverted)
+        ? '1px solid #333' : 'none',
+    borderBottom:
+      props.$showSilhouette && props.color !== getActiveColor(props.$isInverted)
+        ? `2px dashed #888` :
+      props.color === getActiveColor(props.$isInverted)
+        ? '1px solid #333' : 'none',
+    borderLeft:
+      props.$showSilhouette && props.color !== getActiveColor(props.$isInverted)
+        ? `2px dashed #888` :
+      props.color === getActiveColor(props.$isInverted)
+        ? '1px solid #333' : 'none'
   }
 }))`
   position: absolute;
