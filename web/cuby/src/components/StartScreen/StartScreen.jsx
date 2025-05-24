@@ -18,13 +18,13 @@ const StartScreen = () => {
     } else if (e.key !== keyMapping.invertColors.name.toLowerCase() && !keyPressed) {
       navigate('/levels');
     }
-  }, [navigate, toggleInversion, keyPressed]);
+  }, [navigate, toggleInversion, keyPressed, keyMapping.invertColors.name]);
 
   const handleKeyUp = useCallback((e) => {
     if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
       setKeyPressed(false);
     }
-  }, []);
+  }, [keyMapping.invertColors.name]);
 
   const handleClick = useCallback(() => {
     navigate('/levels');
@@ -43,12 +43,14 @@ const StartScreen = () => {
 
   return (
     <StartContainer $isInverted={isInverted}>
-      <GameTitle 
-        text="CUBY"
-        fontSize="120px"
-        isInverted={!isInverted}
-        offset={4}
-      />
+      <h1>
+        <GameTitle 
+          text="CUBY"
+          fontSize="120px"
+          isInverted={!isInverted}
+          offset={4}
+        />
+      </h1>
       <StartButtonContainer $isInverted={isInverted}>
         <StartButtonText 
           text="Presiona cualquier botón para comenzar"
