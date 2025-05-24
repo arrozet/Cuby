@@ -36,8 +36,9 @@ const Settings = () => {
         
         {/* Sección de sonido */}
         <Section>
-          <SectionTitle $isInverted={isInverted}>Sonido</SectionTitle>
+          <SectionTitle $isInverted={isInverted} id="sonido">Sonido</SectionTitle>
           <VolumeSlider 
+            id="sonido"
             type="range"
             min="0"
             max="1"
@@ -45,6 +46,10 @@ const Settings = () => {
             value={volume}
             onChange={handleVolumeChange}
             $isInverted={isInverted}
+            aria-labelledby="sonido"
+            aria-valuemin="0"
+            aria-valuemax="1"
+            aria-valuenow={volume}
           />
         </Section>
         

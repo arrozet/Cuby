@@ -41,13 +41,13 @@ const UserLevels = () => {
         navigate('/levels');
       }
     }
-  }, [navigate, toggleInversion, keyPressed, isModalOpen]); // Añade isModalOpen a las dependencias
+  }, [navigate, toggleInversion, keyPressed, isModalOpen, keyMapping.invertColors.name]); // Añade isModalOpen a las dependencias
 
   const handleKeyUp = useCallback((e) => {
     if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
       setKeyPressed(false);
     }
-  }, []);
+  }, [keyMapping.invertColors.name]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -108,7 +108,7 @@ const UserLevels = () => {
         <LevelsList>
           {levels.map(level => (
             <LevelCard key={level.id} $isInverted={isInverted}>
-              <h3>{level.name}</h3>
+              <h2>{level.name}</h2>
               <p>Creado: {new Date(level.created).toLocaleDateString()}</p>
               <div className="actions">
                 <button onClick={() => handlePlayLevel(level.id)}>Jugar</button>

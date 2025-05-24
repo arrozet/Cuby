@@ -61,13 +61,13 @@ const LevelSelect = () => {
     } else if (e.key === 'Escape') {
       navigate('/');
     }
-  }, [navigate, toggleInversion, keyPressed]);
+  }, [navigate, toggleInversion, keyPressed, keyMapping.invertColors.name]);
 
   const handleKeyUp = useCallback((e) => {
     if (e.key.toLowerCase() === keyMapping.invertColors.name.toLowerCase()) {
       setKeyPressed(false);
     }
-  }, []);
+  }, [keyMapping.invertColors.name]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

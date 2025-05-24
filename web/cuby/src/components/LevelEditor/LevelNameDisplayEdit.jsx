@@ -67,7 +67,9 @@ const LevelNameDisplayEdit = ({
         <div
             style={containerStyle}
             onClick={() => !isEditing && setIsEditing(true)}
-            title={levelName?.trim() ? levelName : 'Nivel sin título'}
+            title={
+                levelName && levelName.length > 20 ? levelName : undefined
+            }
         >
             {isEditing ? (
                 <input
