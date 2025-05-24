@@ -78,3 +78,52 @@ export const WinMessage = styled.div`
     }
   }
 `;
+
+export const GameHeader = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column; /* Cambiar de row a column */
+  align-items: flex-start; /* Alinear a la izquierda */
+  gap: 8px; /* Reducir gap para que esté más cerca */
+  
+  /* Asegurar que los elementos se mantengan en línea */
+  & > * {
+    flex-shrink: 0; /* Evitar que se compriman */
+  }
+  
+  /* Si BackArrow tiene position absolute, resetéalo dentro de este contenedor */
+  & > *:first-child {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+`;
+
+export const BackArrowContainer = styled.div`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  
+  /* Asegurar que el BackArrow se comporte como elemento en línea */
+  & > * {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+`;
+
+export const LevelTitle = styled.h1`
+  margin: 0;
+  color: ${props => getActiveColor(props.$isInverted)};
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: 'Excalifont';
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
+`;

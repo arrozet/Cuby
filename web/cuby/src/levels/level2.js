@@ -1,4 +1,4 @@
-import { Platform, Spike, Trampoline, Portal, Goal } from '../components/GameElements/GameElements';
+import { Platform, Spike, Trampoline, Goal } from '../components/GameElements/GameElements';
 
 /**
  * Level 1: Introduction
@@ -11,7 +11,7 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../components/GameEle
  * - Una meta a alcanzar
  */
 export const level2 = {
-  name: "Level 2: Production",
+  name: "2: Producción",
   
   // Posición inicial del jugador en este nivel
   playerStart: {

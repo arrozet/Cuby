@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GameContainer, WinMessage } from './Game.styles';
+import { GameContainer, WinMessage, GameHeader, LevelTitle, BackArrowContainer } from './Game.styles';
 import Player from '../Player/Player';
 import Level from '../Level/Level';
 import BackArrow from '../common/BackArrow/BackArrow';
@@ -59,7 +59,17 @@ const GameRenderer = ({
 
   return (
     <>
-      <BackArrow onClick={handleBackToLevels} />
+      {/* Header con flecha de volver y título del nivel */}
+      <GameHeader>
+        <BackArrowContainer>
+          <BackArrow onClick={handleBackToLevels} />
+        </BackArrowContainer>
+        {currentLevel.name && (
+          <LevelTitle $isInverted={isInverted}>
+            {currentLevel.name}
+          </LevelTitle>
+        )}
+      </GameHeader>
       <GameContainer
         $baseWidth={BASE_GAME_WIDTH}
         $baseHeight={BASE_GAME_HEIGHT}

@@ -29,7 +29,6 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <OrientationWarning />
       <SettingsProvider>
         <InversionProvider>
           <HashRouter>
@@ -49,7 +48,7 @@ function App() {
           </HashRouter>
         </InversionProvider>
       </SettingsProvider>
-      
+      <OrientationWarning />
     </>
   );
 }
