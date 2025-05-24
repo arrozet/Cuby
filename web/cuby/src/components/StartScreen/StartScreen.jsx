@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StartContainer, GameTitle, StartButtonContainer, StartButtonText } from './StartScreen.styles';
+import { StartContainer, StartButtonContainer } from './StartScreen.styles';
 import { useInversion } from '../../context/InversionContext';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -44,19 +44,39 @@ const StartScreen = () => {
   return (
     <StartContainer $isInverted={isInverted}>
       <h1>
+        {/*
         <GameTitle 
           text="CUBY"
           fontSize="120px"
           isInverted={!isInverted}
           offset={4}
         />
+        */}
+        <img 
+          src={isInverted ? '/Cuby/images/title_white.webp' : '/Cuby/images/title_black.webp'}
+          alt="CUBY"
+          style={{
+            width: '300px', // Ajusta según tus necesidades
+            height: 'auto'
+          }}
+        />
       </h1>
       <StartButtonContainer $isInverted={isInverted}>
+         {/*
         <StartButtonText 
           text="Presiona cualquier botón para comenzar"
           fontSize="20px"
           offset={1}
           isInverted={!isInverted}
+        />
+        */}
+       <img 
+          src={isInverted ? '/Cuby/images/presiona_white.webp' : '/Cuby/images/presiona_black.webp'}
+          alt="Presiona cualquier botón para comenzar"
+          style={{
+            width: '300px', // Ajusta según tus necesidades
+            height: 'auto'
+          }}
         />
       </StartButtonContainer>
     </StartContainer>
