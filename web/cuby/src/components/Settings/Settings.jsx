@@ -9,15 +9,17 @@ import {
   VolumeSlider,
 } from './Settings.styles';
 import { useInversion } from '../../context/InversionContext';
-import { useSettings } from '../../context/SettingsContext';
+//import { useSettings } from '../../context/SettingsContext';
 import BackArrow from '../common/BackArrow/BackArrow';
 import ControlsSection from './components/ControlsSection';
 import ProgressSection from './components/ProgressSection';
+import { useAudio } from '../../context/AudioContext'; // Añadir esta importación
 
 const Settings = () => {
   const navigate = useNavigate();
   const { isInverted } = useInversion();
-  const { volume, changeVolume } = useSettings();
+  const { volume, changeVolume } = useAudio(); // Cambiar de useSettings a useAudio
+
 
   const handleBack = () => {
     navigate('/levels');
@@ -25,7 +27,7 @@ const Settings = () => {
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
-    changeVolume(newVolume);
+    changeVolume(newVolume); // Ahora usar changeVolume del contexto de audio
   };
 
   return (

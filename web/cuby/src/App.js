@@ -10,6 +10,8 @@ import { InversionProvider } from './context/InversionContext';
 import { SettingsProvider } from './context/SettingsContext';
 import UserLevels from './components/UserLevels/UserLevels';
 import LevelEditor from './components/LevelEditor/LevelEditor';
+import { AudioProvider } from './context/AudioContext';
+import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 
 /**
  * HashRouter se utiliza en lugar de BrowserRouter para GitHub Pages.
@@ -25,28 +27,41 @@ import LevelEditor from './components/LevelEditor/LevelEditor';
  * http://localhost:3000/Cuby/#/levels
  * Ambos son normalizados y funcionan de la misma manera
  */
-function App() {
+
+// Componente interno que usa los hooks después de que los providers estén disponibles
+function AppContent() {
+  // Activar música de fondo globalmente
+  useBackgroundMusic(true);
+
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<StartScreen />} />
+        <Route path="/levels" element={<LevelSelect />} />
+        <Route path="/game/:levelId" element={<Game />} />
+        <Route path="/game/user/:levelId" element={<Game />} />
+        <Route path="/settings" element={<Settings />} />
+        
+        {/* Nuevas rutas para el editor de niveles */}
+        <Route path="/user-levels" element={<UserLevels />} />
+        <Route path="/level-editor/:levelId" element={<LevelEditor />} />
+        
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </HashRouter>
+  );
+}
+
+function App() {  
   return (
     <>
       <GlobalStyle />
       <SettingsProvider>
-        <InversionProvider>
-          <HashRouter>
-            <Routes>
-              <Route path="/" element={<StartScreen />} />
-              <Route path="/levels" element={<LevelSelect />} />
-              <Route path="/game/:levelId" element={<Game />} />
-              <Route path="/game/user/:levelId" element={<Game />} />
-              <Route path="/settings" element={<Settings />} />
-              
-              {/* Nuevas rutas para el editor de niveles */}
-              <Route path="/user-levels" element={<UserLevels />} />
-              <Route path="/level-editor/:levelId" element={<LevelEditor />} />
-              
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </HashRouter>
-        </InversionProvider>
+        <AudioProvider>
+          <InversionProvider>
+            <AppContent />
+          </InversionProvider>
+        </AudioProvider>
       </SettingsProvider>
       <OrientationWarning />
     </>
