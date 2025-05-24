@@ -13,6 +13,7 @@ import { useInversion } from '../../context/InversionContext';
 import BackArrow from '../common/BackArrow/BackArrow';
 import ControlsSection from './components/ControlsSection';
 import ProgressSection from './components/ProgressSection';
+import DisplaySection from './components/DisplaySection';
 import { useAudio } from '../../context/AudioContext'; // Añadir esta importación
 
 const Settings = () => {
@@ -35,6 +36,9 @@ const Settings = () => {
       <BackArrow onClick={handleBack} />
       <SettingsContent>
         <Title $isInverted={isInverted}>Configuración</Title>
+        
+        {/* Sección de pantalla */}
+        <DisplaySection isInverted={isInverted} />
         
         {/* Sección de sonido */}
         <Section>

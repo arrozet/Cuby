@@ -64,6 +64,11 @@ export const SettingsProvider = ({ children }) => {
   // Estado para mostrar mensaje de error cuando una tecla ya está asignada
   const [errorMessage, setErrorMessage] = useState(null);
   
+  const [isFullscreen, setIsFullscreen] = useState(() => {
+    const savedFullscreen = localStorage.getItem('gameFullscreen');
+    return savedFullscreen !== null ? JSON.parse(savedFullscreen) : false;
+  });
+  
   // Función para cambiar el volumen
   const changeVolume = (newVolume) => {
     setVolume(newVolume);
@@ -216,6 +221,31 @@ export const SettingsProvider = ({ children }) => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [changingControl, assignNewKey, cancelChangingControl]);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error al intentar entrar en pantalla completa: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const newFullscreenState = !!document.fullscreenElement;
+      setIsFullscreen(newFullscreenState);
+      localStorage.setItem('gameFullscreen', JSON.stringify(newFullscreenState));
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
   
   return (
     <SettingsContext.Provider 
@@ -233,7 +263,9 @@ export const SettingsProvider = ({ children }) => {
         markLevelAsCompleted,
         isLevelUnlocked,
         resetCompletedLevels,
-        resetKeyMapping // Exportar la nueva función
+        resetKeyMapping,
+        isFullscreen,
+        toggleFullscreen
       }}
     >
       {children}
