@@ -7,7 +7,8 @@ import {
   LevelCard,
   ActionButton,
   ButtonContainer,
-  NoLevelsMessage
+  NoLevelsMessage,
+  HeaderContainer
 } from './UserLevels.styles';
 import BackArrow from '../common/BackArrow/BackArrow';
 import ConfirmationModal from '../common/ConfirmationModal/ConfirmationModal'; // Importa el nuevo modal
@@ -96,13 +97,15 @@ const UserLevels = () => {
   return (
     <UserLevelsContainer $isInverted={isInverted}>
       <BackArrow onClick={() => navigate('/levels')} />
-      <Title $isInverted={isInverted}>Editor de niveles</Title>
+      <HeaderContainer>
+        <Title $isInverted={isInverted}>Editor de niveles</Title>
 
-      <ButtonContainer>
-        <ActionButton onClick={handleCreateLevel} $isInverted={isInverted}>
-          Crear un nuevo nivel
-        </ActionButton>
-      </ButtonContainer>
+        <ButtonContainer>
+          <ActionButton onClick={handleCreateLevel} $isInverted={isInverted}>
+            Crear un nuevo nivel
+          </ActionButton>
+        </ButtonContainer>
+      </HeaderContainer>
 
       {levels.length > 0 ? (
         <LevelsList>

@@ -13,7 +13,7 @@ export const UserLevelsContainer = styled.div`
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease;
   /* Reducimos más el padding superior */
-  padding: 40px 20px 20px; // Antes era 60px
+  padding: 40px 20px 0; // Eliminamos el padding inferior
   position: relative;
   box-sizing: border-box;
 
@@ -23,12 +23,40 @@ export const UserLevelsContainer = styled.div`
   }
 `;
 
+export const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px; // Para mantener la consistencia con LevelsList
+  margin-bottom: 15px;
+
+  @media (max-width: 1000px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+    padding: 0 20px; // Añadimos padding lateral para que no se pegue a los bordes
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+    padding: 0 10px; // Ajustamos el padding para pantallas más pequeñas
+  }
+`;
+
 export const Title = styled.h1`
   font-size: 40px; // Ligeramente más pequeño
   /* Reducimos significativamente el margen inferior */
   margin-bottom: 15px; // Antes era 30px
   color: ${props => getActiveColor(props.$isInverted)};
   text-align: center;
+
+  @media (max-width: 1000px) {
+    margin-bottom: 0; // Eliminamos el margen inferior cuando está en fila
+    text-align: left; // Alineamos a la izquierda
+  }
 
   @media (max-width: 768px) {
     font-size: 28px; // Ligeramente más pequeño en móvil
@@ -46,21 +74,15 @@ export const LevelsList = styled.div`
   padding: 10px 20px;
   box-sizing: border-box;
   overflow-y: auto;
-
-  /* Ajustamos max-height para darle más espacio a la lista,
-     restando menos porque la cabecera ahora es más pequeña.
-     AJUSTA ESTE VALOR (190px) SI ES NECESARIO */
-  max-height: calc(100vh - 190px); // Antes era ~240px
+  flex-grow: 1;
+  min-height: 0;
+  align-items: start;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 15px;
     padding: 10px 5px;
     max-width: 100%;
-
-    /* Ajustamos max-height para móvil.
-       AJUSTA ESTE VALOR (165px) SI ES NECESARIO */
-    max-height: calc(100vh - 165px); // Antes era ~200px
   }
 `;
 
@@ -159,6 +181,10 @@ export const ActionButton = styled.button`
 export const ButtonContainer = styled.div`
   /* Reducimos significativamente el margen inferior */
   margin-bottom: 15px; // Antes era 25px
+
+  @media (max-width: 1000px) {
+    margin-bottom: 0; // Eliminamos el margen inferior cuando está en fila
+  }
 
   @media (max-width: 768px) {
     /* Reducimos más el margen inferior en móvil */
