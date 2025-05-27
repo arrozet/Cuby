@@ -40,12 +40,23 @@ export const ToolbarGroup = styled.div`
   &.center-group {
     flex-grow: 0; 
     justify-content: center;
-    @media (max-width: 700px) { flex-wrap: wrap; }
+    @media (max-width: 700px) {
+      flex-wrap: wrap;
+      margin-right: 10px;
+    }
   }
   
   &.left-group {
     flex-grow: 1;
-    max-width: 40%;
+    max-width: 40%; /* Ancho por defecto para pantallas > 1200px */
+
+    @media (max-width: 1000px) {
+      max-width: 25%; /* Ancho para pantallas <= 1200px y > 850px */
+    }
+
+    @media (max-width: 850px) {
+      max-width: 10%; /* Ancho para pantallas <= 850px (mantiene tu ajuste) */
+    }
   }
   
   &.right-group {
