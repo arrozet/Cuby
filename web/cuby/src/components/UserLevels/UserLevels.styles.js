@@ -74,15 +74,25 @@ export const LevelsList = styled.div`
   padding: 10px 20px;
   box-sizing: border-box;
   overflow-y: auto;
-  flex-grow: 1;
-  min-height: 0;
-  align-items: start;
+
+  /* Max-height para cuando HeaderContainer está en columna (pantallas grandes, >1000px) */
+  max-height: calc(100vh - 190px);
+
+  @media (max-width: 1000px) {
+    /* Ajuste para HeaderContainer en fila (pantallas medianas, >768px y <=1000px) */
+    /* Se calcula considerando UserLevelsContainer.padding-top (40px) + HeaderContainer.height (~54px) + HeaderContainer.margin-bottom (15px) + LevelsList.padding-top/bottom (10px+10px) = 129px, redondeado a 130px */
+    max-height: calc(100vh - 130px);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 15px;
     padding: 10px 5px;
     max-width: 100%;
+
+    /* Ajuste para HeaderContainer en fila y UserLevelsContainer.padding-top reducido (pantallas pequeñas, <=768px) */
+    /* Se calcula considerando UserLevelsContainer.padding-top (35px) + HeaderContainer.height (~46px) + HeaderContainer.margin-bottom (10px) + LevelsList.padding-top/bottom (10px+10px) = 111px, redondeado a 115px */
+    max-height: calc(100vh - 115px); // Antes era 165px
   }
 `;
 
