@@ -234,11 +234,12 @@ export const ElementButton = styled.button`
 
   /* Selected State */
   ${({ $isSelected, $isInverted }) => $isSelected && css`
-    border-width: 2px; /* Thicker border */
-    border-color: ${getActiveColor($isInverted)}; /* Prominent border color */
-    background-color: ${$isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
-    padding: 11px 9px; /* Adjust padding for border */
-    color: ${getActiveColor($isInverted)}; /* Mantener el color del texto siempre igual */
+    border-width: 3.5px; /* Borde más grueso para selección */
+    padding: 10px 8px; /* Ajustar padding para el borde más grueso */
+    /* Se mantienen los colores originales de fondo y texto definidos en el estado base o por $isInverted */
+    border-color: ${getActiveColor($isInverted)}; /* Aseguramos que el color del borde siga la lógica activa */
+    background-color: ${$isInverted ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; /* Restaurar el fondo original del estado seleccionado */
+    color: ${getActiveColor($isInverted)}; /* Restaurar el color de texto original */
   `}
 
   /* Hover State */

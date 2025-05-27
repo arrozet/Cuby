@@ -55,9 +55,9 @@ const CanvasRenderer = React.forwardRef(({
                 
                 // Calculamos el factor de escala para que el nivel encaje correctamente
                 // Usando el mínimo entre la proporción horizontal y vertical
-                const scaleX = containerWidth / LOGICAL_LEVEL_WIDTH;
-                const scaleY = containerHeight / LOGICAL_LEVEL_HEIGHT;
-                const calculatedScale = Math.min(scaleX, scaleY);
+                const scaleX = (containerWidth - 20) / LOGICAL_LEVEL_WIDTH; // -20 para padding
+                const scaleY = (containerHeight - 20) / LOGICAL_LEVEL_HEIGHT; // -20 para padding
+                const calculatedScale = Math.min(scaleX, scaleY, 1); // Máximo 1:1
                 
                 // Para dispositivos móviles, aseguramos un mínimo de visibilidad
                 const minScale = 0.2; // Mínimo 20% del tamaño original
