@@ -88,10 +88,11 @@ const ElementsSidebar = ({
                         Tamaño Plataforma
                     </h3>
                     <div style={{ marginBottom: '10px' }}>
-                        <label style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                             Ancho: {platformSize.width}px
                         </label>
                         <input
+                            id="platformWidth"
                             type="range"
                             min="20"
                             max="500"
@@ -105,10 +106,11 @@ const ElementsSidebar = ({
                         />
                     </div>
                     <div>
-                        <label style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                             Alto: {platformSize.height}px
                         </label>
                         <input
+                            id="platformHeight"
                             type="range"
                             min="10"
                             max="500"

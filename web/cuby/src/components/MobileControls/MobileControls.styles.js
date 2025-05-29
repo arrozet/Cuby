@@ -26,7 +26,6 @@ export const MovementControls = styled.div`
   gap: 15px;
   pointer-events: auto;
   touch-action: manipulation;
-  background-color: rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 15px;
 `;
@@ -37,7 +36,6 @@ export const ActionControls = styled.div`
   gap: 15px;
   pointer-events: auto;
   touch-action: manipulation;
-  background-color: rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 15px;
 `;
