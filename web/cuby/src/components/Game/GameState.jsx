@@ -55,6 +55,10 @@ export const useGameState = (levelId, navigate, playerStateRef, setPlayerRenderS
               levelModule = await import('../../levels/level2');
               levelData = levelModule.level2;
               break;
+            case '3':
+              levelModule = await import('../../levels/level3');
+              levelData = levelModule.level3;
+              break;
             default: throw new Error("Predefined level not found");
           }
           // Ensure predefined levels also have playerStart

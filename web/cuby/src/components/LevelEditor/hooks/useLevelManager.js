@@ -7,6 +7,9 @@ import { Platform, Spike, Trampoline, Portal, Goal } from '../../GameElements/Ga
 const LOGICAL_LEVEL_WIDTH = 1200;
 const LOGICAL_LEVEL_HEIGHT = 800;
 
+// Constante para alternar entre exportación/importación encriptada o en JSON plano (solo para desarrolladores)
+const USE_JSON_EXPORT = true; // Cambia a true para usar JSON plano
+
 /**
  * Hook personalizado para gestionar la carga, guardado, importación y exportación de niveles.
  * @param {string} levelIdParam - ID del nivel a cargar, o 'new' para un nivel nuevo.
@@ -138,7 +141,14 @@ export const useLevelManager = (levelIdParam) => {
                 (key === 'id' && value?.startsWith && value.startsWith('imported_')) ? undefined : value
             )
         );
-        const encodedLevel = LevelEncoder.encode(cleanedLevel);
+        let encodedLevel;
+        if (USE_JSON_EXPORT) {
+            // Exportar como JSON plano
+            encodedLevel = JSON.stringify(cleanedLevel, null, 2);
+        } else {
+            // Exportar encriptado (base64)
+            encodedLevel = LevelEncoder.encode(cleanedLevel);
+        }
         if (!encodedLevel) {
             alert('Error al exportar el nivel');
             return;
@@ -164,9 +174,15 @@ export const useLevelManager = (levelIdParam) => {
      */
     const handleImportConfirm = useCallback((code) => {
         if (!code) return;
-        
         try {
-            const importedLevel = LevelEncoder.decode(code);
+            let importedLevel;
+            if (USE_JSON_EXPORT) {
+                // Importar desde JSON plano
+                importedLevel = JSON.parse(code);
+            } else {
+                // Importar desde encriptado (base64)
+                importedLevel = LevelEncoder.decode(code);
+            }
             if (!importedLevel || typeof importedLevel.playerStart !== 'object' || typeof importedLevel.goal !== 'object') {
                 throw new Error("Estructura del nivel inválida");
             }
