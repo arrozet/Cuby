@@ -37,6 +37,49 @@ const ElementsSidebar = ({
                     <PlatformIcon color={activeColor} $borderColor={inactiveColor} />
                     Plataforma
                 </ElementButton>
+                {selectedElement === 'platform' && (
+                    <div style={{ marginTop: '10px', marginBottom: '10px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
+                        <h3 style={{ color: activeColor, marginBottom: '10px', fontSize: '16px' }}>
+                            Tamaño Plataforma
+                        </h3>
+                        <div style={{ marginBottom: '10px' }}>
+                            <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                                Ancho: {platformSize.width}px
+                            </label>
+                            <input
+                                id="platformWidth"
+                                type="range"
+                                min="20"
+                                max="500"
+                                value={platformSize.width}
+                                onChange={(e) => onPlatformSizeChange({ ...platformSize, width: Number(e.target.value) })}
+                                style={{
+                                    width: '100%',
+                                    accentColor: activeColor,
+                                    backgroundColor: 'transparent'
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                                Alto: {platformSize.height}px
+                            </label>
+                            <input
+                                id="platformHeight"
+                                type="range"
+                                min="10"
+                                max="500"
+                                value={platformSize.height}
+                                onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
+                                style={{
+                                    width: '100%',
+                                    accentColor: activeColor,
+                                    backgroundColor: 'transparent'
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
                 <ElementButton
                     $isSelected={selectedElement === 'spike'}
                     onClick={() => onSelectElement('spike')}
@@ -82,49 +125,6 @@ const ElementsSidebar = ({
                     Inicio Jugador
                 </ElementButton>
             </ElementsContainer>
-            {selectedElement === 'platform' && (
-                <div style={{ marginTop: '20px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
-                    <h3 style={{ color: activeColor, marginBottom: '10px', fontSize: '16px' }}>
-                        Tamaño Plataforma
-                    </h3>
-                    <div style={{ marginBottom: '10px' }}>
-                        <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-                            Ancho: {platformSize.width}px
-                        </label>
-                        <input
-                            id="platformWidth"
-                            type="range"
-                            min="20"
-                            max="500"
-                            value={platformSize.width}
-                            onChange={(e) => onPlatformSizeChange({ ...platformSize, width: Number(e.target.value) })}
-                            style={{
-                                width: '100%',
-                                accentColor: activeColor,
-                                backgroundColor: 'transparent'
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-                            Alto: {platformSize.height}px
-                        </label>
-                        <input
-                            id="platformHeight"
-                            type="range"
-                            min="10"
-                            max="500"
-                            value={platformSize.height}
-                            onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
-                            style={{
-                                width: '100%',
-                                accentColor: activeColor,
-                                backgroundColor: 'transparent'
-                            }}
-                        />
-                    </div>
-                </div>
-            )}
             {['platform', 'trampoline', 'spike'].includes(selectedElement) && (
                 <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center' }}>
                     <input
