@@ -53,6 +53,7 @@ const SettingsButton = () => {
         "
         />
       </svg>
+      <span>AJUSTES</span>
     </SettingsButtonContainer>
   );
 };
