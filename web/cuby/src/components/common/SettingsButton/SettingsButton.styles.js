@@ -14,24 +14,27 @@ export const SettingsButtonContainer = styled.div`
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 60px;
-  height: 60px;
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 10px;
   cursor: pointer;
   z-index: 100;
-  border-radius: 50%;
   padding: 8px;
   transition: background-color 0.3s ease;
   
   .gear-icon {
-    width: 100%;
-    height: 100%;
+    width: 32px;
+    height: 32px;
     transition: all 0.3s ease;
   }
   
   &:hover .gear-icon {
     animation: ${rotate} 3s linear infinite;
+  }
+
+  span {
+    color: ${props => props.$isInverted ? '#000000' : '#FFFFFF'};
+    font-family: 'Excalifont';
+    font-size: 1.2rem;
   }
 `;

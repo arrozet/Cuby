@@ -134,7 +134,7 @@ const TopButton = styled.button`
 
 export const UserLevelsButton = styled(TopButton)`
   position: absolute;
-  right: 100px;
+  right: 180px;
   clip-path: polygon(0% 30%, 15% 20%, 20% 0%, 30% 20%, 45% 10%, 55% 25%, 70% 5%, 80% 25%, 85% 0%, 100% 20%, 95% 50%, 100% 80%, 85% 75%, 80% 100%, 65% 85%, 50% 95%, 35% 85%, 20% 100%, 15% 75%, 0% 70%, 5% 50%);
   padding: clamp(15px, 2.2vh, 20px) clamp(30px, 5.5vw, 45px);
 
@@ -144,7 +144,7 @@ export const UserLevelsButton = styled(TopButton)`
   }
 
   @media (max-width: 600px) {
-    right: 90px;
+    right: 180px;
     padding: clamp(12px, 2vh, 18px) clamp(25px, 5vw, 40px);
   }
 `;
