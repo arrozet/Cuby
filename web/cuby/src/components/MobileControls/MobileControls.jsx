@@ -24,45 +24,53 @@ const MobileControls = ({
     e.stopPropagation();
     handler();
   };
-
   return (
-    <MobileControlsContainer>
-      <MovementControls>
-        <LeftButton 
-          onTouchStart={handleTouchStart(onLeftPress)}
-          onTouchEnd={onLeftTouchEnd}
-          $isInverted={isInverted}
-          aria-label="Mover a la izquierda"
-        >
-          <FaArrowLeft />
-        </LeftButton>
-        <RightButton 
-          onTouchStart={handleTouchStart(onRightPress)}
-          onTouchEnd={onRightTouchEnd}
-          $isInverted={isInverted}
-          aria-label="Mover a la derecha"
-        >
-          <FaArrowRight />
-        </RightButton>
-      </MovementControls>
-      
-      <ActionControls>
-        <JumpButton 
-          onTouchStart={handleTouchStart(onJumpPress)}
-          $isInverted={isInverted}
-          aria-label="Saltar"
-        >
-          <FaArrowUp />
-        </JumpButton>
-        <ColorButton 
-          onTouchStart={handleTouchStart(onColorPress)}
-          $isInverted={isInverted}
-          aria-label="Invertir colores"
-        >
-          <FaPalette />
-        </ColorButton>
-      </ActionControls>
-    </MobileControlsContainer>
+    <>      {/* Botón de colores encima del botón de saltar */}
+      <ColorButton 
+        onTouchStart={handleTouchStart(onColorPress)}
+        $isInverted={isInverted}
+        aria-label="Invertir colores"
+        style={{
+          position: 'fixed',
+          bottom: '150px',
+          right: '30px',
+          zIndex: 1001
+        }}
+      >
+        <FaPalette />
+      </ColorButton>
+
+      <MobileControlsContainer>
+        <MovementControls>
+          <LeftButton 
+            onTouchStart={handleTouchStart(onLeftPress)}
+            onTouchEnd={onLeftTouchEnd}
+            $isInverted={isInverted}
+            aria-label="Mover a la izquierda"
+          >
+            <FaArrowLeft />
+          </LeftButton>
+          <RightButton 
+            onTouchStart={handleTouchStart(onRightPress)}
+            onTouchEnd={onRightTouchEnd}
+            $isInverted={isInverted}
+            aria-label="Mover a la derecha"
+          >
+            <FaArrowRight />
+          </RightButton>
+        </MovementControls>
+        
+        <ActionControls>
+          <JumpButton 
+            onTouchStart={handleTouchStart(onJumpPress)}
+            $isInverted={isInverted}
+            aria-label="Saltar"
+          >
+            <FaArrowUp />
+          </JumpButton>
+        </ActionControls>
+      </MobileControlsContainer>
+    </>
   );
 };
 

@@ -38,6 +38,7 @@ export const ActionControls = styled.div`
   touch-action: manipulation;
   padding: 10px;
   border-radius: 15px;
+  margin-right: 10px;
 `;
 
 // Estilo base para todos los botones
@@ -81,12 +82,22 @@ const BaseButton = styled.button`
 export const LeftButton = styled(BaseButton)``;
 export const RightButton = styled(BaseButton)``;
 export const JumpButton = styled(BaseButton)`
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
 
   @media (max-width: 480px) {
     width: 100px;
     height: 100px;
   }
 `;
-export const ColorButton = styled(BaseButton)``; 
+export const ColorButton = styled(BaseButton)`
+  width: 70px;
+  height: 70px;
+  font-size: 20px;
+
+  @media (max-width: 480px) {
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+  }
+`; 
