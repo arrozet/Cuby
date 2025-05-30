@@ -91,15 +91,24 @@ const LevelSelect = () => {
   return (
     <LevelSelectContainer $isInverted={isInverted}>
       <BackArrow onClick={handleBackClick} />
-      <SettingsButton />
 
       <UserLevelsButton
         onClick={handleUserLevelsClick}
         $isInverted={isInverted}
+        tabIndex={0} 
+        aria-label="Editor de niveles"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); // Prevenir scroll con Espacio si no es un <button> nativo
+            handleUserLevelsClick();
+          }
+        }}
       >
         EDITOR DE <br/>
         NIVELES
       </UserLevelsButton>
+
+      <SettingsButton />  
 
       <h1>Selección de nivel</h1> {/* Título añadido */}
 
@@ -108,10 +117,19 @@ const LevelSelect = () => {
           <LevelCard
             key={level.id}
             onClick={() => !level.locked && startLevel(level.id)}
+            tabIndex={level.locked ? -1 : 0} // Make focusable if not locked, remove from tab order if locked
+            role="button"
+            onKeyDown={(e) => {
+              if (!level.locked && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault(); // Previene el scroll si se presiona Espacio
+                startLevel(level.id);
+              }
+            }}
             $locked={level.locked}
             $isInverted={isInverted}
             $isLastAvailable={!level.locked && level.id === lastAvailableLevelId}
             title={level.locked ? "Nivel bloqueado" : level.name} // Tooltip con el nombre
+            
           >
             <div className="level-number">{level.id}</div>
             {level.locked && (

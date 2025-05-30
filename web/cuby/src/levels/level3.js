@@ -1,4 +1,4 @@
-import { Platform, Spike, Trampoline, Portal, Goal } from '../components/GameElements/GameElements';
+import { Platform, Portal, Goal } from '../components/GameElements/GameElements';
 
 export const level3 = {
   name: "lerolero",

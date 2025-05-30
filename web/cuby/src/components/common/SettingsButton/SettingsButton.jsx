@@ -23,7 +23,10 @@ const SettingsButton = () => {
   };
   
   return (
-    <SettingsButtonContainer onClick={handleClick} $isInverted={isInverted}>
+    <SettingsButtonContainer onClick={handleClick} $isInverted={isInverted} 
+    tabIndex={0} role="button" aria-label="Configuración"
+    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleClick() } }}
+    >
       <svg width="32" height="32" viewBox="0 0 291.957 291.957" xmlns="http://www.w3.org/2000/svg" className="gear-icon">
         {/* Engranaje exterior */}
         <path 
