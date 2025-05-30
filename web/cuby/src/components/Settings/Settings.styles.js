@@ -109,6 +109,11 @@ export const ControlsSection = styled.div`
   flex-direction: column;
   align-items: center; // Centra las filas de controles
   gap: clamp(20px, 4vh, 30px); // Espacio responsivo entre filas
+
+  /* Ocultar en dispositivos móviles como respaldo adicional */
+  @media (max-width: 1024px) {
+    display: none;
+  }
 `;
 
 // Fila de controles

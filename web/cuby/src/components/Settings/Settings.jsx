@@ -15,11 +15,13 @@ import ControlsSection from './components/ControlsSection';
 import ProgressSection from './components/ProgressSection';
 import DisplaySection from './components/DisplaySection';
 import { useAudio } from '../../context/AudioContext'; // Añadir esta importación
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { isInverted } = useInversion();
   const { volume, changeVolume } = useAudio(); // Cambiar de useSettings a useAudio
+  const isMobile = useIsMobile(); // Hook para detectar dispositivos móviles
 
 
   const handleBack = () => {
@@ -56,14 +58,16 @@ const Settings = () => {
             aria-valuemin="0"
             aria-valuemax="1"
             aria-valuenow={volume}
-          />
+          />        
         </Section>
         
-        {/* Sección de controles */}
-        <Section>
-          <SectionTitle $isInverted={isInverted}>Controles</SectionTitle>
-          <ControlsSection />
-        </Section>
+        {/* Sección de controles - Solo mostrar en escritorio */}
+        {!isMobile && (
+          <Section>
+            <SectionTitle $isInverted={isInverted}>Controles</SectionTitle>
+            <ControlsSection />
+          </Section>
+        )}
         
         {/* Sección de progreso */}
         <ProgressSection isInverted={isInverted} />
