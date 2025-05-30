@@ -27,6 +27,9 @@ const GameRenderer = ({
   const [scale, setScale] = useState(1); // State for scale factor
   const [gamePos, setGamePos] = useState({ top: 0, left: 0 }); // State for centering offset
 
+  // Detectar si es un nivel de usuario
+  const isUserLevel = window.location.hash.includes('/game/user/');
+
   // --- Scaling and Centering Logic ---
   useEffect(() => {
     const calculateLayout = () => {
@@ -106,7 +109,7 @@ const GameRenderer = ({
               {!isLastLevel && (
                 <button onClick={navigateToNextLevel}>
                   <FontAwesomeIcon icon={faArrowRight} />
-                  Siguiente nivel
+                  {isUserLevel ? 'Salir al selector' : 'Siguiente nivel'}
                 </button>
               )}
             </div>

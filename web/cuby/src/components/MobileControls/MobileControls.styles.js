@@ -28,6 +28,7 @@ export const MovementControls = styled.div`
   touch-action: manipulation;
   padding: 10px;
   border-radius: 15px;
+  margin-left: -20px;
 `;
 
 // Contenedor para los botones de acción
@@ -82,12 +83,12 @@ const BaseButton = styled.button`
 export const LeftButton = styled(BaseButton)``;
 export const RightButton = styled(BaseButton)``;
 export const JumpButton = styled(BaseButton)`
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
 
   @media (max-width: 480px) {
-    width: 100px;
-    height: 100px;
+    width: 85px;
+    height: 85px;
   }
 `;
 export const ColorButton = styled(BaseButton)`
@@ -99,5 +100,10 @@ export const ColorButton = styled(BaseButton)`
     width: 55px;
     height: 55px;
     font-size: 22px;
+  }
+
+  /* Ocultar en escritorio */
+  @media (min-width: 1024px) {
+    display: none;
   }
 `; 

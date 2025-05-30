@@ -32,7 +32,7 @@ const MobileControls = ({
         aria-label="Invertir colores"
         style={{
           position: 'fixed',
-          bottom: '150px',
+          bottom: '170px',
           right: '30px',
           zIndex: 1001
         }}
