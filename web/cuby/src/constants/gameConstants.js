@@ -49,4 +49,4 @@ export const JUMP_BUFFER_DURATION = 0.1; // seconds
  * Constantes de niveles
  */
 // Número máximo de niveles disponibles en el juego
-export const MAX_LEVEL_NUMBER = 3;
+export const MAX_LEVEL_NUMBER = 5;

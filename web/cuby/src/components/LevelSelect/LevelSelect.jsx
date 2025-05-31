@@ -17,6 +17,8 @@ import { faLock } from '@fortawesome/free-solid-svg-icons'; // Y esto
 import { level1 } from '../../levels/level1';
 import { level2 } from '../../levels/level2';
 import { level3 } from '../../levels/level3';
+import { level4 } from '../../levels/level4';
+import { level5 } from '../../levels/level5';
 // ... importa más niveles si los tienes
 
 const LevelSelect = () => {
@@ -31,6 +33,8 @@ const LevelSelect = () => {
       { id: 1, data: level1, name: level1.name, locked: false },
       { id: 2, data: level2, name: level2.name, locked: !isLevelUnlocked(2) },
       { id: 3, data: level3, name: level3.name, locked: !isLevelUnlocked(3) },
+      { id: 4, data: level4, name: level4.name, locked: !isLevelUnlocked(4) },
+      { id: 5, data: level5, name: level5.name, locked: !isLevelUnlocked(5) },
       // Añade más niveles aquí siguiendo el patrón
       // { id: 4, data: level4, name: level4.name, locked: !isLevelUnlocked(4) },
     ];
