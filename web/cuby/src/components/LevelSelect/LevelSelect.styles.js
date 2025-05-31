@@ -67,12 +67,13 @@ export const LevelCard = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+  transition: transform 0.2s, background-color 0.3s, border-color 0.3s, box-shadow 0.2s ease;
   background-color: ${props => props.$locked ? 'rgba(50, 50, 50, 0.7)' : getActiveColor(props.$isInverted)};
   color: ${props => getInactiveColor(props.$isInverted)};
   cursor: ${props => props.$locked ? 'not-allowed' : 'pointer'};
   filter: ${props => props.$locked ? 'grayscale(50%)' : 'none'};
   opacity: ${props => props.$locked ? 0.7 : 1}; /* Slightly more faded when locked */
+  outline: none; // Removemos el outline por defecto para usar uno personalizado
   ${props =>
     !props.$locked &&
     props.$isLastAvailable &&
@@ -89,6 +90,24 @@ export const LevelCard = styled.div`
       css`
         animation: ${hoverShake} 0.5s ease-in-out; // Aplicamos la nueva animación
       `}
+  }
+
+  // Estilo de focus para accesibilidad en cartas de nivel no bloqueadas
+  &:focus {
+    ${props => !props.$locked && css`
+      box-shadow: 0 0 0 3px ${getActiveColor(props.$isInverted)}50;
+      transform: scale(1.02);
+    `}
+  }
+
+  // Focus visible para navegación por teclado
+  &:focus-visible {
+    ${props => !props.$locked && css`
+      box-shadow: 0 0 0 3px ${getActiveColor(props.$isInverted)}70;
+      outline: 2px solid ${getActiveColor(props.$isInverted)};
+      outline-offset: 2px;
+      transform: scale(1.02);
+    `}
   }
 
   .level-number {
@@ -121,14 +140,29 @@ const TopButton = styled.button`
   font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   font-family: 'Excalifont';
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.3s, color 0.3s;
+  transition: transform 0.2s, background-color 0.3s, color 0.3s, box-shadow 0.2s ease;
   z-index: 10;
   box-sizing: border-box;
+  outline: none; // Removemos el outline por defecto para usar uno personalizado
 
   &:hover {
     transform: scale(1.05);
     background-color: ${props => getActiveColor(props.$isInverted)};
     color: ${props => getInactiveColor(props.$isInverted)};
+  }
+
+  // Estilo de focus para accesibilidad - indicador visual claro
+  &:focus {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}50;
+    transform: scale(1.02);
+  }
+
+  // Focus visible para navegación por teclado
+  &:focus-visible {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}70;
+    outline: 2px solid ${props => getActiveColor(props.$isInverted)};
+    outline-offset: 2px;
+    transform: scale(1.02);
   }
 `;
 
@@ -141,6 +175,19 @@ export const UserLevelsButton = styled(TopButton)`
   &:hover {
     transform: scale(1.05);
     animation-play-state: paused;
+  }
+
+  // Mantener los estilos de focus del TopButton pero ajustar la transformación para consistencia con hover
+  &:focus {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}50;
+    transform: scale(1.02);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}70;
+    outline: 2px solid ${props => getActiveColor(props.$isInverted)};
+    outline-offset: 2px;
+    transform: scale(1.02);
   }
 
   @media (max-width: 600px) {

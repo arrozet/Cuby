@@ -19,12 +19,14 @@ const ControlButton = ({ controlKey, isInverted, changingControl, onClick, displ
     display.toLowerCase() === 'space';
 
   const ButtonComponent = isSpacebar ? SpacebarButton : KeyButton;
-  
-  return (
+    return (
     <ButtonComponent
       $isInverted={isInverted}
       $isChanging={changingControl === controlKey}
       onClick={() => onClick?.(controlKey)}
+      tabIndex="0"
+      role="button"
+      aria-label={`Cambiar tecla de ${display}`}
     >
       {display}
     </ButtonComponent>

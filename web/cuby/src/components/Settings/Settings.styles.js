@@ -70,7 +70,7 @@ export const VolumeSlider = styled.input.attrs({ type: 'range' })`
   border: 2px solid ${props => getActiveColor(props.$isInverted)}; 
   outline: none;
   opacity: 0.8;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, box-shadow 0.2s ease;
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
@@ -79,6 +79,19 @@ export const VolumeSlider = styled.input.attrs({ type: 'range' })`
     opacity: 1;
   }
 
+  // Estilo de focus para accesibilidad - indicador visual claro
+  &:focus {
+    opacity: 1;
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}40;
+    border-color: ${props => getActiveColor(props.$isInverted)};
+  }
+
+  // Focus visible para navegación por teclado
+  &:focus-visible {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}60;
+    outline: 2px solid ${props => getActiveColor(props.$isInverted)};
+    outline-offset: 2px;
+  }
   // Estilo del "pulgar" (handle) del slider para Webkit (Chrome, Safari)
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -89,6 +102,13 @@ export const VolumeSlider = styled.input.attrs({ type: 'range' })`
     background: ${props => getActiveColor(props.$isInverted)}; // Color principal
     border: 2px solid ${props => getInactiveColor(props.$isInverted)}; // Borde con color de fondo
     cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  // Estilo mejorado del pulgar en focus
+  &:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}40;
+    transform: scale(1.1);
   }
 
   // Estilo del "pulgar" para Firefox
@@ -99,6 +119,13 @@ export const VolumeSlider = styled.input.attrs({ type: 'range' })`
     background: ${props => getActiveColor(props.$isInverted)};
     border: 2px solid ${props => getInactiveColor(props.$isInverted)};
     cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  // Estilo mejorado del pulgar en focus para Firefox
+  &:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}40;
+    transform: scale(1.1);
   }
 `;
 
@@ -166,16 +193,33 @@ export const KeyButton = styled.div`
   padding: 5px;
   text-align: center;
   word-break: break-word; // Permite romper palabras largas (aunque raro para teclas)
-  transition: background-color 0.2s, transform 0.1s, border-color 0.3s, color 0.3s;
+  transition: background-color 0.2s, transform 0.1s, border-color 0.3s, color 0.3s, box-shadow 0.2s ease;
   /* Aplicar animación de parpadeo si $isChanging es true */
   animation: ${props => props.$isChanging ? blink : 'none'} 1s ease-in-out infinite;
+  outline: none; // Removemos el outline por defecto para usar uno personalizado
 
   &:hover {
     background-color: ${props => getActiveColor(props.$isInverted)}33; // Más opaco al pasar el ratón
   }
-   &:active {
-     transform: scale(0.95); // Efecto de clic
-   }
+
+  &:active {
+    transform: scale(0.95); // Efecto de clic
+  }
+
+  // Estilo de focus para accesibilidad - indicador visual claro
+  &:focus {
+    background-color: ${props => getActiveColor(props.$isInverted)}40;
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}50;
+    border-color: ${props => getActiveColor(props.$isInverted)};
+  }
+
+  // Focus visible para navegación por teclado
+  &:focus-visible {
+    background-color: ${props => getActiveColor(props.$isInverted)}40;
+    box-shadow: 0 0 0 3px ${props => getActiveColor(props.$isInverted)}60;
+    outline: 2px solid ${props => getActiveColor(props.$isInverted)};
+    outline-offset: 2px;
+  }
 `;
 
 // Botón para la barra espaciadora (más ancho)

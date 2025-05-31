@@ -45,14 +45,17 @@ const ElementsSidebar = ({
                         <div style={{ marginBottom: '10px' }}>
                             <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Ancho: {platformSize.width}px
-                            </label>
-                            <input
+                            </label>                            <input
                                 id="platformWidth"
                                 type="range"
                                 min="20"
                                 max="500"
                                 value={platformSize.width}
                                 onChange={(e) => onPlatformSizeChange({ ...platformSize, width: Number(e.target.value) })}
+                                aria-valuemin="20"
+                                aria-valuemax="500"
+                                aria-valuenow={platformSize.width}
+                                aria-labelledby="platformWidth"
                                 style={{
                                     width: '100%',
                                     accentColor: activeColor,
@@ -63,14 +66,17 @@ const ElementsSidebar = ({
                         <div>
                             <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Alto: {platformSize.height}px
-                            </label>
-                            <input
+                            </label>                            <input
                                 id="platformHeight"
                                 type="range"
                                 min="10"
                                 max="500"
                                 value={platformSize.height}
                                 onChange={(e) => onPlatformSizeChange({ ...platformSize, height: Number(e.target.value) })}
+                                aria-valuemin="10"
+                                aria-valuemax="500"
+                                aria-valuenow={platformSize.height}
+                                aria-labelledby="platformHeight"
                                 style={{
                                     width: '100%',
                                     accentColor: activeColor,

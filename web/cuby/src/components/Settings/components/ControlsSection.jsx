@@ -118,12 +118,14 @@ const ControlsSection = () => {
             display={keyMapping.right.display}
           />
         </ControlGroup>
-      </ControlsRow>
-
-      <ResetControlsButton
-        onClick={resetKeyMapping}
-        $isInverted={isInverted}
-      >
+      </ControlsRow>      
+        <ResetControlsButton
+          onClick={resetKeyMapping}
+          $isInverted={isInverted}
+          tabIndex="0"
+          role="button"
+          aria-label="Restablecer controles a valores predeterminados"
+        >
         Restablecer controles predeterminados
       </ResetControlsButton>
     </StyledControlsSection>

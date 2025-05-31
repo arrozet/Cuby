@@ -44,21 +44,22 @@ const Settings = () => {
         
         {/* Sección de sonido */}
         <Section>
-          <SectionTitle $isInverted={isInverted} id="sonido">Sonido</SectionTitle>
-          <VolumeSlider 
-            id="sonido"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            $isInverted={isInverted}
-            aria-labelledby="sonido"
-            aria-valuemin="0"
-            aria-valuemax="1"
-            aria-valuenow={volume}
-          />        
+          <SectionTitle $isInverted={isInverted} id="sonido">Sonido</SectionTitle>          
+            <VolumeSlider 
+              id="sonido"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              $isInverted={isInverted}
+              aria-labelledby="sonido"
+              aria-valuemin="0"
+              aria-valuemax="1"
+              aria-valuenow={volume}
+              tabIndex="0"
+            />
         </Section>
         
         {/* Sección de controles - Solo mostrar en escritorio */}
