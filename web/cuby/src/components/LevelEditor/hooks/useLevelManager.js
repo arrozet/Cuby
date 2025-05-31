@@ -8,7 +8,7 @@ const LOGICAL_LEVEL_WIDTH = 1200;
 const LOGICAL_LEVEL_HEIGHT = 800;
 
 // Constante para alternar entre exportación/importación encriptada o en JSON plano (solo para desarrolladores)
-const USE_JSON_EXPORT = true; // Cambia a true para usar JSON plano
+const USE_JSON_EXPORT = false; // Cambia a true para usar JSON plano
 
 /**
  * Hook personalizado para gestionar la carga, guardado, importación y exportación de niveles.

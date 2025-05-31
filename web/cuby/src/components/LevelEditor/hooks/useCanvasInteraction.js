@@ -442,7 +442,7 @@ export const useCanvasInteraction = ({
             }
             setPreviewElement(null);
         }
-    }, [previewElement, editorMode, selectedElement, level, setLevel, setHasUnsavedChanges, setPreviewElement, isSelectingPortalDestination, pendingPortal, setIsSelectingPortalDestination, setPendingPortal, setPortalCounter]);
+    }, [previewElement, editorMode, selectedElement, level, setLevel, setHasUnsavedChanges, setPreviewElement, isSelectingPortalDestination, pendingPortal, setIsSelectingPortalDestination, setPendingPortal, setPortalCounter, isInverted, platformSize.dualColor]);
 
     // Devuelve los manejadores para que el componente LevelEditor los pueda usar en el EditorCanvas.
     return {
