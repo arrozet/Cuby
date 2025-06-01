@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerContainer } from './Player.styles';
+import { PlayerContainer, Eye } from './Player.styles';
 import { useInversion } from '../../context/InversionContext';
 
 /**
@@ -25,7 +25,10 @@ const Player = ({ x, y, size }) => {
       y={y}
       size={size}
       $isInverted={isInverted}
-    />
+    >
+      <Eye $isInverted={isInverted} />
+      <Eye $isInverted={isInverted} />
+    </PlayerContainer>
   );
 };
 

@@ -1,5 +1,14 @@
-import styled from 'styled-components';
-import { getActiveColor } from '../../utils/colors';
+import styled, { keyframes } from 'styled-components';
+import { getActiveColor, getInactiveColor } from '../../utils/colors';
+
+const blink = keyframes`
+  0%, 95%, 100% {
+    transform: translateY(-50%) scaleY(1);
+  }
+  97.5% {
+    transform: translateY(-50%) scaleY(0.1);
+  }
+`;
 
 export const PlayerContainer = styled.div.attrs(props => ({
   style: {
@@ -13,4 +22,26 @@ export const PlayerContainer = styled.div.attrs(props => ({
   position: absolute;
   transition: background-color 0.3s;
   z-index: 10;
+`;
+
+export const Eye = styled.div.attrs(props => ({
+  style: {
+    backgroundColor: getInactiveColor(props.$isInverted)
+  }
+}))`
+  width: 8px;
+  height: 8px;
+  transition: background-color 0.3s;
+  position: absolute;
+  top: 35%;
+  transform: translateY(-50%);
+  animation: ${blink} 5s infinite;
+  
+  &:first-child {
+    left: 20%;
+  }
+  
+  &:last-child {
+    right: 20%;
+  }
 `;
