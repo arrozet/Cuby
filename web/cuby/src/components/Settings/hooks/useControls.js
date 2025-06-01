@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useInversion } from '../../../context/InversionContext';
 import { useSettings } from '../../../context/SettingsContext';
 
@@ -7,7 +7,7 @@ import { useSettings } from '../../../context/SettingsContext';
  * @returns {Object} Controls state and handlers
  */
 export const useControls = () => {
-  const { isInverted, toggleInversion } = useInversion();
+  const { isInverted } = useInversion();
   const { 
     keyMapping, 
     changingControl, 
