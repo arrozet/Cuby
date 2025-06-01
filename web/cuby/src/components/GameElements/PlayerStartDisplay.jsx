@@ -1,5 +1,5 @@
 import React from 'react';
-import { getActiveColor, getInactiveColor } from '../../utils/colors';
+import { getActiveColor } from '../../utils/colors';
 
 const PlayerStartDisplay = ({ x, y, $isInverted }) => {
   const playerSize = 40; // Como lo tenías en LevelEditor.jsx
