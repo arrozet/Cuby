@@ -311,32 +311,33 @@ export const SpikeIconContainer = styled.div`
 `;
 
 export const SpikeIconShape = styled.div`
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 20px solid ${props => props.$fillColor};
+  width: 20px;
+  height: 10px;
   position: relative;
-  &::after {
+  background-color: ${props => props.$fillColor};
+  margin-top: 5px;
+  
+  &:before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -10px;
+    top: -10px;
+    left: 0;
     width: 0;
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 20px solid ${props => props.$outlineColor};
-    z-index: -1;
+    border-bottom: 10px solid ${props => props.$fillColor};
+    z-index: 1;
   }
 `;
 
 export const TrampolineIcon = styled.div`
-  width: 30px;
-  height: 15px;
+  width: 20px;
+  height: 10px;
   background-color: ${props => props.color};
-  border-radius: 15px 15px 0 0;
+  border-radius: 10px 10px 0 0;
   border: 1px solid ${props => props.$borderColor};
+  margin-top: 5px;
 `;
 
 export const PortalIconVisual = styled.div`

@@ -15,6 +15,21 @@ import {
 } from './LevelEditor.styles';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
+const DualColorOption = ({ activeColor, platformSize, onPlatformSizeChange }) => (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+        <input
+            type="checkbox"
+            id="dualColor"
+            checked={!!platformSize.dualColor}
+            onChange={e => onPlatformSizeChange({ ...platformSize, dualColor: e.target.checked })}
+            style={{ marginRight: '8px' }}
+        />
+        <label htmlFor="dualColor" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
+            Colocar en ambos colores
+        </label>
+    </div>
+);
+
 const ElementsSidebar = ({
     selectedElement,
     onSelectElement,
@@ -40,12 +55,13 @@ const ElementsSidebar = ({
                 {selectedElement === 'platform' && (
                     <div style={{ marginTop: '10px', marginBottom: '10px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
                         <h3 style={{ color: activeColor, marginBottom: '10px', fontSize: '16px' }}>
-                            Tamaño Plataforma
+                            Tamaño de plataforma
                         </h3>
                         <div style={{ marginBottom: '10px' }}>
                             <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Ancho: {platformSize.width}px
-                            </label>                            <input
+                            </label>
+                            <input
                                 id="platformWidth"
                                 type="range"
                                 min="20"
@@ -66,7 +82,8 @@ const ElementsSidebar = ({
                         <div>
                             <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Alto: {platformSize.height}px
-                            </label>                            <input
+                            </label>
+                            <input
                                 id="platformHeight"
                                 type="range"
                                 min="10"
@@ -84,6 +101,13 @@ const ElementsSidebar = ({
                                 }}
                             />
                         </div>
+                        <div style={{ marginTop: '10px' }}>
+                            <DualColorOption 
+                                activeColor={activeColor}
+                                platformSize={platformSize}
+                                onPlatformSizeChange={onPlatformSizeChange}
+                            />
+                        </div>
                     </div>
                 )}
                 <ElementButton
@@ -96,6 +120,15 @@ const ElementsSidebar = ({
                     </SpikeIconContainer>
                     Pico
                 </ElementButton>
+                {selectedElement === 'spike' && (
+                    <div style={{ marginTop: '10px', marginBottom: '10px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
+                        <DualColorOption 
+                            activeColor={activeColor}
+                            platformSize={platformSize}
+                            onPlatformSizeChange={onPlatformSizeChange}
+                        />
+                    </div>
+                )}
                 <ElementButton
                     $isSelected={selectedElement === 'trampoline'}
                     onClick={() => onSelectElement('trampoline')}
@@ -104,6 +137,15 @@ const ElementsSidebar = ({
                     <TrampolineIcon color={activeColor} $borderColor={inactiveColor} />
                     Trampolín
                 </ElementButton>
+                {selectedElement === 'trampoline' && (
+                    <div style={{ marginTop: '10px', marginBottom: '10px', padding: '10px', border: `1px solid ${activeColor}50`, borderRadius: '5px' }}>
+                        <DualColorOption 
+                            activeColor={activeColor}
+                            platformSize={platformSize}
+                            onPlatformSizeChange={onPlatformSizeChange}
+                        />
+                    </div>
+                )}
                 <ElementButton
                     $isSelected={selectedElement === 'portal'}
                     onClick={() => onSelectElement('portal')}
@@ -128,23 +170,9 @@ const ElementsSidebar = ({
                     $isInverted={$isInverted}
                 >
                     <PlayerStartIcon color={activeColor} />
-                    Inicio Jugador
+                    Inicio del jugador
                 </ElementButton>
             </ElementsContainer>
-            {['platform', 'trampoline', 'spike'].includes(selectedElement) && (
-                <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center' }}>
-                    <input
-                        type="checkbox"
-                        id="dualColor"
-                        checked={!!platformSize.dualColor}
-                        onChange={e => onPlatformSizeChange({ ...platformSize, dualColor: e.target.checked })}
-                        style={{ marginRight: '8px' }}
-                    />
-                    <label htmlFor="dualColor" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
-                        Colocar en ambos colores
-                    </label>
-                </div>
-            )}
         </EditorSidebar>
     );
 };
