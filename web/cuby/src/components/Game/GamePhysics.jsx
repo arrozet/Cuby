@@ -155,20 +155,17 @@ export const useGamePhysics = (
       if (oldX !== currentLevel.playerStart.x || oldY !== currentLevel.playerStart.y) {
         // Notificar muerte y esperar a que termine la explosión antes de reiniciar
         onPlayerDeath && onPlayerDeath(oldX, oldY);
-        // No reiniciar inmediatamente, esperar a que la explosión termine
-        setTimeout(() => {
-          // Reset player state fully
-          player.x = playerCollider.x;
-          player.y = playerCollider.y;
-          player.vx = 0;
-          player.vy = 0;
-          player.isOnGround = false;
-          player.canJump = true; // Allow jump immediately after reset
-          player.coyoteTimeCounter = 0;
-          player.jumpBufferCounter = 0;
-          // Update render state immediately for reset
-          setPlayerRenderState({ ...player });
-        }, 0); 
+        // Reset player state fully
+        player.x = playerCollider.x;
+        player.y = playerCollider.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.isOnGround = false;
+        player.canJump = true; // Allow jump immediately after reset
+        player.coyoteTimeCounter = 0;
+        player.jumpBufferCounter = 0;
+        // Update render state immediately for reset
+        setPlayerRenderState({ ...player });
         return; // Skip rest of the tick after reset
       }
     }
@@ -202,19 +199,16 @@ export const useGamePhysics = (
     if (player.y > BASE_GAME_HEIGHT + 200) { // Reset if fallen far below screen
       // Notificar muerte solo si cayó fuera del nivel
       onPlayerDeath && onPlayerDeath(player.x, player.y);
-      // No reiniciar inmediatamente, esperar a que la explosión termine
-      setTimeout(() => {
-        // Reset player state fully
-        player.x = currentLevel.playerStart.x;
-        player.y = currentLevel.playerStart.y;
-        player.vx = 0;
-        player.vy = 0;
-        player.isOnGround = false;
-        player.canJump = true;
-        player.coyoteTimeCounter = 0;
-        player.jumpBufferCounter = 0;
-        setPlayerRenderState({ ...player }); // Update render state
-      }, 400); // Reducido a 400ms (200ms de explosión + 200ms de espera)
+      // Reset player state fully
+      player.x = currentLevel.playerStart.x;
+      player.y = currentLevel.playerStart.y;
+      player.vx = 0;
+      player.vy = 0;
+      player.isOnGround = false;
+      player.canJump = true;
+      player.coyoteTimeCounter = 0;
+      player.jumpBufferCounter = 0;
+      setPlayerRenderState({ ...player }); // Update render state
       return; // Skip rest of tick
     }
 
