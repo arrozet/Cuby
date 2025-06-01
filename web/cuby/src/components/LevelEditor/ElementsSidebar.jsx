@@ -19,12 +19,12 @@ const DualColorOption = ({ activeColor, platformSize, onPlatformSizeChange }) =>
     <div style={{ display: 'flex', alignItems: 'center' }}>
         <input
             type="checkbox"
-            id="dualColor"
+            id="Colocar en ambos colores"
             checked={!!platformSize.dualColor}
             onChange={e => onPlatformSizeChange({ ...platformSize, dualColor: e.target.checked })}
             style={{ marginRight: '8px' }}
         />
-        <label htmlFor="dualColor" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
+        <label htmlFor="Colocar en ambos colores" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
             Colocar en ambos colores
         </label>
     </div>
@@ -62,7 +62,7 @@ const ElementsSidebar = ({
                                 Ancho: {platformSize.width}px
                             </label>
                             <input
-                                id="platformWidth"
+                                id="Anchura de plataforma"
                                 type="range"
                                 min="20"
                                 max="500"
@@ -71,7 +71,7 @@ const ElementsSidebar = ({
                                 aria-valuemin="20"
                                 aria-valuemax="500"
                                 aria-valuenow={platformSize.width}
-                                aria-labelledby="platformWidth"
+                                aria-labelledby="Anchura de plataforma"
                                 style={{
                                     width: '100%',
                                     accentColor: activeColor,
@@ -84,7 +84,7 @@ const ElementsSidebar = ({
                                 Alto: {platformSize.height}px
                             </label>
                             <input
-                                id="platformHeight"
+                                id="Altura de plataforma"
                                 type="range"
                                 min="10"
                                 max="500"
@@ -93,7 +93,7 @@ const ElementsSidebar = ({
                                 aria-valuemin="10"
                                 aria-valuemax="500"
                                 aria-valuenow={platformSize.height}
-                                aria-labelledby="platformHeight"
+                                aria-labelledby="Altura de plataforma"
                                 style={{
                                     width: '100%',
                                     accentColor: activeColor,

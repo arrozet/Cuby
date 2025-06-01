@@ -52,7 +52,7 @@ export const processTrampolineCollisions = (player, trampolines, isInverted) => 
   trampolines.forEach(trampoline => {
     if (isElementActive(trampoline.color, isInverted)) {
       const playerBottom = player.y + player.height;
-      const playerTop = player.y;
+      //const playerTop = player.y;
       const playerLeft = player.x;
       const playerRight = player.x + player.width;
 
@@ -65,7 +65,6 @@ export const processTrampolineCollisions = (player, trampolines, isInverted) => 
 
       // Check if player's bottom is aligned with or slightly above the trampoline top
       const tolerance = 5; // Allow slight vertical overlap or gap
-      const isVerticallyAligned = playerBottom >= trampolineTop - tolerance && playerTop < trampolineTop + tolerance;
 
       // --- MODIFIED COLLISION LOGIC ---
       // Check if player collides with the trampoline at all (AABB check)

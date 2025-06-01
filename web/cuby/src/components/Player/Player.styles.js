@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { getActiveColor, getInactiveColor } from '../../utils/colors';
 
 const blink = keyframes`
