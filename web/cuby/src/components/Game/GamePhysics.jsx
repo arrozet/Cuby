@@ -41,7 +41,8 @@ export const useGamePhysics = (
   setHasWon,
   markLevelAsCompleted,
   levelId,
-  isLoading
+  isLoading,
+  onPlayerDeath
 ) => {  // Game physics tick function to be used in the game loop
   const gamePhysicsTick = (deltaTime) => {
     if (!currentLevel || hasWon || isLoading) return;
@@ -140,6 +141,8 @@ export const useGamePhysics = (
     // Pass the playerCollider with the latest position
     playerCollider.x = player.x;
     playerCollider.y = player.y;
+    const oldX = player.x;
+    const oldY = player.y;
     processObstacleCollisions(
       playerCollider,
       currentLevel.obstacles,
@@ -148,18 +151,26 @@ export const useGamePhysics = (
     );
     // Check if position was reset
     if (playerCollider.x === currentLevel.playerStart.x && playerCollider.y === currentLevel.playerStart.y) {
-      // Reset player state fully
-      player.x = playerCollider.x;
-      player.y = playerCollider.y;
-      player.vx = 0;
-      player.vy = 0;
-      player.isOnGround = false;
-      player.canJump = true; // Allow jump immediately after reset
-      player.coyoteTimeCounter = 0;
-      player.jumpBufferCounter = 0;
-      // Update render state immediately for reset
-      setPlayerRenderState({ ...player });
-      return; // Skip rest of the tick after reset
+      // Notificar muerte solo si la posición cambió por colisión con obstáculo
+      if (oldX !== currentLevel.playerStart.x || oldY !== currentLevel.playerStart.y) {
+        // Notificar muerte y esperar a que termine la explosión antes de reiniciar
+        onPlayerDeath && onPlayerDeath(oldX, oldY);
+        // No reiniciar inmediatamente, esperar a que la explosión termine
+        setTimeout(() => {
+          // Reset player state fully
+          player.x = playerCollider.x;
+          player.y = playerCollider.y;
+          player.vx = 0;
+          player.vy = 0;
+          player.isOnGround = false;
+          player.canJump = true; // Allow jump immediately after reset
+          player.coyoteTimeCounter = 0;
+          player.jumpBufferCounter = 0;
+          // Update render state immediately for reset
+          setPlayerRenderState({ ...player });
+        }, 0); 
+        return; // Skip rest of the tick after reset
+      }
     }
 
     // Portals (check final position for frame)
@@ -189,16 +200,21 @@ export const useGamePhysics = (
     if (player.y < 0) { player.y = 0; if(player.vy < 0) player.vy = 0; } // Stop velocity at boundary
     // Optional: Reset if falls too far
     if (player.y > BASE_GAME_HEIGHT + 200) { // Reset if fallen far below screen
-      // Reset player state fully
-      player.x = currentLevel.playerStart.x;
-      player.y = currentLevel.playerStart.y;
-      player.vx = 0;
-      player.vy = 0;
-      player.isOnGround = false;
-      player.canJump = true;
-      player.coyoteTimeCounter = 0;
-      player.jumpBufferCounter = 0;
-      setPlayerRenderState({ ...player }); // Update render state
+      // Notificar muerte solo si cayó fuera del nivel
+      onPlayerDeath && onPlayerDeath(player.x, player.y);
+      // No reiniciar inmediatamente, esperar a que la explosión termine
+      setTimeout(() => {
+        // Reset player state fully
+        player.x = currentLevel.playerStart.x;
+        player.y = currentLevel.playerStart.y;
+        player.vx = 0;
+        player.vy = 0;
+        player.isOnGround = false;
+        player.canJump = true;
+        player.coyoteTimeCounter = 0;
+        player.jumpBufferCounter = 0;
+        setPlayerRenderState({ ...player }); // Update render state
+      }, 400); // Reducido a 400ms (200ms de explosión + 200ms de espera)
       return; // Skip rest of tick
     }
 

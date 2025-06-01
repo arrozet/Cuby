@@ -22,7 +22,8 @@ const GameRenderer = ({
   handleBackToLevels, 
   navigateToNextLevel,
   isLastLevel,
-  restartGame
+  restartGame,
+  onPlayerDeath
 }) => {
   const [scale, setScale] = useState(1); // State for scale factor
   const [gamePos, setGamePos] = useState({ top: 0, left: 0 }); // State for centering offset
@@ -85,19 +86,18 @@ const GameRenderer = ({
         }}
       >
         <Level
-          // Level uses base dimensions internally for element placement
           width={BASE_GAME_WIDTH}
           height={BASE_GAME_HEIGHT}
           level={currentLevel}
-          // Context handles inversion within Level and its elements
+          isInverted={isInverted}
         />
         <Player
-          x={playerRenderState.x} // Use render state
-          y={playerRenderState.y} // Use render state
+          x={playerRenderState.x}
+          y={playerRenderState.y}
           size={PLAYER_SIZE}
-          // Context handles inversion within Player
-        />        {hasWon && (
-          // Pass inversion state to WinMessage for styling
+          onDeath={onPlayerDeath}
+        />
+        {hasWon && (
           <WinMessage $isInverted={isInverted}>
             <h2>¡Nivel completado!</h2>
             <div className="buttons-container">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GameWrapper } from './Game.styles';
 import Controls from '../UI/Control';
@@ -39,6 +39,7 @@ const Game = () => {
   });
   // State for React rendering
   const [playerRenderState, setPlayerRenderState] = useState(playerStateRef.current);
+
   // --- Game State Management ---
   // Use GameState hook to manage loading levels, winning, and restarting
   const {
@@ -167,8 +168,17 @@ const Game = () => {
     setHasWon,
     markLevelAsCompleted,
     levelId,
-    isLoading
+    isLoading,
+    (x, y) => {
+      // Esta función se llamará cuando el jugador muera
+      if (playerDeathHandler.current) {
+        playerDeathHandler.current(x, y);
+      }
+    }
   );
+
+  // Referencia para almacenar el manejador de muerte
+  const playerDeathHandler = useRef(null);
 
   // --- Restart on keypress ---
   useEffect(() => {
@@ -197,6 +207,9 @@ const Game = () => {
             navigateToNextLevel={navigateToNextLevel}
             isLastLevel={isLastLevel()}
             restartGame={restartGame}
+            onPlayerDeath={(handler) => {
+              playerDeathHandler.current = handler;
+            }}
           />
           <Controls />
           <MobileControls
