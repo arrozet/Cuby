@@ -43,7 +43,7 @@ const ElementsSidebar = ({
                             Tamaño Plataforma
                         </h3>
                         <div style={{ marginBottom: '10px' }}>
-                            <label htmlFor="platformWidth" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                            <label htmlFor="Anchura de plataforma" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Ancho: {platformSize.width}px
                             </label>                            <input
                                 id="platformWidth"
@@ -64,7 +64,7 @@ const ElementsSidebar = ({
                             />
                         </div>
                         <div>
-                            <label htmlFor="platformHeight" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                            <label htmlFor="Altura de plataforma" style={{ color: activeColor, display: 'block', marginBottom: '5px', fontSize: '14px' }}>
                                 Alto: {platformSize.height}px
                             </label>                            <input
                                 id="platformHeight"
@@ -140,7 +140,7 @@ const ElementsSidebar = ({
                         onChange={e => onPlatformSizeChange({ ...platformSize, dualColor: e.target.checked })}
                         style={{ marginRight: '8px' }}
                     />
-                    <label htmlFor="dualColor" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
+                    <label htmlFor="Colocar en ambos colores" style={{ color: activeColor, fontSize: '14px', userSelect: 'none', cursor: 'pointer' }}>
                         Colocar en ambos colores
                     </label>
                 </div>
