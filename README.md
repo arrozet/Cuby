@@ -3,7 +3,7 @@
 ## What is it about?
 Cuby is a minimalistic 2D platform game starring a black and white cube. The game consists of single-room levels, where a key mechanic is color inversion. The cube can switch between black and white, altering the room’s layout. In a world where perception is everything, Cuby's ability to invert colors reshapes reality itself: with every switch, new paths emerge, obstacles disappear... All to achieve the ultimate goal: reunite Cuby with the Cubo family, torn from its very vertices by the evil Tetrahedron Association. 
 
-## Team Members - Group I
+## Team members - Group I
 | Member | Email | Role | Description |
 |---------|----------------------------|-----|----------------------------------------------------------|
 | Rubén Oliva Zamora | rubenoliva@uma.es | CEO | General group leader, responsible for submissions to the virtual campus. |
@@ -11,6 +11,11 @@ Cuby is a minimalistic 2D platform game starring a black and white cube. The gam
 | Jorge Repullo Serrano | jorgers4@uma.es | CIO | Manages information and documentation research. |
 | Artur Vargas Carrion | arturvargas797@uma.es | COO | Responsible for planning and milestone tracking. |
 | Eduardo González Bautista | edugb@uma.es | CXO | Oversees usability aspects. |
+
+## Play Online
+
+You can play Cuby directly in your browser without any installation.
+Access it here: [https://arrozet.github.io/Cuby/](https://arrozet.github.io/Cuby/)
 
 ## How to install and run locally
 
